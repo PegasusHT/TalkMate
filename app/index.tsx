@@ -6,6 +6,7 @@ import HomeScreen from './screens/HomeScreen';
 import LearnScreen from './screens/LearnScreen';
 import DictionaryScreen from './screens/DictionaryScreen';
 import ProfileScreen from './screens/ProfileScreen';
+import CustomHeader from './components/common/CustomHeader';
 
 export type RootTabParamList = {
   Home: undefined;
@@ -56,6 +57,17 @@ const getTabBarLabel = (label: string) => {
 };
 
 export default function App() {
+
+  const handleGoalPress = () => {
+    // Implement goal modal logic here
+    console.log('Goal pressed');
+  };
+
+  const handleStreakPress = () => {
+    // Implement streak modal logic here
+    console.log('Streak pressed');
+  };
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -70,6 +82,13 @@ export default function App() {
         tabBarLabelStyle: {
           fontSize: 12,
         },
+        header: () => (
+          <CustomHeader
+            username="Jimmy"
+            onGoalPress={handleGoalPress}
+            onStreakPress={handleStreakPress}
+          />
+        ),
       })}
     >
       <Tab.Screen 
