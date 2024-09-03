@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, Image } from 'react-native';
 import { Mic, Pen } from 'lucide-react-native';
-const CustomIcon = require('../../assets/customIcon.png');
+const CustomIcon = require('@/assets/icons/customIcon.png');
 
 const CustomeScenarioFeature = () => {
   return (

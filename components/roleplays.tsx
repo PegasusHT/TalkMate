@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, Image } from 'react-native';
 import { Pencil, BookA } from 'lucide-react-native';
 
-const roleplayIcon = require('../../assets/roleplayIcon.png');
+const roleplayIcon = require('@/assets/icons/roleplayIcon.png');
 
 const RoleplayFeature = () => {
   return (

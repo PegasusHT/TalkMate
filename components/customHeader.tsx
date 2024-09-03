@@ -10,7 +10,7 @@ type CustomHeaderProps = {
 
 const CustomHeader: React.FC<CustomHeaderProps> = ({ username, onGoalPress, onStreakPress }) => {
   return (
-    <View className="flex-row justify-between items-center p-4 pt-20 bg-white">
+    <View className="flex-row justify-between items-center p-4 pt-16 bg-white">
       <View className="flex-row items-center">
         <Ionicons name="logo-octocat" size={30} color="blue" />
         <Text className="ml-2 text-lg font-semibold">Hi, {username}!</Text>

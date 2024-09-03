@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, Image } from 'react-native';
 import { Pencil, Book } from 'lucide-react-native';
 
-const ChatIcon = require('../../assets/chatIcon.png');
+const ChatIcon = require('@/assets/icons/chatIcon.png');
 
 const ChatFeature = () => {
   return (

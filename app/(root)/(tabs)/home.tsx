@@ -1,10 +1,10 @@
 import React from 'react';
 import { ScrollView,View, Text } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { RootTabParamList } from './types'; 
-import ChatFeature from '../components/home/ChatFeature';
-import RoleplayFeature from '../components/home/Roleplay';
-import CustomeScenarioFeature from '../components/home/CustomScenario';
+import { RootTabParamList } from '@/types/types'; 
+import ChatFeature from '@/components/chat';
+import RoleplayFeature from '@/components/roleplays';
+import CustomeScenarioFeature from '@/components/customScenario';
 
 type Props = NativeStackScreenProps<RootTabParamList, 'Home'>;
 
