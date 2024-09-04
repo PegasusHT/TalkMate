@@ -1,16 +1,14 @@
-import { Stack } from 'expo-router';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { Stack } from 'expo-router';
 
-const Layout = () => {
+const ChatLayout = () => {
   return (
-    <GestureHandlerRootView>
+    <GestureHandlerRootView style={{ flex: 1 }}>
       <Stack>
         <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="chat" options={{ headerShown: false }} />
       </Stack>
     </GestureHandlerRootView>
-   
   );
-}
+};
 
-export default Layout;
+export default ChatLayout;
