@@ -1,9 +1,10 @@
 import { useState, useCallback, useRef } from 'react';
 import Constants from 'expo-constants';
 import { ChatMessage } from '@/types/chat';
+import { Audio } from 'expo-av';
 
 const BACKEND_URL = Constants.expoConfig?.extra?.BACKEND_URL?.dev || '';
-
+const AI_BACKEND_URL = Constants.expoConfig?.extra?.AI_BACKEND_URL.dev || '';
 const MAX_TOKENS = 4000;
 
 export const useChatSession = () => {
@@ -15,6 +16,9 @@ export const useChatSession = () => {
   const [currentFeedback, setCurrentFeedback] = useState<ChatMessage | null>(null);
   const hasInitialized = useRef(false);
   const [showTopics, setShowTopics] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const recordingObject = useRef<Audio.Recording | null>(null);
+  const [isProcessingAudio, setIsProcessingAudio] = useState(false);
 
   const estimateTokens = (text: string) => {
     return text.split(/\s+/).length;
@@ -80,9 +84,84 @@ export const useChatSession = () => {
     }
   }, [message, sendMessage]);
 
-  const handleMicPress = useCallback(() => {
-    // TODO: Implement voice input functionality
+  const handleMicPress = useCallback(async () => {
+    try {
+      const { status } = await Audio.requestPermissionsAsync();
+      if (status !== 'granted') {
+        console.error('Permission to access microphone was denied');
+        return;
+      }
+
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: true,
+        playsInSilentModeIOS: true,
+      });
+
+      const { recording } = await Audio.Recording.createAsync(
+        Audio.RecordingOptionsPresets.HIGH_QUALITY
+      );
+
+      recordingObject.current = recording;
+      setIsRecording(true);
+    } catch (error) {
+      console.error('Failed to start recording', error);
+    }
   }, []);
+
+  const stopRecording = useCallback(async () => {
+    if (!recordingObject.current) return;
+
+    try {
+      await recordingObject.current.stopAndUnloadAsync();
+      setIsRecording(false);
+    } catch (error) {
+      console.error('Failed to stop recording', error);
+    }
+  }, []);
+
+  const sendAudio = useCallback(async () => {
+    if (!recordingObject.current) return;
+
+    try {
+      setIsProcessingAudio(true);
+      await recordingObject.current.stopAndUnloadAsync();
+      const uri = recordingObject.current.getURI();
+      if (!uri) throw new Error('No recording URI found');
+
+      const formData = new FormData();
+      formData.append('files', {
+        uri,
+        type: 'audio/wav',
+        name: 'audio.wav',
+      } as any);
+
+      const response = await fetch(`${AI_BACKEND_URL}/whisper/`, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+
+      if (result.results && result.results.length > 0 && result.results[0].transcript) {
+        const transcribedText = result.results[0].transcript;
+        await sendMessage(transcribedText);
+      } else {
+        console.error('Unexpected response format:', result);
+      }
+    } catch (error) {
+      console.error('Failed to send audio', error);
+    } finally {
+      setIsProcessingAudio(false);
+      setIsRecording(false);
+    }
+  }, [sendMessage]);
 
   const initializeChat = useCallback(async () => {
     if (!isInitializing || hasInitialized.current) return;
@@ -130,8 +209,8 @@ export const useChatSession = () => {
     showTopics,
     sendMessage,
     handleSend,
-    handleMicPress,
-    initializeChat,
+    handleMicPress, isRecording, stopRecording, sendAudio,
+    initializeChat, isProcessingAudio,
     handleTopicSelect,
   };
 };

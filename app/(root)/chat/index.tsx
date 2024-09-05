@@ -7,25 +7,29 @@ import ChatMessage from '@/components/chat/ChatMessage';
 import FeedbackModal from '@/components/chat/FeedbackModal';
 import TopicSelector from '@/components/chat/TopicSelector';
 import { useChatSession } from '@/hooks/useChatSession';
-import TypingIndicator from '@/components/chat/TypingIndicator';
+import TypingIndicator from '@/components/chat/animation/TypingIndicator';
 
 const ChatSession: React.FC = () => {
-  const {
-    message,
-    setMessage,
-    chatHistory,
-    isTyping,
-    showFeedbackModal,
-    setShowFeedbackModal,
-    currentFeedback,
-    setCurrentFeedback,
-    showTopics,
-    sendMessage,
-    handleSend,
-    handleMicPress,
-    initializeChat,
-    handleTopicSelect,
-  } = useChatSession();
+    const {
+      message,
+      setMessage,
+      chatHistory,
+      isTyping,
+      showFeedbackModal,
+      setShowFeedbackModal,
+      currentFeedback,
+      setCurrentFeedback,
+      showTopics,
+      sendMessage,
+      handleSend,
+      handleMicPress,
+      isRecording,
+      stopRecording,
+      sendAudio,
+      initializeChat,
+      handleTopicSelect,
+      isProcessingAudio,
+    } = useChatSession();
 
   const flatListRef = useRef<FlatList>(null);
 
@@ -71,6 +75,10 @@ const ChatSession: React.FC = () => {
           setMessage={setMessage}
           handleSend={handleSend}
           handleMicPress={handleMicPress}
+          isRecording={isRecording}
+          stopRecording={stopRecording}
+          sendAudio={sendAudio}
+          isProcessingAudio={isProcessingAudio}
         />
       </KeyboardAvoidingView>
 
