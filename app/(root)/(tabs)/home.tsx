@@ -14,7 +14,7 @@ const HomeScreen: React.FC<Props> = () => {
       contentContainerStyle={{ flexGrow: 1 }}
       showsVerticalScrollIndicator={false}
     >
-      <View className="flex-1 justify-start items-center bg-slate-100 pt-12">
+      <View className="flex-1 justify-start items-center bg-slate-100 pt-8">
         <View className='w-full pl-4'>
           <Text className="text-3xl font-bold text-blue-600">
             Practice modes
