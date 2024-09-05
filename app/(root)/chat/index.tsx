@@ -5,7 +5,10 @@ import { View, Text, TextInput, TouchableOpacity, FlatList,
 import { ArrowLeft, MoreVertical, Send, Mic, Volume2, Check, AlertOctagon, ChevronRight } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { BACKEND_URL } from '@env';
+
+import Constants from 'expo-constants';
+
+const BACKEND_URL = Constants.expoConfig?.extra?.BACKEND_URL?.dev || '';
 
 const faceIcon = require('@/assets/icons/chat-face.png');
 
