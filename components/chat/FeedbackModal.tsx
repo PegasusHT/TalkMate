@@ -1,8 +1,13 @@
-// components/FeedbackModal.tsx
 import React from 'react';
 import { View, Text, Modal, TouchableOpacity } from 'react-native';
 import { ChevronRight } from 'lucide-react-native';
 import { ChatMessage } from '@/types/chat';
+import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+
+type RootStackParamList = {
+  'pronunciation-practice': { sentence: string };
+};
 
 type FeedbackModalProps = {
   isVisible: boolean;
@@ -12,7 +17,16 @@ type FeedbackModalProps = {
 };
 
 const FeedbackModal: React.FC<FeedbackModalProps> = ({ isVisible, onClose, feedback, originalMessage }) => {
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+
   if (!feedback) return null;
+
+  const handlePracticePronunciation = () => {
+    onClose();
+    navigation.navigate('pronunciation-practice', { 
+      sentence: feedback.correctedVersion 
+    });
+  };
 
   return (
     <Modal
@@ -41,9 +55,9 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ isVisible, onClose, feedb
               <Text>{feedback.explanation}</Text>
             </View>
             <View className='flex-1'/>
-            <TouchableOpacity onPress={onClose} className="bg-blue-500 p-4 rounded-full flex-row justify-center items-center">
+            <TouchableOpacity onPress={handlePracticePronunciation} className="bg-blue-500 p-4 rounded-full flex-row justify-center items-center">
               <Text className="text-white text-center font-bold mr-2">
-                Pronounce the improved message
+                Practice pronunciation
               </Text>
               <ChevronRight color="white" size={20} />
             </TouchableOpacity>

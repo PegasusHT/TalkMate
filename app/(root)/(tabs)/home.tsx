@@ -2,7 +2,7 @@ import React from 'react';
 import { ScrollView,View, Text } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootTabParamList } from '@/types/types'; 
-import ChatFeature from '@/components/chat';
+import ChatFeature from '@/components/chatPage';
 import RoleplayFeature from '@/components/roleplays';
 import CustomeScenarioFeature from '@/components/customScenario';
 

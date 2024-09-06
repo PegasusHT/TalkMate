@@ -5,7 +5,14 @@ const ChatLayout = () => {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <Stack>
-        <Stack.Screen name="index" options={{ headerShown: false }} />
+        <Stack.Screen name="Chat" options={{ headerShown: false }} />
+        <Stack.Screen 
+          name="pronunciation-practice" 
+          options={{ 
+            headerTitle: 'Pronunciation Practice',
+            headerShown: true,
+          }} 
+        />
       </Stack>
     </GestureHandlerRootView>
   );
