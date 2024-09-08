@@ -6,7 +6,7 @@ import { ChatMessage as ChatMessageType } from '@/types/chat';
 type ChatMessageProps = {
   item: ChatMessageType;
   onFeedbackPress: () => void;
-  onAudioPress: (messageId: number, text: string) => void;
+  onAudioPress: (messageId: number, text: string, audioUri?: string) => void;
   isPlaying: boolean;
   isAudioLoading: boolean;
 };
@@ -19,7 +19,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
   isAudioLoading 
 }) => {
   const handleAudioPress = () => {
-    onAudioPress(item.id, item.content);
+    onAudioPress(item.id, item.content, item.audioUri);
   };
 
   const renderAudioButton = () => {
@@ -51,16 +51,17 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
                 <Check size={22} color="#008000" />
               </TouchableOpacity>
             )}
-            <TouchableOpacity className="mr-2" onPress={handleAudioPress}>
-              {renderAudioButton()}
-            </TouchableOpacity>
+            {item.audioUri && (
+              <TouchableOpacity className="mr-2" onPress={handleAudioPress}>
+                {renderAudioButton()}
+              </TouchableOpacity>
+            )}
           </View>
         ) : null}
         <View className={`rounded-lg p-3 max-w-[80%] ${item.role === 'user' ? 'bg-blue-500' : 'bg-gray-200'}`}>
           <Text className={item.role === 'user' ? 'text-white' : 'text-black'}>{item.content}</Text>
         </View>
         {item.role === 'model' && (
-          
           <TouchableOpacity className="ml-2" onPress={handleAudioPress}>
             {renderAudioButton()}
           </TouchableOpacity>

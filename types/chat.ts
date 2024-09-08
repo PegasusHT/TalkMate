@@ -8,4 +8,5 @@ export type ChatMessage = {
       explanation: string;
     };
     isLoading?: boolean;
+    audioUri?: string;
   };

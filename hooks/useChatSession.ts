@@ -23,7 +23,7 @@ export const useChatSession = () => {
   const [isAudioLoading, setIsAudioLoading] = useState(false);
   const soundObject = useRef(new Audio.Sound());
 
-  const playAudio = useCallback(async (messageId: number, text: string) => {
+  const playAudio = useCallback(async (messageId: number, text: string, audioUri?: string) => {
     if (playingAudioId === messageId) {
       await stopAudio();
       return;
@@ -33,26 +33,34 @@ export const useChatSession = () => {
       setIsAudioLoading(true);
       await stopAudio();
 
-      const formData = new FormData();
-      formData.append('text', text);
+      if (audioUri) {
+        // Play user's recorded audio
+        await soundObject.current.unloadAsync();
+        await soundObject.current.loadAsync({ uri: audioUri });
+        await soundObject.current.playAsync();
+      } else {
+        // Play AI-generated audio
+        const formData = new FormData();
+        formData.append('text', text);
 
-      const response = await fetch(`${AI_BACKEND_URL}/tts/`, {
-        method: 'POST',
-        body: formData,
-      });
+        const response = await fetch(`${AI_BACKEND_URL}/tts/`, {
+          method: 'POST',
+          body: formData,
+        });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        const audioBase64 = data.audio;
+
+        const aiAudioUri = `data:audio/mp3;base64,${audioBase64}`;
+
+        await soundObject.current.unloadAsync();
+        await soundObject.current.loadAsync({ uri: aiAudioUri });
+        await soundObject.current.playAsync();
       }
-
-      const data = await response.json();
-      const audioBase64 = data.audio;
-
-      const audioUri = `data:audio/mp3;base64,${audioBase64}`;
-
-      await soundObject.current.unloadAsync();
-      await soundObject.current.loadAsync({ uri: audioUri });
-      await soundObject.current.playAsync();
 
       setPlayingAudioId(messageId);
 
@@ -221,7 +229,58 @@ export const useChatSession = () => {
   
       if (result.results && result.results.length > 0 && result.results[0].transcript) {
         const transcribedText = result.results[0].transcript;
-        await sendMessage(transcribedText);
+        const userMessage: ChatMessage = { 
+          role: 'user', 
+          content: transcribedText, 
+          id: Date.now(), 
+          audioUri: uri,
+          isLoading: true
+        };
+        
+        setChatHistory(prev => [...prev, userMessage]);
+        
+        setIsTyping(true);
+        setShowTopics(false);
+  
+        try {
+          const conversationHistory = trimConversationHistory([...chatHistory, userMessage]);
+          
+          const chatResponse = await fetch(`${BACKEND_URL}/chat`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ messages: conversationHistory }),
+          });
+  
+          if (!chatResponse.ok) {
+            throw new Error(`HTTP error! status: ${chatResponse.status}`);
+          }
+  
+          const data = await chatResponse.json();
+          let mateReply = 'Hi';
+          if (data && data.reply) {
+            mateReply = data.reply;
+          }
+  
+          const assistantMessage: ChatMessage = { role: 'model', content: mateReply, id: Date.now() };
+          
+          setChatHistory(prev => [
+            ...prev.slice(0, -1),
+            { ...userMessage, feedback: data.feedback, isLoading: false },
+            assistantMessage
+          ]);
+  
+          await autoPlayMessage(assistantMessage);
+        } catch (error) {
+          console.error('Error sending message:', error);
+          setChatHistory(prev => [
+            ...prev.slice(0, -1),
+            { ...userMessage, isLoading: false, feedback: { correctedVersion: '', explanation: 'Error occurred' } },
+          ]);
+        } finally {
+          setIsTyping(false);
+        }
       } else {
         console.error('Unexpected response format:', result);
       }
@@ -231,7 +290,7 @@ export const useChatSession = () => {
       setIsProcessingAudio(false);
       setIsRecording(false);
     }
-  }, [sendMessage, AI_BACKEND_URL]);
+  }, [chatHistory, autoPlayMessage, AI_BACKEND_URL, BACKEND_URL]);
 
   const initializeChat = useCallback(async () => {
     if (!isInitializing || hasInitialized.current) return;

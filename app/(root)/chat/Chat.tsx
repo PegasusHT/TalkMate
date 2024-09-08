@@ -8,6 +8,7 @@ import FeedbackModal from '@/components/chat/FeedbackModal';
 import TopicSelector from '@/components/chat/TopicSelector';
 import { useChatSession } from '@/hooks/useChatSession';
 import TypingIndicator from '@/components/chat/animation/TypingIndicator';
+import { ChatMessage as ChatMessageType } from '@/types/chat';
 
 const ChatSession: React.FC = () => {
   const {
@@ -36,7 +37,7 @@ const ChatSession: React.FC = () => {
     isAudioLoading,
   } = useChatSession();
 
-  const flatListRef = useRef<FlatList>(null);
+  const flatListRef = useRef<FlatList<ChatMessageType>>(null);
 
   useEffect(() => {
     initializeChat();
@@ -48,15 +49,11 @@ const ChatSession: React.FC = () => {
     }
   }, [chatHistory]);
 
-  const handleAudioPress = (messageId: number, text: string) => {
-    if (playingAudioId === messageId) {
-      stopAudio();
-    } else {
-      playAudio(messageId, text);
-    }
+  const handleAudioPress = (messageId: number, text: string, audioUri?: string) => {
+    playAudio(messageId, text, audioUri);
   };
 
-  const renderItem = ({ item }: { item: any }) => (
+  const renderItem = ({ item }: { item: ChatMessageType }) => (
     <ChatMessage 
       item={item} 
       onFeedbackPress={() => {
