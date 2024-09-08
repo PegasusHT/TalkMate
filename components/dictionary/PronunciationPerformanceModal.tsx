@@ -34,7 +34,6 @@ const PronunciationPerformanceModal: React.FC<PronunciationPerformanceModalProps
   useEffect(() => {
     return () => {
       if (sound) {
-        console.log('Unloading Sound');
         sound.unloadAsync();
       }
     };
@@ -50,29 +49,23 @@ const PronunciationPerformanceModal: React.FC<PronunciationPerformanceModalProps
   const onPlaybackStatusUpdate = useCallback((status: AVPlaybackStatus) => {
     if (status.isLoaded) {
       if (status.didJustFinish) {
-        console.log('Audio playback finished');
         setIsPlaying(false);
       }
     }
   }, []);
 
   const playRecordedAudio = useCallback(async () => {
-    console.log('Attempting to play audio');
-    console.log('Audio URI:', performanceData.audio_uri);
     if (performanceData.audio_uri) {
       try {
         if (sound) {
           if (isPlaying) {
-            console.log('Stopping audio');
             await sound.stopAsync();
             setIsPlaying(false);
           } else {
-            console.log('Playing existing audio');
             await sound.playFromPositionAsync(0);
             setIsPlaying(true);
           }
         } else {
-          console.log('Creating new sound object');
           const { sound: newSound } = await Audio.Sound.createAsync(
             { uri: performanceData.audio_uri },
             { shouldPlay: true },
@@ -179,7 +172,7 @@ const PronunciationPerformanceModal: React.FC<PronunciationPerformanceModalProps
           </ScrollView>
           <TouchableOpacity
             onPress={handleTryAgain}
-            className="bg-theme-500 p-4 rounded-full mt-4"
+            className="bg-theme-500 p-4 rounded-full mt-4 mb-8"
           >
             <Text className="text-white text-center font-bold">Try Again</Text>
           </TouchableOpacity>

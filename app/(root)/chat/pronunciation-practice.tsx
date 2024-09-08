@@ -27,6 +27,11 @@ type PerformanceData = {
   audio_uri?: string;
 };
 
+type PhoneticWord = {
+  word: string;
+  accuracy?: number;
+};
+
 const PronunciationPractice: React.FC = () => {
   const route = useRoute<PronunciationPracticeRouteProp>();
   const { sentence } = route.params;
@@ -36,7 +41,7 @@ const PronunciationPractice: React.FC = () => {
   const [showPerformanceModal, setShowPerformanceModal] = useState(false);
   const [sound, setSound] = useState<Audio.Sound | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [phonetic, setPhonetic] = useState<string | null>(null);
+  const [phoneticWords, setPhoneticWords] = useState<PhoneticWord[]>([]);
   const recordingObject = React.useRef<Audio.Recording | null>(null);
 
   useEffect(() => {
@@ -59,12 +64,20 @@ const PronunciationPractice: React.FC = () => {
 
       const result = await response.json();
       if (result && result.phonetic) {
-        setPhonetic(result.phonetic);
+        const words = result.phonetic.split(' ');
+        setPhoneticWords(words.map((word: string) => ({ word })));
       }
     } catch (error) {
       console.error('Failed to fetch phonetic', error);
       Alert.alert('Error', 'Failed to fetch phonetic transcription. Please try again.');
     }
+  };
+
+  const getColorForAccuracy = (accuracy: number | undefined) => {
+    if (accuracy === undefined) return 'text-gray-600';
+    if (accuracy >= 80) return 'text-green-500';
+    if (accuracy >= 60) return 'text-yellow-500';
+    return 'text-red-500';
   };
 
   const playSound = async (rate: number = 1.0) => {
@@ -138,7 +151,6 @@ const PronunciationPractice: React.FC = () => {
   
         let result = await response.json();
         
-        // Check if the result is a string (double-encoded JSON)
         if (typeof result === 'string') {
           try {
             result = JSON.parse(result);
@@ -153,6 +165,7 @@ const PronunciationPractice: React.FC = () => {
           } else {
             setPerformanceResult({ ...result, audio_uri: uri });
             setShowPerformanceModal(true);
+            updatePhoneticAccuracy(result.current_words_pronunciation_accuracy);
           }
         } else {
           throw new Error('Unexpected response format from the server');
@@ -185,18 +198,35 @@ const PronunciationPractice: React.FC = () => {
     }
   }, [isRecording, sentence]);
 
+  const updatePhoneticAccuracy = (accuracies: number[]) => {
+    setPhoneticWords(prevWords => 
+      prevWords.map((word, index) => ({
+        ...word,
+        accuracy: accuracies[index]
+      }))
+    );
+  };
+
   const handleTryAgain = () => {
     setShowPerformanceModal(false);
     setPerformanceResult(null);
+    setPhoneticWords(prevWords => prevWords.map(word => ({ word: word.word })));
   };
 
   return (
     <View className="flex-1 bg-white p-6 justify-between">
       <View className="flex-1 justify-start">
         <Text className="text-2xl font-bold mb-2 mt-4">{sentence}</Text>
-        {phonetic && (
-          <Text className="text-lg mb-4">/{phonetic}/</Text>
-        )}
+        <View className="flex-row flex-wrap mb-4">
+          {phoneticWords.map((phoneticWord, index) => (
+            <Text 
+              key={index} 
+              className={`text-lg mr-1 ${getColorForAccuracy(phoneticWord.accuracy)}`}
+            >
+              {phoneticWord.word}
+            </Text>
+          ))}
+        </View>
         <View className="flex-row justify-start space-x-4 mb-8">
           <TouchableOpacity onPress={() => playSound()} disabled={isPlaying}>
             <Volume2 color={isPlaying ? "gray" : "black"} size={24} />
