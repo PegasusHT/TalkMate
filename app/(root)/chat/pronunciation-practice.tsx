@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { Mic, Volume2, VolumeX, Snail } from 'lucide-react-native';
@@ -36,7 +36,36 @@ const PronunciationPractice: React.FC = () => {
   const [showPerformanceModal, setShowPerformanceModal] = useState(false);
   const [sound, setSound] = useState<Audio.Sound | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [phonetic, setPhonetic] = useState<string | null>(null);
   const recordingObject = React.useRef<Audio.Recording | null>(null);
+
+  useEffect(() => {
+    fetchPhonetic();
+  }, [sentence]);
+
+  const fetchPhonetic = async () => {
+    try {
+      const formData = new FormData();
+      formData.append('text', sentence);
+
+      const response = await fetch(`${AI_BACKEND_URL}/get_phonetic/`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      if (result && result.phonetic) {
+        setPhonetic(result.phonetic);
+      }
+    } catch (error) {
+      console.error('Failed to fetch phonetic', error);
+      Alert.alert('Error', 'Failed to fetch phonetic transcription. Please try again.');
+    }
+  };
 
   const playSound = async (rate: number = 1.0) => {
     if (sound) {
@@ -164,7 +193,10 @@ const PronunciationPractice: React.FC = () => {
   return (
     <View className="flex-1 bg-white p-6 justify-between">
       <View className="flex-1 justify-start">
-        <Text className="text-2xl font-bold mb-4 mt-4">{sentence}</Text>
+        <Text className="text-2xl font-bold mb-2 mt-4">{sentence}</Text>
+        {phonetic && (
+          <Text className="text-lg mb-4">/{phonetic}/</Text>
+        )}
         <View className="flex-row justify-start space-x-4 mb-8">
           <TouchableOpacity onPress={() => playSound()} disabled={isPlaying}>
             <Volume2 color={isPlaying ? "gray" : "black"} size={24} />
