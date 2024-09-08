@@ -56,6 +56,26 @@ const ChatSession: React.FC = () => {
     }
   };
 
+  const renderItem = ({ item }: { item: any }) => (
+    <ChatMessage 
+      item={item} 
+      onFeedbackPress={() => {
+        setCurrentFeedback(item);
+        setShowFeedbackModal(true);
+      }}
+      onAudioPress={handleAudioPress}
+      isPlaying={playingAudioId === item.id}
+      isAudioLoading={isAudioLoading && playingAudioId === item.id}
+    />
+  );
+
+  const renderFooter = () => {
+    if (isTyping && chatHistory[chatHistory.length - 1]?.role !== 'model') {
+      return <TypingIndicator />;
+    }
+    return null;
+  };
+
   return (
     <SafeAreaView className="flex-1 bg-white">
       <KeyboardAvoidingView 
@@ -67,21 +87,10 @@ const ChatSession: React.FC = () => {
         <FlatList
           ref={flatListRef}
           data={chatHistory}
-          renderItem={({ item }) => (
-            <ChatMessage 
-              item={item} 
-              onFeedbackPress={() => {
-                setCurrentFeedback(item);
-                setShowFeedbackModal(true);
-              }}
-              onAudioPress={handleAudioPress}
-              isPlaying={playingAudioId === item.id}
-              isAudioLoading={isAudioLoading && playingAudioId === item.id}
-            />
-          )}
+          renderItem={renderItem}
           keyExtractor={item => item.id.toString()}
           className="flex-1"
-          ListFooterComponent={isTyping ? TypingIndicator : null}
+          ListFooterComponent={renderFooter}
         />
 
         {showTopics && <TopicSelector onTopicSelect={handleTopicSelect} />}

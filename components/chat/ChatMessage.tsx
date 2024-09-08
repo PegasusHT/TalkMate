@@ -60,6 +60,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
           <Text className={item.role === 'user' ? 'text-white' : 'text-black'}>{item.content}</Text>
         </View>
         {item.role === 'model' && (
+          
           <TouchableOpacity className="ml-2" onPress={handleAudioPress}>
             {renderAudioButton()}
           </TouchableOpacity>
