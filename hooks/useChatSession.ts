@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import Constants from 'expo-constants';
 import { ChatMessage } from '@/types/chat';
 import { Audio } from 'expo-av';
@@ -19,6 +19,72 @@ export const useChatSession = () => {
   const [isRecording, setIsRecording] = useState(false);
   const recordingObject = useRef<Audio.Recording | null>(null);
   const [isProcessingAudio, setIsProcessingAudio] = useState(false);
+  const [playingAudioId, setPlayingAudioId] = useState<number | null>(null);
+  const [isAudioLoading, setIsAudioLoading] = useState(false);
+  const soundObject = useRef(new Audio.Sound());
+
+  const playAudio = useCallback(async (messageId: number, text: string) => {
+    if (playingAudioId === messageId) {
+      await stopAudio();
+      return;
+    }
+
+    try {
+      setIsAudioLoading(true);
+      await stopAudio();
+
+      const formData = new FormData();
+      formData.append('text', text);
+
+      const response = await fetch(`${AI_BACKEND_URL}/tts/`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const audioBase64 = data.audio;
+
+      const audioUri = `data:audio/mp3;base64,${audioBase64}`;
+
+      await soundObject.current.unloadAsync();
+      await soundObject.current.loadAsync({ uri: audioUri });
+      await soundObject.current.playAsync();
+
+      setPlayingAudioId(messageId);
+
+      soundObject.current.setOnPlaybackStatusUpdate((status) => {
+        if (status.isLoaded && !status.isPlaying && !('didJustFinish' in status)) {
+          setIsAudioLoading(false);
+        }
+        if ('didJustFinish' in status && status.didJustFinish) {
+          setPlayingAudioId(null);
+          setIsAudioLoading(false);
+        }
+      });
+    } catch (error) {
+      console.error('Error playing audio:', error);
+      setPlayingAudioId(null);
+      setIsAudioLoading(false);
+    }
+  }, [playingAudioId]);
+
+  const stopAudio = useCallback(async () => {
+    if (playingAudioId !== null) {
+      await soundObject.current.stopAsync();
+      setPlayingAudioId(null);
+      setIsAudioLoading(false);
+    }
+  }, [playingAudioId]);
+
+  const autoPlayMessage = useCallback(async (message: ChatMessage) => {
+    if (message.role === 'model') {
+      await playAudio(message.id, message.content);
+    }
+  }, [playAudio]);
 
   const estimateTokens = (text: string) => {
     return text.split(/\s+/).length;
@@ -66,6 +132,9 @@ export const useChatSession = () => {
         { ...userMessage, feedback: data.feedback, isLoading: false },
         assistantMessage
       ]);
+
+      // Auto-play the AI response
+      await autoPlayMessage(assistantMessage);
     } catch (error) {
       console.error('Error sending message:', error);
       setChatHistory(prev => [
@@ -75,7 +144,7 @@ export const useChatSession = () => {
     } finally {
       setIsTyping(false);
     }
-  }, [chatHistory]);
+  }, [chatHistory, autoPlayMessage]);
 
   const handleSend = useCallback(() => {
     if (message.trim()) {
@@ -121,20 +190,20 @@ export const useChatSession = () => {
 
   const sendAudio = useCallback(async () => {
     if (!recordingObject.current) return;
-
+  
     try {
       setIsProcessingAudio(true);
       await recordingObject.current.stopAndUnloadAsync();
       const uri = recordingObject.current.getURI();
       if (!uri) throw new Error('No recording URI found');
-
+  
       const formData = new FormData();
       formData.append('files', {
         uri,
         type: 'audio/wav',
         name: 'audio.wav',
       } as any);
-
+  
       const response = await fetch(`${AI_BACKEND_URL}/whisper/`, {
         method: 'POST',
         body: formData,
@@ -142,13 +211,14 @@ export const useChatSession = () => {
           'Content-Type': 'multipart/form-data',
         },
       });
-
+  
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorText = await response.text();
+        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
       }
-
+  
       const result = await response.json();
-
+  
       if (result.results && result.results.length > 0 && result.results[0].transcript) {
         const transcribedText = result.results[0].transcript;
         await sendMessage(transcribedText);
@@ -161,7 +231,7 @@ export const useChatSession = () => {
       setIsProcessingAudio(false);
       setIsRecording(false);
     }
-  }, [sendMessage]);
+  }, [sendMessage, AI_BACKEND_URL]);
 
   const initializeChat = useCallback(async () => {
     if (!isInitializing || hasInitialized.current) return;
@@ -176,19 +246,23 @@ export const useChatSession = () => {
       });
       const data = await response.json();
       if (data.greetingMessage) {
-        setChatHistory(prev => [...prev, { 
+        const greetingMessage: ChatMessage = { 
           role: 'model', 
           content: data.greetingMessage, 
           id: Date.now()
-        }]);
+        };
+        setChatHistory(prev => [...prev, greetingMessage]);
         setShowTopics(true);
+        
+        // Auto-play the greeting message
+        await autoPlayMessage(greetingMessage);
       }
     } catch (error) {
       console.error('Error creating session:', error);
     } finally {
       setIsInitializing(false);
     }
-  }, [isInitializing]);
+  }, [isInitializing, autoPlayMessage]);
 
   const handleTopicSelect = useCallback((topic: string) => {
     const params = topic === 'Fun' ? 'a fun' : topic === 'Interesting' ? 'an interesting' : '';
@@ -209,8 +283,16 @@ export const useChatSession = () => {
     showTopics,
     sendMessage,
     handleSend,
-    handleMicPress, isRecording, stopRecording, sendAudio,
-    initializeChat, isProcessingAudio,
+    handleMicPress,
+    isRecording,
+    stopRecording,
+    sendAudio,
+    initializeChat,
+    isProcessingAudio,
     handleTopicSelect,
+    playAudio,
+    stopAudio,
+    playingAudioId,
+    isAudioLoading,
   };
 };

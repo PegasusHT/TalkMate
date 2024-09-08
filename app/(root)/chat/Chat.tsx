@@ -10,26 +10,31 @@ import { useChatSession } from '@/hooks/useChatSession';
 import TypingIndicator from '@/components/chat/animation/TypingIndicator';
 
 const ChatSession: React.FC = () => {
-    const {
-      message,
-      setMessage,
-      chatHistory,
-      isTyping,
-      showFeedbackModal,
-      setShowFeedbackModal,
-      currentFeedback,
-      setCurrentFeedback,
-      showTopics,
-      sendMessage,
-      handleSend,
-      handleMicPress,
-      isRecording,
-      stopRecording,
-      sendAudio,
-      initializeChat,
-      handleTopicSelect,
-      isProcessingAudio,
-    } = useChatSession();
+  const {
+    message,
+    setMessage,
+    chatHistory,
+    isInitializing,
+    isTyping,
+    showFeedbackModal,
+    setShowFeedbackModal,
+    currentFeedback,
+    setCurrentFeedback,
+    showTopics,
+    sendMessage,
+    handleSend,
+    handleMicPress,
+    isRecording,
+    stopRecording,
+    sendAudio,
+    initializeChat,
+    isProcessingAudio,
+    handleTopicSelect,
+    playAudio,
+    stopAudio,
+    playingAudioId,
+    isAudioLoading,
+  } = useChatSession();
 
   const flatListRef = useRef<FlatList>(null);
 
@@ -42,6 +47,14 @@ const ChatSession: React.FC = () => {
       flatListRef.current.scrollToEnd({ animated: true });
     }
   }, [chatHistory]);
+
+  const handleAudioPress = (messageId: number, text: string) => {
+    if (playingAudioId === messageId) {
+      stopAudio();
+    } else {
+      playAudio(messageId, text);
+    }
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -60,7 +73,10 @@ const ChatSession: React.FC = () => {
               onFeedbackPress={() => {
                 setCurrentFeedback(item);
                 setShowFeedbackModal(true);
-              }} 
+              }}
+              onAudioPress={handleAudioPress}
+              isPlaying={playingAudioId === item.id}
+              isAudioLoading={isAudioLoading && playingAudioId === item.id}
             />
           )}
           keyExtractor={item => item.id.toString()}
