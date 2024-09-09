@@ -1,10 +1,11 @@
+//app/(root)/index.tsx
 import React from 'react';
 import { Text } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import HomeScreen from '@/app/(root)/(tabs)/home';
 import LearnScreen from '@/app/(root)/(tabs)/learn';
-import DictionaryScreen from '@/app/(root)/(tabs)/dictionary';
+import DictionaryScreen from './(tabs)/dictionary';
 import ProfileScreen from '@/app/(root)/(tabs)/profile';
 import CustomHeader from '@/components/customHeader';
 
@@ -104,7 +105,9 @@ const Home = () => {
       <Tab.Screen 
         name="Dictionary" 
         component={DictionaryScreen}
-        options={{ tabBarLabel: getTabBarLabel('Dictionary') }}
+        options={{ 
+          tabBarLabel: getTabBarLabel('Dictionary'),
+        }}
       />
       <Tab.Screen 
         name="Profile" 

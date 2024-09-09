@@ -1,3 +1,4 @@
+//path: app/(root)/chat/Chat.tsx
 import React, { useEffect, useRef, useCallback } from 'react';
 import { View, FlatList, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';

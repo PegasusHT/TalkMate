@@ -1,3 +1,4 @@
+//path: app/(root)/chat/_layout.tsx
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Stack } from 'expo-router';
 
@@ -10,7 +11,7 @@ const ChatLayout = () => {
           name="pronunciation-practice" 
           options={{ 
             headerTitle: 'Pronunciation Practice',
-            headerShown: true,
+            headerShown: false,
           }} 
         />
       </Stack>

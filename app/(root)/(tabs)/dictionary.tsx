@@ -1,16 +1,22 @@
+//app/(root)/dictionary/Dictionary.tsx
 import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, TouchableWithoutFeedback, Keyboard, Platform } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootTabParamList } from '@/types/types';
 import { Ionicons } from '@expo/vector-icons';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 
+type RootStackParamList = {
+  dictionary: { screen: string; params: { sentence: string } };
+};
 type Props = NativeStackScreenProps<RootTabParamList, 'Dictionary'>;
 
-const DictionaryScreen: React.FC<Props> = ({ navigation }) => {
+const DictionaryScreen: React.FC<Props> = () => {
   const [inputText, setInputText] = useState('');
   const [isEmphasized, setIsEmphasized] = useState(false);
   const inputRef = useRef<TextInput>(null);
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 
   const handleInputChange = (text: string) => {
     setInputText(text);
@@ -37,9 +43,14 @@ const DictionaryScreen: React.FC<Props> = ({ navigation }) => {
   };
 
   const handleCheck = () => {
-    console.log('Checking:', inputText);
+    if (inputText.trim()) {
+      navigation.navigate('dictionary', {
+        screen: 'pronunciation-practice',
+        params: { sentence: inputText.trim() }
+      });
+    }
   };
-
+ 
   useEffect(() => {
     const keyboardDidHideListener = Keyboard.addListener(
       'keyboardDidHide',
@@ -108,29 +119,29 @@ const DictionaryScreen: React.FC<Props> = ({ navigation }) => {
             >
               <Text className="text-white text-center font-bold text-lg">Check</Text>
             </TouchableOpacity>
-          ) : (
-            <View className={`flex-row justify-between mb-6 ${isEmphasized ? 'opacity-50' : ''}`}>
-              <TouchableOpacity className="bg-cyan-600 rounded-xl p-4 w-[48%]" disabled={isEmphasized}>
-                <View className="items-center">
-                  <Ionicons name="mic" size={24} color="white" />
-                  <Text className="text-white font-bold mt-2">Speak</Text>
-                  <Text className="text-white text-xs text-center mt-1">
-                    Speak your phrase to check the score
-                  </Text>
-                </View>
-              </TouchableOpacity>
+          ) : (<></>)}
 
-              <TouchableOpacity className="bg-pink-500 rounded-xl p-4 w-[48%]" disabled={isEmphasized}>
-                <View className="items-center">
-                  <Ionicons name="camera" size={24} color="white" />
-                  <Text className="text-white font-bold mt-2">Scan Image</Text>
-                  <Text className="text-white text-xs text-center mt-1">
-                    Convert image to text and speak the phrases
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            </View>
-          )}
+          <View className={`flex-row justify-between mb-6 ${isEmphasized ? 'opacity-50' : ''}`}>
+            <TouchableOpacity className="bg-cyan-600 rounded-xl p-4 w-[48%]" disabled={isEmphasized}>
+              <View className="items-center">
+                <Ionicons name="mic" size={24} color="white" />
+                <Text className="text-white font-bold mt-2">Speak</Text>
+                <Text className="text-white text-xs text-center mt-1">
+                  Speak your phrase to check the score
+                </Text>
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity className="bg-pink-500 rounded-xl p-4 w-[48%]" disabled={isEmphasized}>
+              <View className="items-center">
+                <Ionicons name="camera" size={24} color="white" />
+                <Text className="text-white font-bold mt-2">Scan Image</Text>
+                <Text className="text-white text-xs text-center mt-1">
+                  Convert image to text and speak the phrases
+                </Text>
+              </View>
+            </TouchableOpacity>
+          </View>
         </View>
       </ScrollView>
     </TouchableWithoutFeedback>

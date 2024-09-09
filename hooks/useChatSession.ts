@@ -1,3 +1,4 @@
+//path: hooks/useChatSession.ts
 import { useState, useCallback, useRef, useEffect } from 'react';
 import Constants from 'expo-constants';
 import { ChatMessage } from '@/types/chat';
@@ -141,7 +142,6 @@ export const useChatSession = () => {
         assistantMessage
       ]);
 
-      // Auto-play the AI response
       await autoPlayMessage(assistantMessage);
     } catch (error) {
       console.error('Error sending message:', error);

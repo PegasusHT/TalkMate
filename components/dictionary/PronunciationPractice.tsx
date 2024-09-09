@@ -1,7 +1,7 @@
-// path: app/(root)/chat/pronunciation-practice.tsx
+//path: components/dictionary/PronunciationPractice.tsx
 import React, { useState, useCallback, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
-import { RouteProp, useRoute } from '@react-navigation/native';
+import { RouteProp, useRoute, useNavigation } from '@react-navigation/native';
 import { Mic, Volume2, VolumeX, Snail } from 'lucide-react-native';
 import { Audio } from 'expo-av';
 import Constants from 'expo-constants';
@@ -33,9 +33,13 @@ type PhoneticWord = {
   accuracy?: number;
 };
 
-const PronunciationPractice: React.FC = () => {
+type PronunciationPracticeProp= {
+    sentence: string
+}
+
+const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({sentence}) => {
   const route = useRoute<PronunciationPracticeRouteProp>();
-  const { sentence } = route.params;
+  const navigation = useNavigation();
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [performanceResult, setPerformanceResult] = useState<PerformanceData | null>(null);
@@ -47,6 +51,11 @@ const PronunciationPractice: React.FC = () => {
 
   useEffect(() => {
     fetchPhonetic();
+    return () => {
+      if (sound) {
+        sound.unloadAsync();
+      }
+    };
   }, [sentence]);
 
   const fetchPhonetic = async () => {
