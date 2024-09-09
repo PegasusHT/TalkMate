@@ -96,8 +96,29 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({sentence}) 
       setIsPlaying(true);
     } else {
       try {
+        // Create a FormData object to send the text
+        const formData = new FormData();
+        formData.append('text', sentence);
+  
+        // Make a POST request to the TTS endpoint
+        const response = await fetch(`${AI_BACKEND_URL}/tts/`, {
+          method: 'POST',
+          body: formData,
+        });
+  
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+  
+        const data = await response.json();
+        const audioBase64 = data.audio;
+  
+        // Create a data URI for the audio
+        const audioUri = `data:audio/mp3;base64,${audioBase64}`;
+  
+        // Create and play the sound
         const { sound: newSound } = await Audio.Sound.createAsync(
-          { uri: `${AI_BACKEND_URL}/tts/?text=${encodeURIComponent(sentence)}` },
+          { uri: audioUri },
           { shouldPlay: true, rate }
         );
         setSound(newSound);
