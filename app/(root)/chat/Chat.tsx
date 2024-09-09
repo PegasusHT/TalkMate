@@ -1,6 +1,7 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useCallback } from 'react';
 import { View, FlatList, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useFocusEffect } from '@react-navigation/native';
 import ChatHeader from '@/components/chat/ChatHeader';
 import ChatInput from '@/components/chat/ChatInput';
 import ChatMessage from '@/components/chat/ChatMessage';
@@ -50,6 +51,20 @@ const ChatSession: React.FC = () => {
       flatListRef.current.scrollToEnd({ animated: true });
     }
   }, [chatHistory]);
+
+  useEffect(() => {
+    return () => {
+      stopAllAudio();
+    };
+  }, [stopAllAudio]);
+
+  useFocusEffect(
+    useCallback(() => {
+      return () => {
+        stopAllAudio();
+      };
+    }, [stopAllAudio])
+  );
 
   const handleAudioPress = (messageId: number, text: string, audioUri?: string) => {
     playAudio(messageId, text, audioUri);
