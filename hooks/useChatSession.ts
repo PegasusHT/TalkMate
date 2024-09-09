@@ -177,7 +177,6 @@ export const useChatSession = () => {
 
   const handleMicPress = useCallback(async () => {
     try {
-      // Stop any playing audio before starting a new recording
       await stopAllAudio();
 
       const { status } = await Audio.requestPermissionsAsync();
@@ -314,13 +313,10 @@ export const useChatSession = () => {
   }, [chatHistory, autoPlayMessage, AI_BACKEND_URL, BACKEND_URL]);
 
   const startNewChat = useCallback(async () => {
-    // Stop any ongoing audio playback
     await stopAllAudio();
 
-    // Clear the chat history
     setChatHistory([]);
 
-    // Reset other state variables
     setMessage('');
     setIsTyping(false);
     setShowFeedbackModal(false);
@@ -331,7 +327,6 @@ export const useChatSession = () => {
     setPlayingAudioId(null);
     setIsAudioLoading(false);
 
-    // Initialize a new chat session
     try {
       const response = await fetch(`${BACKEND_URL}/session`, {
         method: 'POST',
@@ -349,14 +344,13 @@ export const useChatSession = () => {
         setChatHistory([greetingMessage]);
         setShowTopics(true);
         
-        // Auto-play the greeting message
         await autoPlayMessage(greetingMessage);
       }
     } catch (error) {
       console.error('Error creating new session:', error);
     }
   }, [stopAllAudio, autoPlayMessage]);
-  
+
   const initializeChat = useCallback(async () => {
     if (!isInitializing || hasInitialized.current) return;
     hasInitialized.current = true;
@@ -378,7 +372,6 @@ export const useChatSession = () => {
         setChatHistory(prev => [...prev, greetingMessage]);
         setShowTopics(true);
         
-        // Auto-play the greeting message
         await autoPlayMessage(greetingMessage);
       }
     } catch (error) {
