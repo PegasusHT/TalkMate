@@ -35,13 +35,15 @@ const ChatSession: React.FC = () => {
     stopAudio,
     playingAudioId,
     isAudioLoading,
+    stopAllAudio,
+    startNewChat,
   } = useChatSession();
 
   const flatListRef = useRef<FlatList<ChatMessageType>>(null);
 
   useEffect(() => {
     initializeChat();
-  }, [initializeChat]);
+  }, []);
 
   useEffect(() => {
     if (flatListRef.current) {
@@ -73,13 +75,17 @@ const ChatSession: React.FC = () => {
     return null;
   };
 
+  const handleNewChat = () => {
+    startNewChat();
+  };
+
   return (
     <SafeAreaView className="flex-1 bg-white">
       <KeyboardAvoidingView 
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
         className="flex-1"
       >
-        <ChatHeader />
+        <ChatHeader onNewChat={handleNewChat} />
 
         <FlatList
           ref={flatListRef}
@@ -101,6 +107,7 @@ const ChatSession: React.FC = () => {
           stopRecording={stopRecording}
           sendAudio={sendAudio}
           isProcessingAudio={isProcessingAudio}
+          stopAllAudio={stopAllAudio}
         />
       </KeyboardAvoidingView>
 

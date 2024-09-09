@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import Constants from 'expo-constants';
 import { ChatMessage } from '@/types/chat';
-import { Audio } from 'expo-av';
+import { Audio, InterruptionModeAndroid, InterruptionModeIOS } from 'expo-av';
 
 const BACKEND_URL = Constants.expoConfig?.extra?.BACKEND_URL?.dev || '';
 const AI_BACKEND_URL = Constants.expoConfig?.extra?.AI_BACKEND_URL.dev || '';
@@ -161,8 +161,25 @@ export const useChatSession = () => {
     }
   }, [message, sendMessage]);
 
+  const stopAllAudio = useCallback(async () => {
+    if (playingAudioId !== null) {
+      await stopAudio();
+    }
+    await Audio.setAudioModeAsync({
+      playsInSilentModeIOS: true,
+      staysActiveInBackground: true,
+      interruptionModeIOS: InterruptionModeIOS.DoNotMix,
+      interruptionModeAndroid: InterruptionModeAndroid.DoNotMix,
+      shouldDuckAndroid: true,
+      playThroughEarpieceAndroid: false,
+    });
+  }, [playingAudioId, stopAudio]);
+
   const handleMicPress = useCallback(async () => {
     try {
+      // Stop any playing audio before starting a new recording
+      await stopAllAudio();
+
       const { status } = await Audio.requestPermissionsAsync();
       if (status !== 'granted') {
         console.error('Permission to access microphone was denied');
@@ -172,6 +189,10 @@ export const useChatSession = () => {
       await Audio.setAudioModeAsync({
         allowsRecordingIOS: true,
         playsInSilentModeIOS: true,
+        interruptionModeIOS: InterruptionModeIOS.DoNotMix,
+        interruptionModeAndroid: InterruptionModeAndroid.DoNotMix,
+        shouldDuckAndroid: true,
+        playThroughEarpieceAndroid: false,
       });
 
       const { recording } = await Audio.Recording.createAsync(
@@ -183,7 +204,7 @@ export const useChatSession = () => {
     } catch (error) {
       console.error('Failed to start recording', error);
     }
-  }, []);
+  }, [stopAllAudio]);
 
   const stopRecording = useCallback(async () => {
     if (!recordingObject.current) return;
@@ -292,6 +313,50 @@ export const useChatSession = () => {
     }
   }, [chatHistory, autoPlayMessage, AI_BACKEND_URL, BACKEND_URL]);
 
+  const startNewChat = useCallback(async () => {
+    // Stop any ongoing audio playback
+    await stopAllAudio();
+
+    // Clear the chat history
+    setChatHistory([]);
+
+    // Reset other state variables
+    setMessage('');
+    setIsTyping(false);
+    setShowFeedbackModal(false);
+    setCurrentFeedback(null);
+    setShowTopics(false);
+    setIsRecording(false);
+    setIsProcessingAudio(false);
+    setPlayingAudioId(null);
+    setIsAudioLoading(false);
+
+    // Initialize a new chat session
+    try {
+      const response = await fetch(`${BACKEND_URL}/session`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      const data = await response.json();
+      if (data.greetingMessage) {
+        const greetingMessage: ChatMessage = { 
+          role: 'model', 
+          content: data.greetingMessage, 
+          id: Date.now()
+        };
+        setChatHistory([greetingMessage]);
+        setShowTopics(true);
+        
+        // Auto-play the greeting message
+        await autoPlayMessage(greetingMessage);
+      }
+    } catch (error) {
+      console.error('Error creating new session:', error);
+    }
+  }, [stopAllAudio, autoPlayMessage]);
+  
   const initializeChat = useCallback(async () => {
     if (!isInitializing || hasInitialized.current) return;
     hasInitialized.current = true;
@@ -324,7 +389,7 @@ export const useChatSession = () => {
   }, [isInitializing, autoPlayMessage]);
 
   const handleTopicSelect = useCallback((topic: string) => {
-    const params = topic === 'Fun' ? 'a fun' : topic === 'Interesting' ? 'an interesting' : '';
+    const params = topic === 'Fun' ? 'a fun' : topic === 'Interesting' ? 'an interesting' : 'a ';
     const userMessage = `Hey, Mia! Ask me ${params} question.`;
     sendMessage(userMessage);
   }, [sendMessage]);
@@ -353,5 +418,7 @@ export const useChatSession = () => {
     stopAudio,
     playingAudioId,
     isAudioLoading,
+    stopAllAudio, 
+    startNewChat
   };
 };

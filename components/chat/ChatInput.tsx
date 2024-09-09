@@ -12,6 +12,7 @@ type ChatInputProps = {
   stopRecording: () => void;
   sendAudio: () => void;
   isProcessingAudio: boolean;
+  stopAllAudio: () => Promise<void>;
 };
 
 const ChatInput: React.FC<ChatInputProps> = ({
@@ -23,6 +24,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
   stopRecording,
   sendAudio,
   isProcessingAudio,
+  stopAllAudio, 
 }) => {
   if (isProcessingAudio) {
     return (
@@ -48,6 +50,11 @@ const ChatInput: React.FC<ChatInputProps> = ({
     );
   }
 
+  const handleMicPressWithAudioStop = async () => {
+    await stopAllAudio();
+    handleMicPress();
+  };
+
   return (
     <View className="flex-row items-center p-2 border-t border-gray-200 h-20 mx-2">
       <TextInput
@@ -56,7 +63,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
         onChangeText={setMessage}
         placeholder="Type your message..."
       />
-      <TouchableOpacity onPress={message ? handleSend : handleMicPress}>
+      <TouchableOpacity onPress={message ? handleSend : handleMicPressWithAudioStop}>
         {message ? (
           <Send size={28} color="#007AFF" />
         ) : (
