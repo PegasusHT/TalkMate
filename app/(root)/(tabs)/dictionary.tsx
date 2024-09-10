@@ -85,7 +85,7 @@ const DictionaryScreen: React.FC<Props> = () => {
 
   return (
     <TouchableWithoutFeedback onPress={handleOutsidePress}>
-      <ScrollView className={`flex-1 ${isEmphasized ? 'bg-gray-900' : 'bg-indigo-900'}`}>
+      <ScrollView className={`flex-1 pt-6 ${isEmphasized ? 'bg-gray-900' : 'bg-indigo-900'}`}>
         <View className="p-4">
           <Text className="text-white text-2xl font-bold mb-4">What do you want to say?</Text>
           
