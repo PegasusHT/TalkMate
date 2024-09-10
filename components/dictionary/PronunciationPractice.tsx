@@ -1,4 +1,3 @@
-//path: components/dictionary/PronunciationPractice.tsx
 import React, { useState, useCallback, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { RouteProp, useRoute, useNavigation } from '@react-navigation/native';
@@ -61,20 +60,22 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({sentence}) 
     try {
       const formData = new FormData();
       formData.append('text', sentence);
-
+  
       const response = await fetch(`${ENV.AI_BACKEND_URL}/get_phonetic/`, {
         method: 'POST',
         body: formData,
       });
-
+  
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-
+  
       const result = await response.json();
       if (result && result.phonetic) {
         const words = result.phonetic.split(' ');
         setPhoneticWords(words.map((word: string) => ({ word })));
+      } else {
+        throw new Error('Invalid response format');
       }
     } catch (error) {
       console.error('Failed to fetch phonetic', error);

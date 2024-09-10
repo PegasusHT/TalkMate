@@ -1,4 +1,3 @@
-//path: hooks/useChatSession.ts
 import { useState, useCallback, useRef, useEffect } from 'react';
 import Constants from 'expo-constants';
 import { ChatMessage } from '@/types/chat';
@@ -23,6 +22,7 @@ export const useChatSession = () => {
   const [playingAudioId, setPlayingAudioId] = useState<number | null>(null);
   const [isAudioLoading, setIsAudioLoading] = useState(false);
   const soundObject = useRef(new Audio.Sound());
+  const [popupMessage, setPopupMessage] = useState<string | null>(null);
 
   const playAudio = useCallback(async (messageId: number, text: string, audioUri?: string) => {
     if (playingAudioId === messageId) {
@@ -162,17 +162,21 @@ export const useChatSession = () => {
   }, [message, sendMessage]);
 
   const stopAllAudio = useCallback(async () => {
-    if (playingAudioId !== null) {
-      await stopAudio();
+    try {
+      if (playingAudioId !== null) {
+        await stopAudio();
+      }
+      await Audio.setAudioModeAsync({
+        playsInSilentModeIOS: true,
+        staysActiveInBackground: true,
+        interruptionModeIOS: InterruptionModeIOS.DoNotMix,
+        interruptionModeAndroid: InterruptionModeAndroid.DoNotMix,
+        shouldDuckAndroid: true,
+        playThroughEarpieceAndroid: false,
+      });
+    } catch (error) {
+      console.error('Error stopping audio:', error);
     }
-    await Audio.setAudioModeAsync({
-      playsInSilentModeIOS: true,
-      staysActiveInBackground: true,
-      interruptionModeIOS: InterruptionModeIOS.DoNotMix,
-      interruptionModeAndroid: InterruptionModeAndroid.DoNotMix,
-      shouldDuckAndroid: true,
-      playThroughEarpieceAndroid: false,
-    });
   }, [playingAudioId, stopAudio]);
 
   const handleMicPress = useCallback(async () => {
@@ -216,6 +220,11 @@ export const useChatSession = () => {
     }
   }, []);
 
+  const showPopup = useCallback((message: string) => {
+    setPopupMessage(message);
+    setTimeout(() => setPopupMessage(null), 2000); 
+  }, []);
+
   const sendAudio = useCallback(async () => {
     if (!recordingObject.current) return;
   
@@ -247,8 +256,15 @@ export const useChatSession = () => {
   
       const result = await response.json();
   
-      if (result.results && result.results.length > 0 && result.results[0].transcript) {
+      if (result.results && result.results.length > 0) {
         const transcribedText = result.results[0].transcript;
+        
+        if (!transcribedText || transcribedText.trim() === '') {
+          // Show popup for empty transcription
+          showPopup("I couldn't hear anything. Please try speaking again.");
+          return;
+        }
+        
         const userMessage: ChatMessage = { 
           role: 'user', 
           content: transcribedText, 
@@ -302,15 +318,17 @@ export const useChatSession = () => {
           setIsTyping(false);
         }
       } else {
-        console.error('Unexpected response format:', result);
+        // Show popup when no transcription is returned
+        showPopup("I couldn't transcribe the audio. Please try again.");
       }
     } catch (error) {
       console.error('Failed to send audio', error);
+      showPopup("An error occurred while processing your audio. Please try again.");
     } finally {
       setIsProcessingAudio(false);
       setIsRecording(false);
     }
-  }, [chatHistory, autoPlayMessage, AI_BACKEND_URL, BACKEND_URL]);
+  }, [chatHistory, autoPlayMessage, AI_BACKEND_URL, BACKEND_URL, showPopup]);
 
   const startNewChat = useCallback(async () => {
     await stopAllAudio();
@@ -412,6 +430,7 @@ export const useChatSession = () => {
     playingAudioId,
     isAudioLoading,
     stopAllAudio, 
-    startNewChat
+    startNewChat,
+    popupMessage
   };
 };
