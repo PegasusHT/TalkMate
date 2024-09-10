@@ -35,7 +35,12 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (loaded) {
-      SplashScreen.hideAsync();
+      // Add a delay before hiding the splash screen
+      const hideSplash = async () => {
+        await new Promise(resolve => setTimeout(resolve, 1000)); // 1 second delay
+        SplashScreen.hideAsync();
+      };
+      hideSplash();
     }
   }, [loaded]);
 

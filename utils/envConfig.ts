@@ -21,4 +21,7 @@ export const getEnvironmentConfig = (): EnvConfig => {
 
 const ENV = getEnvironmentConfig();
 
+// console.log('Environment:', getEnvironment());
+// console.log('Config:', ENV);
+
 export default ENV;
