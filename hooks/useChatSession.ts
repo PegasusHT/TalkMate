@@ -3,9 +3,9 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import Constants from 'expo-constants';
 import { ChatMessage } from '@/types/chat';
 import { Audio, InterruptionModeAndroid, InterruptionModeIOS } from 'expo-av';
+import ENV from '@/utils/envConfig'; 
+const { BACKEND_URL, AI_BACKEND_URL } = ENV;
 
-const BACKEND_URL = Constants.expoConfig?.extra?.BACKEND_URL?.dev || '';
-const AI_BACKEND_URL = Constants.expoConfig?.extra?.AI_BACKEND_URL.dev || '';
 const MAX_TOKENS = 4000;
 
 export const useChatSession = () => {

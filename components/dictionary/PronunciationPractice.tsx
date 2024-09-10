@@ -7,8 +7,7 @@ import { Audio } from 'expo-av';
 import Constants from 'expo-constants';
 import * as FileSystem from 'expo-file-system';
 import PronunciationPerformanceModal from '@/components/dictionary/PronunciationPerformanceModal';
-
-const AI_BACKEND_URL = Constants.expoConfig?.extra?.AI_BACKEND_URL?.dev || '';
+import ENV from '@/utils/envConfig'; 
 
 type RootStackParamList = {
   'pronunciation-practice': { sentence: string };
@@ -63,7 +62,7 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({sentence}) 
       const formData = new FormData();
       formData.append('text', sentence);
 
-      const response = await fetch(`${AI_BACKEND_URL}/get_phonetic/`, {
+      const response = await fetch(`${ENV.AI_BACKEND_URL}/get_phonetic/`, {
         method: 'POST',
         body: formData,
       });
@@ -101,7 +100,7 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({sentence}) 
         formData.append('text', sentence);
   
         // Make a POST request to the TTS endpoint
-        const response = await fetch(`${AI_BACKEND_URL}/tts/`, {
+        const response = await fetch(`${ENV.AI_BACKEND_URL}/tts/`, {
           method: 'POST',
           body: formData,
         });
@@ -162,7 +161,7 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({sentence}) 
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 30000);
   
-        const response = await fetch(`${AI_BACKEND_URL}/assess_pronunciation/`, {
+        const response = await fetch(`${ENV.AI_BACKEND_URL}/assess_pronunciation/`, {
           method: 'POST',
           body: formData,
           headers: {
