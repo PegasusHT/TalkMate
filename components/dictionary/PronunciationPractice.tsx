@@ -301,6 +301,7 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
       <View className="flex-1 justify-start">
         <Text className="text-2xl font-bold mb-2 mt-4">{sentence}</Text>
         <View className="flex-row flex-wrap mb-4">
+          <Text className="text-lg mr-1">/</Text>
           {phoneticWords.map((phoneticWord, index) => (
             <Text 
               key={index} 
@@ -309,21 +310,32 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
               {phoneticWord.word}
             </Text>
           ))}
+          <Text className="text-lg mr-1">/</Text>
         </View>
-        {dictionaryDefinition && (
-          <View className="mb-4">
-            {dictionaryDefinition.meanings.map((meaning, index) => (
-              <View key={index} className="mb-2">
-                <Text className="font-semibold">{meaning.part_of_speech}</Text>
-                {meaning.definitions.map((def, defIndex) => (
-                  <View key={defIndex} className="ml-4">
-                    <Text>{defIndex + 1}. {def.definition}</Text>
-                    {def.example && <Text className="italic">Example: {def.example}</Text>}
+        {isLoadingDefinition ? (
+          <ActivityIndicator size="small" color="#0000ff" />
+        ) : (
+          <>
+            {dictionaryDefinition ? (
+              <View className="mb-4">
+                {dictionaryDefinition.meanings.map((meaning, index) => (
+                  <View key={index} className="mb-2">
+                    <Text className="font-semibold">{meaning.part_of_speech}</Text>
+                    {meaning.definitions.map((def, defIndex) => (
+                      <View key={defIndex} className="ml-4">
+                        <Text>{defIndex + 1}. {def.definition}</Text>
+                        {def.example && <Text className="italic">Example: {def.example}</Text>}
+                      </View>
+                    ))}
                   </View>
                 ))}
               </View>
-            ))}
-          </View>
+            ) : (
+              sentence.trim().split(/\s+/).length === 1 && (
+                <Text className="text-gray-500 italic mb-4">No definition found for this word.</Text>
+              )
+            )}
+          </>
         )}
         <View className="flex-row justify-start space-x-4 mb-8">
           <TouchableOpacity onPress={() => playSound()} disabled={isPlaying || isLoadingAudio}>
