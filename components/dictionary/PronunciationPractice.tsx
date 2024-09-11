@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
+import { View, ScrollView, Text, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { Mic, Volume2, VolumeX, Snail } from 'lucide-react-native';
 import { Audio } from 'expo-av';
 import * as FileSystem from 'expo-file-system';
@@ -27,6 +27,19 @@ type PronunciationPracticeProp = {
   sentence: string;
 };
 
+type DictionaryDefinition = {
+  word: string;
+  phonetic: string;
+  meanings: {
+    part_of_speech: string;
+    definitions: {
+      definition: string;
+      example: string;
+    }[];
+  }[];
+  audio_url: string | null;
+} | null;
+
 const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }) => {
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -39,16 +52,50 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
   const recordingObject = useRef<Audio.Recording | null>(null);
   const soundObject = useRef<Audio.Sound | null>(null);
   const audioBase64Ref = useRef<string | null>(null);
+  const [dictionaryDefinition, setDictionaryDefinition] = useState<DictionaryDefinition | null>(null);
+  const [isLoadingDefinition, setIsLoadingDefinition] = useState(false);
 
   useEffect(() => {
     fetchPhonetic();
     checkPermissions();
+    if (sentence.trim().split(/\s+/).length === 1) {
+      fetchDictionaryDefinition(sentence.trim());
+    } else {
+      setDictionaryDefinition(null);
+    }
     return () => {
       if (soundObject.current) {
         soundObject.current.unloadAsync();
       }
     };
   }, [sentence]);
+
+  const fetchDictionaryDefinition = async (word: string) => {
+    setIsLoadingDefinition(true);
+    try {
+      const response = await fetch(`${ENV.AI_BACKEND_URL}/dictionary/${word}`);
+      if (response.status === 404) {
+        setDictionaryDefinition(null);
+      } else if (response.ok) {
+        const data = await response.json();
+        setDictionaryDefinition(data);
+      } else {
+        console.log(`Unexpected response status: ${response.status}`);
+        setDictionaryDefinition(null);
+      }
+    } catch (error) {
+      console.log('Failed to fetch dictionary definition', error);
+      setDictionaryDefinition(null);
+    } finally {
+      setIsLoadingDefinition(false);
+    }
+  };
+
+  const handleWordPress = (word: string) => {
+    if (sentence.split(' ').length === 1) {
+      fetchDictionaryDefinition(word);
+    }
+  };
 
   const checkPermissions = async () => {
     const { status } = await Audio.getPermissionsAsync();
@@ -279,7 +326,7 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
   };
 
   return (
-    <View className="flex-1 bg-white p-6 justify-between">
+    <View className="flex-1 bg-white p-6">
       <View className="flex-1 justify-start">
         <Text className="text-2xl font-bold mb-2 mt-4">{sentence}</Text>
         <View className="flex-row flex-wrap mb-4">
@@ -292,6 +339,21 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
             </Text>
           ))}
         </View>
+        {dictionaryDefinition && (
+          <View className="mb-4">
+            {dictionaryDefinition.meanings.map((meaning, index) => (
+              <View key={index} className="mb-2">
+                <Text className="font-semibold">{meaning.part_of_speech}</Text>
+                {meaning.definitions.map((def, defIndex) => (
+                  <View key={defIndex} className="ml-4">
+                    <Text>{defIndex + 1}. {def.definition}</Text>
+                    {def.example && <Text className="italic">Example: {def.example}</Text>}
+                  </View>
+                ))}
+              </View>
+            ))}
+          </View>
+        )}
         <View className="flex-row justify-start space-x-4 mb-8">
           <TouchableOpacity onPress={() => playSound()} disabled={isPlaying || isLoadingAudio}>
             <Volume2 color={isPlaying || isLoadingAudio ? "gray" : "black"} size={24} />
