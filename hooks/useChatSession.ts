@@ -175,7 +175,7 @@ export const useChatSession = () => {
         playThroughEarpieceAndroid: false,
       });
     } catch (error) {
-      console.error('Error stopping audio:', error);
+      console.log('Error stopping audio:', error);
     }
   }, [playingAudioId, stopAudio]);
 
