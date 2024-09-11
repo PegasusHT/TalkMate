@@ -10,7 +10,7 @@ module.exports = () => {
       "splash": {
       "image": "./assets/images/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#3D89C4"
+      "backgroundColor": "#2463EB"
       },
       extra: {
         ENV: environment,

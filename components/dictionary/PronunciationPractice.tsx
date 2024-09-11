@@ -299,8 +299,8 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
   return (
     <View className="flex-1 bg-white p-6">
       <View className="flex-1 justify-start">
-        <Text className="text-2xl font-bold mb-2 mt-4">{sentence}</Text>
-        <View className="flex-row flex-wrap mb-4">
+        <Text className="text-2xl font-bold mb-1 mt-4">{sentence}</Text>
+        <View className="flex-row flex-wrap mb-2">
           <Text className="text-lg mr-1">/</Text>
           {phoneticWords.map((phoneticWord, index) => (
             <Text 
@@ -311,6 +311,19 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
             </Text>
           ))}
           <Text className="text-lg mr-1">/</Text>
+        </View>
+        <View className="flex-row justify-start space-x-4 mb-4">
+          <TouchableOpacity onPress={() => playSound()} disabled={isPlaying || isLoadingAudio}>
+            <Volume2 color={isPlaying || isLoadingAudio ? "gray" : "black"} size={24} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => playSound(0.5)} disabled={isPlaying || isLoadingAudio}>
+            <Snail color={isPlaying || isLoadingAudio ? "gray" : "black"} size={24} />
+          </TouchableOpacity>
+          {isPlaying && (
+            <TouchableOpacity onPress={stopSound}>
+              <VolumeX color="black" size={24} />
+            </TouchableOpacity>
+          )}
         </View>
         {isLoadingDefinition ? (
           <ActivityIndicator size="small" color="#0000ff" />
@@ -337,19 +350,6 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
             )}
           </>
         )}
-        <View className="flex-row justify-start space-x-4 mb-8">
-          <TouchableOpacity onPress={() => playSound()} disabled={isPlaying || isLoadingAudio}>
-            <Volume2 color={isPlaying || isLoadingAudio ? "gray" : "black"} size={24} />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => playSound(0.5)} disabled={isPlaying || isLoadingAudio}>
-            <Snail color={isPlaying || isLoadingAudio ? "gray" : "black"} size={24} />
-          </TouchableOpacity>
-          {isPlaying && (
-            <TouchableOpacity onPress={stopSound}>
-              <VolumeX color="black" size={24} />
-            </TouchableOpacity>
-          )}
-        </View>
       </View>
       <TouchableOpacity
         onPress={handleMicPress}
