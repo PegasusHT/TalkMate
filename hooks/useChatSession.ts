@@ -23,6 +23,27 @@ export const useChatSession = () => {
   const [isAudioLoading, setIsAudioLoading] = useState(false);
   const soundObject = useRef(new Audio.Sound());
   const [popupMessage, setPopupMessage] = useState<string | null>(null);
+  const [isAudioModeConfigured, setIsAudioModeConfigured] = useState(false);
+
+  useEffect(() => {
+    configureAudioMode();
+  }, []);
+  const configureAudioMode = async () => {
+    try {
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: true,
+        playsInSilentModeIOS: true,
+        staysActiveInBackground: true,
+        interruptionModeIOS: InterruptionModeIOS.DoNotMix,
+        interruptionModeAndroid: InterruptionModeAndroid.DoNotMix,
+        shouldDuckAndroid: true,
+        playThroughEarpieceAndroid: false,
+      });
+      setIsAudioModeConfigured(true);
+    } catch (error) {
+      console.error('Error configuring audio mode:', error);
+    }
+  };
 
   const playAudio = useCallback(async (messageId: number, text: string, audioUri?: string) => {
     if (playingAudioId === messageId) {
@@ -166,37 +187,24 @@ export const useChatSession = () => {
       if (playingAudioId !== null) {
         await stopAudio();
       }
-      await Audio.setAudioModeAsync({
-        playsInSilentModeIOS: true,
-        staysActiveInBackground: true,
-        interruptionModeIOS: InterruptionModeIOS.DoNotMix,
-        interruptionModeAndroid: InterruptionModeAndroid.DoNotMix,
-        shouldDuckAndroid: true,
-        playThroughEarpieceAndroid: false,
-      });
     } catch (error) {
       console.log('Error stopping audio:', error);
     }
   }, [playingAudioId, stopAudio]);
 
   const handleMicPress = useCallback(async () => {
-    try {
-      await stopAllAudio();
+    if (!isAudioModeConfigured) {
+      await configureAudioMode();
+    }
 
+    try {
       const { status } = await Audio.requestPermissionsAsync();
       if (status !== 'granted') {
         console.error('Permission to access microphone was denied');
         return;
       }
 
-      await Audio.setAudioModeAsync({
-        allowsRecordingIOS: true,
-        playsInSilentModeIOS: true,
-        interruptionModeIOS: InterruptionModeIOS.DoNotMix,
-        interruptionModeAndroid: InterruptionModeAndroid.DoNotMix,
-        shouldDuckAndroid: true,
-        playThroughEarpieceAndroid: false,
-      });
+      await stopAllAudio();
 
       const { recording } = await Audio.Recording.createAsync(
         Audio.RecordingOptionsPresets.HIGH_QUALITY
@@ -207,16 +215,18 @@ export const useChatSession = () => {
     } catch (error) {
       console.error('Failed to start recording', error);
     }
-  }, [stopAllAudio]);
+  }, [isAudioModeConfigured, stopAllAudio]);
 
   const stopRecording = useCallback(async () => {
     if (!recordingObject.current) return;
 
     try {
       await recordingObject.current.stopAndUnloadAsync();
-      setIsRecording(false);
     } catch (error) {
       console.error('Failed to stop recording', error);
+    } finally {
+      setIsRecording(false);
+      recordingObject.current = null;
     }
   }, []);
 
