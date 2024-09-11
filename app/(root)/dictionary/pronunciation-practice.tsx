@@ -1,3 +1,4 @@
+//path: app/(root)/dictionary/pronunciation-practice.tsx
 import React from 'react';
 import PronunciationPractice from '@/components/dictionary/PronunciationPractice';
 import { useLocalSearchParams } from 'expo-router';

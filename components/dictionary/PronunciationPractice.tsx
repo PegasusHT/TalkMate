@@ -1,18 +1,10 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { View, Text, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
-import { RouteProp, useRoute, useNavigation } from '@react-navigation/native';
 import { Mic, Volume2, VolumeX, Snail } from 'lucide-react-native';
 import { Audio } from 'expo-av';
-import Constants from 'expo-constants';
 import * as FileSystem from 'expo-file-system';
 import PronunciationPerformanceModal from '@/components/dictionary/PronunciationPerformanceModal';
-import ENV from '@/utils/envConfig'; 
-
-type RootStackParamList = {
-  'pronunciation-practice': { sentence: string };
-};
-
-type PronunciationPracticeRouteProp = RouteProp<RootStackParamList, 'pronunciation-practice'>;
+import ENV from '@/utils/envConfig';
 
 type PerformanceData = {
   recording_transcript: string;
@@ -31,30 +23,43 @@ type PhoneticWord = {
   accuracy?: number;
 };
 
-type PronunciationPracticeProp= {
-    sentence: string
-}
+type PronunciationPracticeProp = {
+  sentence: string;
+};
 
-const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({sentence}) => {
-  const route = useRoute<PronunciationPracticeRouteProp>();
-  const navigation = useNavigation();
+const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }) => {
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [performanceResult, setPerformanceResult] = useState<PerformanceData | null>(null);
   const [showPerformanceModal, setShowPerformanceModal] = useState(false);
-  const [sound, setSound] = useState<Audio.Sound | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isLoadingAudio, setIsLoadingAudio] = useState(false);
   const [phoneticWords, setPhoneticWords] = useState<PhoneticWord[]>([]);
-  const recordingObject = React.useRef<Audio.Recording | null>(null);
+  const [permissionStatus, setPermissionStatus] = useState<Audio.PermissionStatus | null>(null);
+  const recordingObject = useRef<Audio.Recording | null>(null);
+  const soundObject = useRef<Audio.Sound | null>(null);
+  const audioBase64Ref = useRef<string | null>(null);
 
   useEffect(() => {
     fetchPhonetic();
+    checkPermissions();
     return () => {
-      if (sound) {
-        sound.unloadAsync();
+      if (soundObject.current) {
+        soundObject.current.unloadAsync();
       }
     };
   }, [sentence]);
+
+  const checkPermissions = async () => {
+    const { status } = await Audio.getPermissionsAsync();
+    setPermissionStatus(status);
+  };
+
+  const requestPermissions = async () => {
+    const { status } = await Audio.requestPermissionsAsync();
+    setPermissionStatus(status);
+    return status;
+  };
 
   const fetchPhonetic = async () => {
     try {
@@ -90,59 +95,85 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({sentence}) 
     return 'text-red-500';
   };
 
-  const playSound = async (rate: number = 1.0) => {
-    if (sound) {
-      await sound.playAsync();
-      setIsPlaying(true);
-    } else {
-      try {
-        // Create a FormData object to send the text
-        const formData = new FormData();
-        formData.append('text', sentence);
-  
-        // Make a POST request to the TTS endpoint
-        const response = await fetch(`${ENV.AI_BACKEND_URL}/tts/`, {
-          method: 'POST',
-          body: formData,
-        });
-  
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-  
-        const data = await response.json();
-        const audioBase64 = data.audio;
-  
-        // Create a data URI for the audio
-        const audioUri = `data:audio/mp3;base64,${audioBase64}`;
-  
-        // Create and play the sound
-        const { sound: newSound } = await Audio.Sound.createAsync(
-          { uri: audioUri },
-          { shouldPlay: true, rate }
-        );
-        setSound(newSound);
-        setIsPlaying(true);
-        newSound.setOnPlaybackStatusUpdate((status) => {
-          if ('didJustFinish' in status && status.didJustFinish) {
-            setIsPlaying(false);
-          }
-        });
-      } catch (error) {
-        console.error('Error playing sound:', error);
-        Alert.alert('Error', 'Failed to play the sentence. Please try again.');
+  const fetchAudio = async () => {
+    if (audioBase64Ref.current) return;
+
+    setIsLoadingAudio(true);
+    try {
+      const formData = new FormData();
+      formData.append('text', sentence);
+
+      const response = await fetch(`${ENV.AI_BACKEND_URL}/tts/`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
+
+      const data = await response.json();
+      audioBase64Ref.current = data.audio;
+    } catch (error) {
+      console.error('Error fetching audio:', error);
+      Alert.alert('Error', 'Failed to fetch the audio. Please try again.');
+    } finally {
+      setIsLoadingAudio(false);
+    }
+  };
+
+  const playSound = async (rate: number = 1.0) => {
+    if (isPlaying) {
+      await stopSound();
+    }
+
+    if (!audioBase64Ref.current) {
+      await fetchAudio();
+    }
+
+    if (!audioBase64Ref.current) {
+      Alert.alert('Error', 'Failed to load audio. Please try again.');
+      return;
+    }
+
+    try {
+      const { sound: newSound } = await Audio.Sound.createAsync(
+        { uri: `data:audio/mp3;base64,${audioBase64Ref.current}` },
+        { shouldPlay: true, rate }
+      );
+      soundObject.current = newSound;
+      setIsPlaying(true);
+
+      newSound.setOnPlaybackStatusUpdate((status) => {
+        if (status.isLoaded && status.didJustFinish) {
+          setIsPlaying(false);
+          newSound.unloadAsync();
+        }
+      });
+    } catch (error) {
+      console.error('Error playing sound:', error);
+      Alert.alert('Error', 'Failed to play the sentence. Please try again.');
     }
   };
 
   const stopSound = async () => {
-    if (sound) {
-      await sound.stopAsync();
-      setIsPlaying(false);
+    if (soundObject.current) {
+      await soundObject.current.stopAsync();
+      await soundObject.current.unloadAsync();
+      soundObject.current = null;
     }
+    setIsPlaying(false);
   };
 
   const handleMicPress = useCallback(async () => {
+    if (permissionStatus !== 'granted') {
+      const newStatus = await requestPermissions();
+      if (newStatus !== 'granted') {
+        Alert.alert('Permission Required', 'Microphone permission is required to record audio. Please enable it in your device settings.');
+        return;
+      }
+    }
+
     if (isRecording) {
       setIsRecording(false);
       setIsProcessing(true);
@@ -202,21 +233,24 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({sentence}) 
           throw new Error('Unexpected response format from the server');
         }
       } catch (error) {
-        console.error('Failed to process audio', error);
         if (error instanceof Error) {
           console.error('Error message:', error.message);
         }
         Alert.alert('Error', 'Failed to process your pronunciation. Please try again.');
       } finally {
         setIsProcessing(false);
+        recordingObject.current = null;
       }
     } else {
       try {
-        await Audio.requestPermissionsAsync();
         await Audio.setAudioModeAsync({
           allowsRecordingIOS: true,
           playsInSilentModeIOS: true,
         });
+        if (recordingObject.current) {
+          await recordingObject.current.stopAndUnloadAsync();
+        }
+
         const { recording } = await Audio.Recording.createAsync(
           Audio.RecordingOptionsPresets.HIGH_QUALITY
         );
@@ -227,7 +261,7 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({sentence}) 
         Alert.alert('Error', 'Failed to start recording. Please check your microphone permissions.');
       }
     }
-  }, [isRecording, sentence]);
+  }, [isRecording, sentence, permissionStatus]);
 
   const updatePhoneticAccuracy = (accuracies: number[]) => {
     setPhoneticWords(prevWords => 
@@ -259,11 +293,11 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({sentence}) 
           ))}
         </View>
         <View className="flex-row justify-start space-x-4 mb-8">
-          <TouchableOpacity onPress={() => playSound()} disabled={isPlaying}>
-            <Volume2 color={isPlaying ? "gray" : "black"} size={24} />
+          <TouchableOpacity onPress={() => playSound()} disabled={isPlaying || isLoadingAudio}>
+            <Volume2 color={isPlaying || isLoadingAudio ? "gray" : "black"} size={24} />
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => playSound(0.5)} disabled={isPlaying}>
-            <Snail color={isPlaying ? "gray" : "black"} size={24} />
+          <TouchableOpacity onPress={() => playSound(0.5)} disabled={isPlaying || isLoadingAudio}>
+            <Snail color={isPlaying || isLoadingAudio ? "gray" : "black"} size={24} />
           </TouchableOpacity>
           {isPlaying && (
             <TouchableOpacity onPress={stopSound}>
