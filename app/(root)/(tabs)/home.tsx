@@ -10,7 +10,7 @@ type Props = NativeStackScreenProps<RootTabParamList, 'Home'>;
 
 const HomeScreen: React.FC<Props> = () => {
   return (
-    <ScrollView className='flex-1' 
+    <ScrollView className='flex-1 bg-slate-100' 
       contentContainerStyle={{ flexGrow: 1 }}
       showsVerticalScrollIndicator={false}
     >
