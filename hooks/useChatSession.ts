@@ -270,7 +270,6 @@ export const useChatSession = () => {
         const transcribedText = result.results[0].transcript;
         
         if (!transcribedText || transcribedText.trim() === '') {
-          // Show popup for empty transcription
           showPopup("I couldn't hear anything. Please try speaking again.");
           return;
         }
@@ -328,7 +327,6 @@ export const useChatSession = () => {
           setIsTyping(false);
         }
       } else {
-        // Show popup when no transcription is returned
         showPopup("I couldn't transcribe the audio. Please try again.");
       }
     } catch (error) {

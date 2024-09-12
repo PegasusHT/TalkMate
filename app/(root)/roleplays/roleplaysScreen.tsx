@@ -3,12 +3,34 @@ import { View, Text, TouchableOpacity, Image, ScrollView } from 'react-native';
 import { ArrowRight, ArrowLeft } from 'lucide-react-native';
 import { useNavigation } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { StackNavigationProp } from '@react-navigation/stack'; 
 
 interface RolePlayingCard {
   name: string;
   careerField: string;
   position: string;
 }
+
+interface ScenarioDetails {
+  id: number;
+  title: string;
+  description: string;
+  aiRole: {
+    name: string;
+    role: string;
+    traits: string[];
+    image: string;
+  };
+  userRole: string;
+  objectives: string[];
+  usefulPhrases: {
+    phrase: string;
+    pronunciation: string;
+  }[];
+}
+type RootStackParamList = {
+  scenarioDetail: ScenarioDetails; 
+};
 
 interface ConversationScenario {
   id: number;
@@ -33,7 +55,7 @@ const conversationScenarios: ConversationScenario[] = [
 
 const RoleplaysUI: React.FC = () => {
   const [card, setCard] = useState<RolePlayingCard>(initialCard);
-  const navigation = useNavigation();
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>(); 
 
   const handleChange = () => {
     // Implement logic to change the role-playing card
@@ -41,16 +63,49 @@ const RoleplaysUI: React.FC = () => {
   };
 
   const handleScenarioPress = (id: number) => {
-    // Implement logic to start the conversation scenario
-    console.log('Start scenario', id);
+  // Fetch the full scenario details based on the id
+  const scenarioDetails: ScenarioDetails = {
+    id: id,
+    title: "First day at work",
+    description: "You enter a bustling bank, greeted by the Risk Manager. The atmosphere is professional yet welcoming. What are you waiting for? Get familiar with the environment and learn your role.",
+    aiRole: {
+      name: "Alex",
+      role: "Risk Manager",
+      traits: ["decisive", "practical", "smart"],
+      image: "https://example.com/risk-manager.jpg"
+    },
+    userRole: "Retail banker",
+    objectives: [
+      "Introduce yourself to the Risk Manager",
+      "Learn about bank protocols and systems",
+      "Seek guidance on your responsibilities as a Retail Banker"
+    ],
+    usefulPhrases: [
+      {
+        phrase: "Good day! I'm a new Retail Banker.",
+        pronunciation: "/gʊd deɪ aɪm ə njuː ˈriːteɪl ˈbæŋkər/"
+      },
+      {
+        phrase: "This is my first day at work.",
+        pronunciation: "/ðɪs ɪz maɪ fɜːrst deɪ æt wɜːrk/"
+      },
+      {
+        phrase: "I'm so excited to start my work.",
+        pronunciation: "/aɪm soʊ ɪkˈsaɪtɪd tuː stɑːrt maɪ wɜːrk/"
+      }
+    ]
   };
+
+  navigation.navigate('scenarioDetail', scenarioDetails);
+};
 
   return (
     <SafeAreaView className="flex-1 bg-indigo-900 px-4">     
-      <TouchableOpacity className='pb-4' onPress={() => navigation.goBack()}>
+      <TouchableOpacity className='pb-4'
+       onPress={() => navigation.goBack()}>
         <ArrowLeft size={28} color="#FFFF" />
       </TouchableOpacity> 
-      <View className="bg-indigo-800 rounded-xl p-4 mb-6">
+      <View className="bg-indigo-800 rounded-xl p-4 mb-8 mt-6">
         <View className="flex-row justify-between items-center mb-2">
           <Text className="text-white text-xl font-semibold">Role-playing Card</Text>
           <TouchableOpacity onPress={handleChange} className="bg-blue-500 px-3 py-1 rounded-full">
