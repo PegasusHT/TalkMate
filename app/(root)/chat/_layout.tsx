@@ -11,7 +11,7 @@ const ChatLayout = () => {
           name="pronunciation-practice" 
           options={{ 
             headerTitle: 'Pronunciation Practice',
-            headerShown: true,
+            headerShown: false,
           }} 
         />
       </Stack>

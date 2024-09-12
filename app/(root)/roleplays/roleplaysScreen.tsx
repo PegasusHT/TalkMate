@@ -5,10 +5,10 @@ import { useNavigation } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StackNavigationProp } from '@react-navigation/stack'; 
 
-interface RolePlayingCard {
+interface CharacterCard {
   name: string;
-  careerField: string;
-  position: string;
+  role: string;
+  context?: string;
 }
 
 interface ScenarioDetails {
@@ -28,6 +28,7 @@ interface ScenarioDetails {
     pronunciation: string;
   }[];
 }
+
 type RootStackParamList = {
   scenarioDetail: ScenarioDetails; 
 };
@@ -39,65 +40,65 @@ interface ConversationScenario {
   isNew?: boolean;
 }
 
-const initialCard: RolePlayingCard = {
+const initialCard: CharacterCard = {
   name: 'Player',
-  careerField: 'Finance and Banking',
-  position: 'Retail banker',
+  role: 'Student',
+  context: 'Grocery shopping',
 };
 
 const conversationScenarios: ConversationScenario[] = [
-  { id: 1, title: 'Job interview', image: 'https://example.com/job-interview.jpg', isNew: true },
-  { id: 2, title: 'First day at work', image: 'https://example.com/first-day.jpg' },
-  { id: 3, title: 'Reporting to the Branch Director', image: 'https://example.com/reporting.jpg', isNew: true },
-  { id: 4, title: 'Asking for a raise', image: 'https://example.com/raise.jpg', isNew: true },
+  { id: 1, title: 'Finding directions', image: 'https://example.com/job-interview.jpg', isNew: true },
+  { id: 2, title: 'Buying groceries', image: 'https://example.com/groceries.jpg' },
+  { id: 3, title: 'Ordering food delivery', image: 'https://example.com/food-delivery.jpg', isNew: true },
+  { id: 4, title: 'Buying a car', image: 'https://example.com/car-dealership.jpg', isNew: true },
   // Add more scenarios as needed
 ];
 
 const RoleplaysUI: React.FC = () => {
-  const [card, setCard] = useState<RolePlayingCard>(initialCard);
+  const [card, setCard] = useState<CharacterCard>(initialCard);
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>(); 
 
   const handleChange = () => {
-    // Implement logic to change the role-playing card
+    // Implement logic to change the character card
     console.log('Change card');
   };
 
   const handleScenarioPress = (id: number) => {
-  // Fetch the full scenario details based on the id
-  const scenarioDetails: ScenarioDetails = {
-    id: id,
-    title: "First day at work",
-    description: "You enter a bustling bank, greeted by the Risk Manager. The atmosphere is professional yet welcoming. What are you waiting for? Get familiar with the environment and learn your role.",
-    aiRole: {
-      name: "Alex",
-      role: "Risk Manager",
-      traits: ["decisive", "practical", "smart"],
-      image: "https://example.com/risk-manager.jpg"
-    },
-    userRole: "Retail banker",
-    objectives: [
-      "Introduce yourself to the Risk Manager",
-      "Learn about bank protocols and systems",
-      "Seek guidance on your responsibilities as a Retail Banker"
-    ],
-    usefulPhrases: [
-      {
-        phrase: "Good day! I'm a new Retail Banker.",
-        pronunciation: "/gʊd deɪ aɪm ə njuː ˈriːteɪl ˈbæŋkər/"
+    // Fetch the full scenario details based on the id
+    const scenarioDetails: ScenarioDetails = {
+      id: id,
+      title: "Buying groceries",
+      description: "You're at a local supermarket, ready to buy groceries for the week. The store is bustling with activity, and you need to navigate the aisles, find items, and interact with store staff.",
+      aiRole: {
+        name: "Sam",
+        role: "Store Assistant",
+        traits: ["helpful", "patient", "knowledgeable"],
+        image: "https://example.com/store-assistant.jpg"
       },
-      {
-        phrase: "This is my first day at work.",
-        pronunciation: "/ðɪs ɪz maɪ fɜːrst deɪ æt wɜːrk/"
-      },
-      {
-        phrase: "I'm so excited to start my work.",
-        pronunciation: "/aɪm soʊ ɪkˈsaɪtɪd tuː stɑːrt maɪ wɜːrk/"
-      }
-    ]
-  };
+      userRole: "Customer",
+      objectives: [
+        "Greet the store assistant and ask for help",
+        "Inquire about specific product locations",
+        "Ask about any ongoing promotions or discounts"
+      ],
+      usefulPhrases: [
+        {
+          phrase: "Excuse me, could you help me find...?",
+          pronunciation: "/ɪkˈskjuːz miː, kʊd juː help miː faɪnd.../"
+        },
+        {
+          phrase: "Are there any special offers today?",
+          pronunciation: "/ɑːr ðɛr ˈɛni ˈspɛʃəl ˈɔːfərz təˈdeɪ/"
+        },
+        {
+          phrase: "Where can I find the fresh produce section?",
+          pronunciation: "/wɛr kæn aɪ faɪnd ðə frɛʃ ˈprɒdjuːs ˈsɛkʃən/"
+        }
+      ]
+    };
 
-  navigation.navigate('scenarioDetail', scenarioDetails);
-};
+    navigation.navigate('scenarioDetail', scenarioDetails);
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-indigo-900 px-4">     
@@ -107,14 +108,14 @@ const RoleplaysUI: React.FC = () => {
       </TouchableOpacity> 
       <View className="bg-indigo-800 rounded-xl p-4 mb-8 mt-6">
         <View className="flex-row justify-between items-center mb-2">
-          <Text className="text-white text-xl font-semibold">Role-playing Card</Text>
+          <Text className="text-white text-xl font-semibold">Character Card</Text>
           <TouchableOpacity onPress={handleChange} className="bg-blue-500 px-3 py-1 rounded-full">
             <Text className="text-white">Change</Text>
           </TouchableOpacity>
         </View>
         <Text className="text-white">Name: {card.name}</Text>
-        <Text className="text-white">Career field: {card.careerField}</Text>
-        <Text className="text-white">Position: {card.position}</Text>
+        <Text className="text-white">Role: {card.role}</Text>
+        {card.context && <Text className="text-white">Context: {card.context}</Text>}
       </View>
 
       <View className="flex-row flex-wrap justify-between">
