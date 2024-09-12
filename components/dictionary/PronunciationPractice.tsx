@@ -1,11 +1,13 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { View, ScrollView, Text, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
-import { Mic, Volume2, VolumeX, Snail } from 'lucide-react-native';
+import { Mic, Volume2, VolumeX, Snail, ArrowLeft } from 'lucide-react-native';
 import { Audio } from 'expo-av';
 import * as FileSystem from 'expo-file-system';
 import PronunciationPerformanceModal from '@/components/dictionary/PronunciationPerformanceModal';
 import ENV from '@/utils/envConfig';
 import { PerformanceData, PhoneticWord, DictionaryDefinition } from '@/types/dictionary';
+import { useNavigation } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 type PronunciationPracticeProp = {
   sentence: string;
@@ -25,6 +27,7 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
   const audioBase64Ref = useRef<string | null>(null);
   const [dictionaryDefinition, setDictionaryDefinition] = useState<DictionaryDefinition | null>(null);
   const [isLoadingDefinition, setIsLoadingDefinition] = useState(false);
+  const navigation = useNavigation();
 
   useEffect(() => {
     fetchPhonetic();
@@ -297,8 +300,13 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
   };
 
   return (
-    <View className="flex-1 bg-white p-6">
-      <View className="flex-1 justify-start">
+    <SafeAreaView className="flex-1 bg-white px-4">
+      <View className=''>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <ArrowLeft size={28} color="#000" />
+        </TouchableOpacity>
+      </View>
+      <View className="flex-1 justify-start px-4 pt-4">
         <Text className="text-2xl font-bold mb-1 mt-4">{sentence}</Text>
         <View className="flex-row flex-wrap mb-2">
           <Text className="text-lg mr-1">/</Text>
@@ -372,7 +380,7 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
           onTryAgain={handleTryAgain}
         />
       )}
-    </View>
+    </SafeAreaView>
   );
 };
 

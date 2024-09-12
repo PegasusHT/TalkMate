@@ -1,14 +1,22 @@
 import React from 'react';
 import { View, Text, Image } from 'react-native';
 import { Pencil, BookA } from 'lucide-react-native';
+import { useNavigation } from '@react-navigation/native';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 
 const roleplayIcon = require('@/assets/icons/roleplayIcon.png');
 
 const RoleplayFeature = () => {
+  const navigation = useNavigation();
+  const handlePress = () => {
+    navigation.navigate('roleplays' as never);
+  };
+
   return (
     <View className="bg-white w-11/12 rounded-lg overflow-hidden shadow-xl mt-6"
       style={{ borderWidth: 1.2, borderColor: '#e5e7eb' }}
       >
+      <TouchableOpacity onPress={handlePress}>
       <View className="p-4">
         <Text className="text-2xl font-bold mb-4">Roleplays</Text>
         <View className="flex-row">
@@ -36,6 +44,7 @@ const RoleplayFeature = () => {
         source={roleplayIcon}
         className="absolute right-0 bottom-0 w-36 h-44"
       />
+      </TouchableOpacity>
     </View>
   );
 };
