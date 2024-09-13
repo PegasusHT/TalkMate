@@ -11,8 +11,9 @@ const App = () => {
                 // Log the error
                 console.error('Global error handler:', error);
                 
-                // can add custom logic here, like sending to a logging service
+                // You can add custom logic here, like sending to a logging service
                 
+                // Call the original handler
                 originalHandler(error, isFatal);
             });
 

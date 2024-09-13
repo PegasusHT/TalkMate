@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, Modal, TouchableOpacity, ScrollView, Pressable, Alert } from 'react-native';
 import { Ear } from 'lucide-react-native';
 import { Audio, AVPlaybackStatus } from 'expo-av';
+import { useAudioMode } from '@/hooks/useAudioMode';
 
 type PerformanceData = {
   recording_transcript: string;
@@ -30,6 +31,7 @@ const PronunciationPerformanceModal: React.FC<PronunciationPerformanceModalProps
 }) => {
   const [sound, setSound] = useState<Audio.Sound | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const { mode, setPlaybackMode, setRecordingMode } = useAudioMode();
 
   useEffect(() => {
     return () => {
@@ -62,6 +64,7 @@ const PronunciationPerformanceModal: React.FC<PronunciationPerformanceModalProps
             await sound.stopAsync();
             setIsPlaying(false);
           } else {
+            await setPlaybackMode();
             await sound.playFromPositionAsync(0);
             setIsPlaying(true);
           }

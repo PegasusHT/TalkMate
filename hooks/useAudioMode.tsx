@@ -1,0 +1,37 @@
+import { useState, useCallback } from 'react';
+import { Audio, InterruptionModeAndroid, InterruptionModeIOS } from 'expo-av';
+
+const playbackMode = {
+  allowsRecordingIOS: false,
+  playsInSilentModeIOS: true,
+  staysActiveInBackground: false,
+  interruptionModeIOS: InterruptionModeIOS.DoNotMix,
+    interruptionModeAndroid: InterruptionModeAndroid.DoNotMix,
+  shouldDuckAndroid: false,
+  playThroughEarpieceAndroid: false,
+};
+
+const recordingMode = {
+  ...playbackMode,
+  allowsRecordingIOS: true,
+};
+
+export const useAudioMode = () => {
+  const [mode, setMode] = useState<'playback' | 'recording'>('playback');
+
+  const setPlaybackMode = useCallback(async () => {
+    await Audio.setAudioModeAsync(playbackMode);
+    setMode('playback');
+  }, []);
+
+  const setRecordingMode = useCallback(async () => {
+    await Audio.setAudioModeAsync(recordingMode);
+    setMode('recording');
+  }, []);
+
+  return {
+    mode,
+    setPlaybackMode,
+    setRecordingMode,
+  };
+};

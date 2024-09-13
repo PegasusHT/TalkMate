@@ -1,8 +1,10 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import Constants from 'expo-constants';
 import { ChatMessage } from '@/types/chat';
-import { Audio, InterruptionModeAndroid, InterruptionModeIOS } from 'expo-av';
+import { Audio } from 'expo-av';
 import ENV from '@/utils/envConfig'; 
+import { useAudioMode } from './useAudioMode'; 
+
 const { BACKEND_URL, AI_BACKEND_URL } = ENV;
 
 const MAX_TOKENS = 4000;
@@ -23,27 +25,11 @@ export const useChatSession = () => {
   const [isAudioLoading, setIsAudioLoading] = useState(false);
   const soundObject = useRef(new Audio.Sound());
   const [popupMessage, setPopupMessage] = useState<string | null>(null);
-  const [isAudioModeConfigured, setIsAudioModeConfigured] = useState(false);
+  const { mode, setPlaybackMode, setRecordingMode } = useAudioMode();
 
   useEffect(() => {
-    configureAudioMode();
-  }, []);
-  const configureAudioMode = async () => {
-    try {
-      await Audio.setAudioModeAsync({
-        allowsRecordingIOS: true,
-        playsInSilentModeIOS: true,
-        staysActiveInBackground: true,
-        interruptionModeIOS: InterruptionModeIOS.DoNotMix,
-        interruptionModeAndroid: InterruptionModeAndroid.DoNotMix,
-        shouldDuckAndroid: true,
-        playThroughEarpieceAndroid: false,
-      });
-      setIsAudioModeConfigured(true);
-    } catch (error) {
-      console.error('Error configuring audio mode:', error);
-    }
-  };
+    setPlaybackMode();
+  }, [setPlaybackMode]);
 
   const playAudio = useCallback(async (messageId: number, text: string, audioUri?: string) => {
     if (playingAudioId === messageId) {
@@ -52,6 +38,7 @@ export const useChatSession = () => {
     }
 
     try {
+      await setPlaybackMode();
       setIsAudioLoading(true);
       await stopAudio();
 
@@ -100,7 +87,7 @@ export const useChatSession = () => {
       setPlayingAudioId(null);
       setIsAudioLoading(false);
     }
-  }, [playingAudioId]);
+  }, [playingAudioId, setPlaybackMode]);
 
   const stopAudio = useCallback(async () => {
     if (playingAudioId !== null) {
@@ -193,10 +180,7 @@ export const useChatSession = () => {
   }, [playingAudioId, stopAudio]);
 
   const handleMicPress = useCallback(async () => {
-    if (!isAudioModeConfigured) {
-      await configureAudioMode();
-    }
-
+    await setRecordingMode();
     try {
       const { status } = await Audio.requestPermissionsAsync();
       if (status !== 'granted') {
@@ -215,20 +199,21 @@ export const useChatSession = () => {
     } catch (error) {
       console.error('Failed to start recording', error);
     }
-  }, [isAudioModeConfigured, stopAllAudio]);
+  }, [setRecordingMode, stopAllAudio]);
 
   const stopRecording = useCallback(async () => {
     if (!recordingObject.current) return;
 
     try {
       await recordingObject.current.stopAndUnloadAsync();
+      await setPlaybackMode();
     } catch (error) {
       console.error('Failed to stop recording', error);
     } finally {
       setIsRecording(false);
       recordingObject.current = null;
     }
-  }, []);
+  }, [setPlaybackMode]);
 
   const showPopup = useCallback((message: string) => {
     setPopupMessage(message);
@@ -315,7 +300,8 @@ export const useChatSession = () => {
             { ...userMessage, feedback: data.feedback, isLoading: false },
             assistantMessage
           ]);
-  
+          
+          await setPlaybackMode();
           await autoPlayMessage(assistantMessage);
         } catch (error) {
           console.error('Error sending message:', error);
@@ -336,7 +322,7 @@ export const useChatSession = () => {
       setIsProcessingAudio(false);
       setIsRecording(false);
     }
-  }, [chatHistory, autoPlayMessage, AI_BACKEND_URL, BACKEND_URL, showPopup]);
+  }, [chatHistory, autoPlayMessage, AI_BACKEND_URL, BACKEND_URL, showPopup, setPlaybackMode]);
 
   const startNewChat = useCallback(async () => {
     await stopAllAudio();

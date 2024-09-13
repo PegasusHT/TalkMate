@@ -8,6 +8,7 @@ import ENV from '@/utils/envConfig';
 import { PerformanceData, PhoneticWord, DictionaryDefinition } from '@/types/dictionary';
 import { useNavigation } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useAudioMode } from '@/hooks/useAudioMode';
 
 type PronunciationPracticeProp = {
   sentence: string;
@@ -28,6 +29,7 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
   const [dictionaryDefinition, setDictionaryDefinition] = useState<DictionaryDefinition | null>(null);
   const [isLoadingDefinition, setIsLoadingDefinition] = useState(false);
   const navigation = useNavigation();
+  const { mode, setPlaybackMode, setRecordingMode } = useAudioMode();
 
   useEffect(() => {
     fetchPhonetic();
@@ -199,6 +201,7 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
       setIsRecording(false);
       setIsProcessing(true);
       try {
+        await setRecordingMode();
         await recordingObject.current?.stopAndUnloadAsync();
         const uri = recordingObject.current?.getURI();
         if (!uri) throw new Error('No recording URI found');
