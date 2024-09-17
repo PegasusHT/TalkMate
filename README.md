@@ -1,4 +1,4 @@
-# TalkMate (used to be SpeakEase, we changed name)
+# TalkMate
 
 A cross-platform app that utilizes AI to help the users practice English conversation. It will talk to the users, and give feedback about grammar, pronunciation, vocabulary, and also provides better solution for the user. tech stacks: MongoDB, React Native, TypeScript, Expo, Tailwindcss (dont use React Native stylesheets). AI: Gemini Backend: - Nodejs for app backend, - Python3, FastAPI to handle AI backend, Whisper, tts for text and audio AI.
 

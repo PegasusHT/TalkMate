@@ -3,10 +3,10 @@ module.exports = () => {
       
   return {
     expo: {
-      name: "SpeakEase",
-      slug: "SpeakEase",
+      name: "TalkMate",
+      slug: "TalkMate",
       version: "1.0.0",
-      scheme: "speakease",
+      scheme: "talkmate",
       "splash": {
       "image": "./assets/images/splash.png",
       "resizeMode": "contain",

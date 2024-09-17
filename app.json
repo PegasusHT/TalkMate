@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "SpeakEase",
-    "slug": "SpeakEase",
+    "name": "TalkMate",
+    "slug": "TalkMate",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "speakease",
+    "scheme": "talkmate",
     "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/images/splash.png",
