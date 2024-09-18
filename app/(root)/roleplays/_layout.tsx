@@ -6,6 +6,7 @@ const ChatLayout = () => {
     <Stack>
         <Stack.Screen name="roleplaysScreen" options={{ headerShown: false }} />
         <Stack.Screen name='scenarioDetail' options={{ headerShown: false }} />
+        <Stack.Screen name='chat' options={{ headerShown: false }} />
     </Stack>
   );
 };

@@ -26,6 +26,14 @@ interface ScenarioDetails {
 
 type RootStackParamList = {
   ScenarioDetail: { scenarioDetails: ScenarioDetails };
+  chat: { 
+    aiName: string;
+    aiRole: string;
+    aiTraits: string[];
+    userRole: string;
+    objectives: string[];
+    scenarioTitle: string;
+  };
 };
 
 type ScenarioDetailRouteProp = RouteProp<RootStackParamList, 'ScenarioDetail'>;
@@ -37,8 +45,16 @@ const ScenarioDetail: React.FC = () => {
   const { scenarioDetails } = route.params;
 
   const handleStartConversation = () => {
-    // Navigate to the conversation screen
-    console.log('Start conversation');
+    navigation.navigate('chat', {
+      aiName: scenarioDetails.aiRole.name,
+      aiRole: scenarioDetails.aiRole.role,
+      aiTraits: Array.isArray(scenarioDetails.aiRole.traits) 
+        ? scenarioDetails.aiRole.traits 
+        : scenarioDetails.aiRole.traits.split(',').map(trait => trait.trim()),
+      userRole: scenarioDetails.userRole,
+      objectives: scenarioDetails.objectives,
+      scenarioTitle: scenarioDetails.title,
+    });
   };
 
   const playAudio = (phrase: string) => {
@@ -53,7 +69,7 @@ const ScenarioDetail: React.FC = () => {
 
   return (
     <View className="flex-1">
-      <ScrollView className="flex-1">
+      <ScrollView className="flex-1 bg-indigo-900">
         <ImageBackground 
           source={{ uri: scenarioDetails.aiRole.backgroundImage }} 
           className="w-full h-64 justify-end"

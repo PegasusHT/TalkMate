@@ -1,52 +1,64 @@
-//path: app/(root)/chat/Chat.tsx
-import React, { useEffect, useRef, useCallback } from 'react';
-import { View, FlatList, KeyboardAvoidingView, Platform, Text, Animated } from 'react-native';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { View, FlatList, KeyboardAvoidingView, Platform, Text, Modal, ScrollView, Animated } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
+import { useRoute, RouteProp } from '@react-navigation/native';
 import ChatHeader from '@/components/chat/ChatHeader';
 import ChatInput from '@/components/chat/ChatInput';
 import ChatMessage from '@/components/chat/ChatMessage';
 import FeedbackModal from '@/components/chat/FeedbackModal';
-import TopicSelector from '@/components/chat/TopicSelector';
 import { useChatSession } from '@/hooks/useChatSession';
 import TypingIndicator from '@/components/chat/animation/TypingIndicator';
 import { ChatMessage as ChatMessageType } from '@/types/chat';
 
-const ChatSession: React.FC = () => {
+type RootStackParamList = {
+  chat: { 
+    aiName: string;
+    aiRole: string;
+    aiTraits: string[];
+    userRole: string;
+    objectives: string[];
+    scenarioTitle: string;
+  };
+};
+
+type ChatRouteProp = RouteProp<RootStackParamList, 'chat'>;
+
+const Chat: React.FC = () => {
+  const route = useRoute<ChatRouteProp>();
+  const { aiName, aiRole, aiTraits, userRole, objectives, scenarioTitle } = route.params;
+  const [showInfoModal, setShowInfoModal] = useState(false);
+
   const {
     message,
     setMessage,
     chatHistory,
-    isInitializing,
     isTyping,
     showFeedbackModal,
     setShowFeedbackModal,
     currentFeedback,
     setCurrentFeedback,
-    showTopics,
     sendMessage,
     handleSend,
     handleMicPress,
     isRecording,
     stopRecording,
     sendAudio,
-    initializeChat,
     isProcessingAudio,
-    handleTopicSelect,
     playAudio,
     stopAudio,
     playingAudioId,
     isAudioLoading,
     stopAllAudio,
-    startNewChat,
-    popupMessage,
   } = useChatSession();
 
   const flatListRef = useRef<FlatList<ChatMessageType>>(null);
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    initializeChat();
+    // Initialize the chat with AI's greeting
+    const aiGreeting = `Hello! I'm ${aiName}, and I'll be playing the role of ${aiRole}. Let's start our conversation about ${scenarioTitle}. Remember, your role is ${userRole}. What would you like to discuss first?`;
+    sendMessage(aiGreeting);
   }, []);
 
   useEffect(() => {
@@ -68,24 +80,6 @@ const ChatSession: React.FC = () => {
       };
     }, [stopAllAudio])
   );
-
-  useEffect(() => {
-    if (popupMessage) {
-      Animated.sequence([
-        Animated.timing(fadeAnim, {
-          toValue: 1,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-        Animated.delay(1400),
-        Animated.timing(fadeAnim, {
-          toValue: 0,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-      ]).start();
-    }
-  }, [popupMessage, fadeAnim]);
 
   const handleAudioPress = (messageId: number, text: string, audioUri?: string) => {
     playAudio(messageId, text, audioUri);
@@ -111,10 +105,6 @@ const ChatSession: React.FC = () => {
     return null;
   };
 
-  const handleNewChat = () => {
-    startNewChat();
-  };
-
   return (
     <SafeAreaView className="flex-1 bg-white">
       <KeyboardAvoidingView 
@@ -122,9 +112,9 @@ const ChatSession: React.FC = () => {
         className="flex-1"
       >
         <ChatHeader 
-          aiName="Mia"
-          chatType="main"
-          onNewChat={startNewChat}
+          aiName={aiName}
+          chatType="roleplay"
+          onInfoPress={() => setShowInfoModal(true)}
         />
 
         <FlatList
@@ -135,8 +125,6 @@ const ChatSession: React.FC = () => {
           className="flex-1"
           ListFooterComponent={renderFooter}
         />
-
-        {showTopics && <TopicSelector onTopicSelect={handleTopicSelect} />}
 
         <ChatInput
           message={message}
@@ -149,24 +137,6 @@ const ChatSession: React.FC = () => {
           isProcessingAudio={isProcessingAudio}
           stopAllAudio={stopAllAudio}
         />
-
-        {popupMessage && (
-          <Animated.View 
-            style={{
-              opacity: fadeAnim,
-              position: 'absolute',
-              bottom: 100,
-              left: 20,
-              right: 20,
-              backgroundColor: 'rgba(0, 0, 0, 0.7)',
-              padding: 10,
-              borderRadius: 5,
-              alignItems: 'center',
-            }}
-          >
-            <Text style={{ color: 'white', textAlign: 'center' }}>{popupMessage}</Text>
-          </Animated.View>
-        )}
       </KeyboardAvoidingView>
 
       <FeedbackModal
@@ -179,4 +149,4 @@ const ChatSession: React.FC = () => {
   );
 };
 
-export default ChatSession;
+export default Chat;
