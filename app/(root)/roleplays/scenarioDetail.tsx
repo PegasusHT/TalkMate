@@ -1,10 +1,11 @@
 import React from 'react';
 import { View, Text, Image, ScrollView, TouchableOpacity, ImageBackground } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ArrowLeft, Volume2, Clapperboard, Goal } from 'lucide-react-native';
+import { ArrowLeft, Volume2, Clapperboard, Goal, Pause } from 'lucide-react-native';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-
+import { useAudioPlayer } from '@/hooks/useAudioPlayer';
+import { ActivityIndicator } from 'react-native';
 interface ScenarioDetails {
   id: number;
   title: string;
@@ -43,6 +44,7 @@ const ScenarioDetail: React.FC = () => {
   const navigation = useNavigation<ScenarioDetailNavigationProp>();
   const route = useRoute<ScenarioDetailRouteProp>();
   const { scenarioDetails } = route.params;
+  const { playAudio, stopAudio, playingAudioId, isAudioLoading } = useAudioPlayer();
 
   const handleStartConversation = () => {
     navigation.navigate('chat', {
@@ -57,9 +59,12 @@ const ScenarioDetail: React.FC = () => {
     });
   };
 
-  const playAudio = (phrase: string) => {
-    // Implement audio playback for the phrase
-    console.log('Play audio for:', phrase);
+  const handleAudioPress = (phrase: string, id: number) => {
+    if (playingAudioId === id) {
+      stopAudio();
+    } else {
+      playAudio(id, phrase);
+    }
   };
 
   // Convert traits to array if it's a string
@@ -130,8 +135,19 @@ const ScenarioDetail: React.FC = () => {
               <View key={index} className="bg-indigo-800 rounded-lg p-3 mb-3">
                 <Text className="text-white font-semibold">{phrase.phrase}</Text>
                 <Text className="text-gray-400 italic">{phrase.pronunciation}</Text>
-                <TouchableOpacity onPress={() => playAudio(phrase.phrase)} className="absolute right-2 top-2">
-                  <Volume2 color="white" size={20} />
+                <TouchableOpacity 
+                  onPress={() => handleAudioPress(phrase.phrase, index)} 
+                  className="absolute right-2 top-2"
+                >
+                  {playingAudioId === index ? (
+                    isAudioLoading ? (
+                      <ActivityIndicator size="small" color="white" />
+                    ) : (
+                      <Pause color="white" size={20} />
+                    )
+                  ) : (
+                    <Volume2 color="white" size={20} />
+                  )}
                 </TouchableOpacity>
               </View>
             ))}
