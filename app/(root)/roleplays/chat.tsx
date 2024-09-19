@@ -1,3 +1,4 @@
+//app/(root)/roleplays/chat.tsx
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { View, FlatList, KeyboardAvoidingView, Platform, Text, Modal, ScrollView, Animated } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';

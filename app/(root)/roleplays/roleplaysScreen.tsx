@@ -131,11 +131,11 @@ const RoleplaysScreen: React.FC = () => {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-indigo-700 p-4">
+    <SafeAreaView className="flex-1 bg-blue-600 p-4">
       <TouchableOpacity className="pb-4" onPress={() => navigation.goBack()}>
         <ArrowLeft size={28} color="#FFFFFF" />
       </TouchableOpacity>
-      <View className="bg-indigo-800 rounded-xl p-4 mb-8 mt-6">
+      <View className="bg-indigo-700 rounded-xl p-4 mb-8 mt-6">
         <View className="flex-row justify-between items-center mb-2">
           <Text className="text-white text-xl font-semibold">Character Card</Text>
         </View>
@@ -143,7 +143,7 @@ const RoleplaysScreen: React.FC = () => {
         <View className="flex-row items-center mt-2">
           <TouchableOpacity 
             onPress={() => openModal('role')} 
-            className="flex-1 flex-row justify-between items-center bg-indigo-900 p-2 rounded-md"
+            className="flex-1 flex-row justify-between items-center bg-indigo-800 p-2 rounded-md"
           >
             <Text className="text-white">{card.role || 'Select a role'}</Text>
             <ChevronDown color="white" size={20} />
@@ -152,7 +152,7 @@ const RoleplaysScreen: React.FC = () => {
         <View className="flex-row items-center mt-2">
           <TouchableOpacity 
             onPress={() => openModal('context')} 
-            className={`flex-1 flex-row justify-between items-center bg-indigo-900 p-2 rounded-md ${!card.role ? 'opacity-50' : ''}`}
+            className={`flex-1 flex-row justify-between items-center bg-indigo-800 p-2 rounded-md ${!card.role ? 'opacity-50' : ''}`}
             disabled={!card.role}
           >
             <Text className="text-white">{card.context || 'Select a context'}</Text>
@@ -169,7 +169,7 @@ const RoleplaysScreen: React.FC = () => {
             <TouchableOpacity
               key={scenario.id}
               onPress={() => handleScenarioPress(scenario.id)}
-              className="w-[48%] bg-indigo-800 rounded-xl mb-4 overflow-hidden"
+              className="w-[48%] bg-indigo-700 rounded-xl mb-4 overflow-hidden"
             >
               <Image source={{ uri: scenario.image }} className="w-full h-32" />
               <View className="flex-row justify-between items-center mt-2 p-2">
