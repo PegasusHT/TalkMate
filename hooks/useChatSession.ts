@@ -4,12 +4,13 @@ import { ChatMessage } from '@/types/chat';
 import { Audio } from 'expo-av';
 import ENV from '@/utils/envConfig'; 
 import { useAudioMode } from './useAudioMode'; 
+import axios from 'axios';
 
 const { BACKEND_URL, AI_BACKEND_URL } = ENV;
 
 const MAX_TOKENS = 4000;
 
-export const useChatSession = () => {
+export const useChatSession = (isMiaChat = false, scenarioId?: number) => {
   const [message, setMessage] = useState('');
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
   const [isInitializing, setIsInitializing] = useState<boolean>(true);
@@ -115,50 +116,52 @@ export const useChatSession = () => {
     }).reverse();
   };
 
-  const sendMessage = useCallback(async (text: string) => {
-    const userMessage: ChatMessage = { role: 'user', content: text, id: Date.now(), isLoading: true };
+  const sendMessage = useCallback(async (text: string, isInitialGreeting = false) => {
+    const userMessage: ChatMessage = { role: isInitialGreeting ? 'model' : 'user', content: text, id: Date.now(), isLoading: !isInitialGreeting };
     setChatHistory(prev => [...prev, userMessage]);
-    setIsTyping(true);
-    setShowTopics(false);
+    if (!isInitialGreeting) {
+      setIsTyping(true);
+      setShowTopics(false);
 
-    try {
-      const conversationHistory = trimConversationHistory([...chatHistory, userMessage]);
-      
-      const response = await fetch(`${BACKEND_URL}/chat`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ messages: conversationHistory }),
-      });
+      try {
+        const conversationHistory = trimConversationHistory([...chatHistory, userMessage]);
+        
+        const response = await fetch(`${BACKEND_URL}/chat`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ messages: conversationHistory }),
+        });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        let mateReply = 'Hi';
+        if (data && data.reply) {
+          mateReply = data.reply;
+        }
+
+        const assistantMessage: ChatMessage = { role: 'model', content: mateReply, id: Date.now() };
+        
+        setChatHistory(prev => [
+          ...prev.slice(0, -1),
+          { ...userMessage, feedback: data.feedback, isLoading: false },
+          assistantMessage
+        ]);
+
+        await autoPlayMessage(assistantMessage);
+      } catch (error) {
+        console.error('Error sending message:', error);
+        setChatHistory(prev => [
+          ...prev.slice(0, -1),
+          { ...prev[prev.length - 1], isLoading: false, feedback: { correctedVersion: '', explanation: 'Error occurred' } },
+        ]);
+      } finally {
+        setIsTyping(false);
       }
-
-      const data = await response.json();
-      let mateReply = 'Hi';
-      if (data && data.reply) {
-        mateReply = data.reply;
-      }
-
-      const assistantMessage: ChatMessage = { role: 'model', content: mateReply, id: Date.now() };
-      
-      setChatHistory(prev => [
-        ...prev.slice(0, -1),
-        { ...userMessage, feedback: data.feedback, isLoading: false },
-        assistantMessage
-      ]);
-
-      await autoPlayMessage(assistantMessage);
-    } catch (error) {
-      console.error('Error sending message:', error);
-      setChatHistory(prev => [
-        ...prev.slice(0, -1),
-        { ...prev[prev.length - 1], isLoading: false, feedback: { correctedVersion: '', explanation: 'Error occurred' } },
-      ]);
-    } finally {
-      setIsTyping(false);
     }
   }, [chatHistory, autoPlayMessage]);
 
@@ -328,7 +331,6 @@ export const useChatSession = () => {
     await stopAllAudio();
 
     setChatHistory([]);
-
     setMessage('');
     setIsTyping(false);
     setShowFeedbackModal(false);
@@ -340,54 +342,98 @@ export const useChatSession = () => {
     setIsAudioLoading(false);
 
     try {
-      const response = await fetch(`${BACKEND_URL}/session`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      const data = await response.json();
-      if (data.greetingMessage) {
-        const greetingMessage: ChatMessage = { 
+      let response;
+      if (isMiaChat) {
+        response = await axios.post(`${BACKEND_URL}/session`, {
+          aiName: 'Mia',
+          role: 'English practice buddy',
+          traits: 'friendly,patient,encouraging',
+          context: 'English language learning',
+        });
+      } else if (scenarioId) {
+        response = await axios.post(`${BACKEND_URL}/session`, { scenarioId });
+      } else {
+        throw new Error('Invalid chat initialization: missing scenarioId for non-Mia chat');
+      }
+
+      const { greetingMessage } = response.data;
+      
+      if (greetingMessage) {
+        const greetingMessageObject: ChatMessage = { 
           role: 'model', 
-          content: data.greetingMessage, 
+          content: greetingMessage, 
           id: Date.now()
         };
-        setChatHistory([greetingMessage]);
-        setShowTopics(true);
+        setChatHistory([greetingMessageObject]);
+        setShowTopics(isMiaChat); // Only show topics for Mia's chat
         
-        await autoPlayMessage(greetingMessage);
+        await autoPlayMessage(greetingMessageObject);
       }
     } catch (error) {
       console.error('Error creating new session:', error);
+      // Fallback greeting for Mia if the request fails
+      if (isMiaChat) {
+        const fallbackGreeting = "Hey there! 👋 I'm Mia, your friendly English practice buddy! 😊 Ask me anything or select a topic below:";
+        const fallbackGreetingObject: ChatMessage = {
+          role: 'model',
+          content: fallbackGreeting,
+          id: Date.now()
+        };
+        setChatHistory([fallbackGreetingObject]);
+        setShowTopics(true);
+        await autoPlayMessage(fallbackGreetingObject);
+      }
     }
-  }, [stopAllAudio, autoPlayMessage]);
+  }, [isMiaChat, scenarioId, stopAllAudio, autoPlayMessage]);
 
-  const initializeChat = useCallback(async () => {
+  const initializeChat = useCallback(async (scenarioId?: number) => {
     if (!isInitializing || hasInitialized.current) return;
     hasInitialized.current = true;
 
     try {
-      const response = await fetch(`${BACKEND_URL}/session`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      const data = await response.json();
-      if (data.greetingMessage) {
-        const greetingMessage: ChatMessage = { 
+      let response;
+      if (isMiaChat) {
+        // For Mia's main chat
+        response = await axios.post(`${BACKEND_URL}/session`, {
+          aiName: 'Mia',
+          role: 'English practice buddy',
+          traits: 'friendly,patient,encouraging',
+          context: 'English language learning',
+        });
+      } else if (scenarioId) {
+        // For roleplay scenarios
+        response = await axios.post(`${BACKEND_URL}/session`, { scenarioId });
+      } else {
+        throw new Error('Invalid chat initialization: missing scenarioId for non-Mia chat');
+      }
+
+      const { greetingMessage } = response.data;
+      
+      if (greetingMessage) {
+        const greetingMessageObject: ChatMessage = { 
           role: 'model', 
-          content: data.greetingMessage, 
+          content: greetingMessage, 
           id: Date.now()
         };
-        setChatHistory(prev => [...prev, greetingMessage]);
-        setShowTopics(true);
+        setChatHistory([greetingMessageObject]);
+        setShowTopics(isMiaChat); // Only show topics for Mia's chat
         
-        await autoPlayMessage(greetingMessage);
+        await autoPlayMessage(greetingMessageObject);
       }
     } catch (error) {
-      console.error('Error creating session:', error);
+      console.error('Error initializing chat:', error);
+      // Fallback greeting for Mia if the request fails
+      if (isMiaChat) {
+        const fallbackGreeting = "Hey there! 👋 I'm Mia, your friendly English practice buddy! 😊 Ask me anything or select a topic below:";
+        const fallbackGreetingObject: ChatMessage = {
+          role: 'model',
+          content: fallbackGreeting,
+          id: Date.now()
+        };
+        setChatHistory([fallbackGreetingObject]);
+        setShowTopics(true);
+        await autoPlayMessage(fallbackGreetingObject);
+      }
     } finally {
       setIsInitializing(false);
     }

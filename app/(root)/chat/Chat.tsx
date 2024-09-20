@@ -40,7 +40,7 @@ const ChatSession: React.FC = () => {
     stopAllAudio,
     startNewChat,
     popupMessage,
-  } = useChatSession();
+  } = useChatSession(true);
 
   const flatListRef = useRef<FlatList<ChatMessageType>>(null);
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -109,10 +109,6 @@ const ChatSession: React.FC = () => {
       return <TypingIndicator />;
     }
     return null;
-  };
-
-  const handleNewChat = () => {
-    startNewChat();
   };
 
   return (

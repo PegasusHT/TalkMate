@@ -34,6 +34,7 @@ type RootStackParamList = {
     userRole: string;
     objectives: string[];
     scenarioTitle: string;
+    scenarioId: number;
   };
 };
 
@@ -56,6 +57,7 @@ const ScenarioDetail: React.FC = () => {
       userRole: scenarioDetails.userRole,
       objectives: scenarioDetails.objectives,
       scenarioTitle: scenarioDetails.title,
+      scenarioId: scenarioDetails.id
     });
   };
 
@@ -133,7 +135,7 @@ const ScenarioDetail: React.FC = () => {
             <Text className="text-white text-xl font-semibold mb-2">Useful Phrases</Text>
             {scenarioDetails.usefulPhrases.map((phrase, index) => (
               <View key={index} className="bg-indigo-800 rounded-lg p-3 mb-3">
-                <Text className="text-white font-semibold">{phrase.phrase}</Text>
+                <Text className="text-white font-semibold pr-4">{phrase.phrase}</Text>
                 <Text className="text-gray-400 italic">{phrase.pronunciation}</Text>
                 <TouchableOpacity 
                   onPress={() => handleAudioPress(phrase.phrase, index)} 

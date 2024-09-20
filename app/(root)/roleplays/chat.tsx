@@ -11,7 +11,10 @@ import FeedbackModal from '@/components/chat/FeedbackModal';
 import { useChatSession } from '@/hooks/useChatSession';
 import TypingIndicator from '@/components/chat/animation/TypingIndicator';
 import { ChatMessage as ChatMessageType } from '@/types/chat';
+import axios from 'axios';
+import ENV from '@/utils/envConfig';
 
+const { BACKEND_URL } = ENV;
 type RootStackParamList = {
   chat: { 
     aiName: string;
@@ -20,6 +23,7 @@ type RootStackParamList = {
     userRole: string;
     objectives: string[];
     scenarioTitle: string;
+    scenarioId: number; 
   };
 };
 
@@ -27,8 +31,8 @@ type ChatRouteProp = RouteProp<RootStackParamList, 'chat'>;
 
 const Chat: React.FC = () => {
   const route = useRoute<ChatRouteProp>();
-  const { aiName, aiRole, aiTraits, userRole, objectives, scenarioTitle } = route.params;
-  const [showInfoModal, setShowInfoModal] = useState(false);
+  const { aiName, aiRole, aiTraits, userRole, objectives, scenarioTitle, scenarioId } = route.params;
+  const greetingFetched = useRef(false);
 
   const {
     message,
@@ -51,16 +55,18 @@ const Chat: React.FC = () => {
     playingAudioId,
     isAudioLoading,
     stopAllAudio,
-  } = useChatSession();
+    startNewChat,
+    initializeChat,
+} = useChatSession(false, scenarioId);
 
   const flatListRef = useRef<FlatList<ChatMessageType>>(null);
-  const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    // Initialize the chat with AI's greeting
-    const aiGreeting = `Hello! I'm ${aiName}, and I'll be playing the role of ${aiRole}. Let's start our conversation about ${scenarioTitle}. Remember, your role is ${userRole}. What would you like to discuss first?`;
-    sendMessage(aiGreeting);
-  }, []);
+    if (!greetingFetched.current) {
+      greetingFetched.current = true;
+      initializeChat(scenarioId);
+    }
+  }, [scenarioId, initializeChat]);
 
   useEffect(() => {
     if (flatListRef.current) {
@@ -115,7 +121,7 @@ const Chat: React.FC = () => {
         <ChatHeader 
           aiName={aiName}
           chatType="roleplay"
-          onInfoPress={() => setShowInfoModal(true)}
+          onNewChat={startNewChat}
         />
 
         <FlatList
