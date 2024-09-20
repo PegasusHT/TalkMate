@@ -1,6 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
-import Constants from 'expo-constants';
-import { ChatMessage } from '@/types/chat';
+import { ChatMessage, Feedback, FeedbackType } from '@/types/chat';
 import { Audio } from 'expo-av';
 import ENV from '@/utils/envConfig'; 
 import { useAudioMode } from './useAudioMode'; 
@@ -10,7 +9,12 @@ const { BACKEND_URL, AI_BACKEND_URL } = ENV;
 
 const MAX_TOKENS = 4000;
 
-export const useChatSession = (isMiaChat = false, scenarioId?: number) => {
+export const useChatSession = (isMiaChat = false, scenarioId?: number, scenarioDetails?: {
+  aiName: string;
+  aiRole: string;
+  scenarioTitle: string;
+  userRole: string;
+}) => {
   const [message, setMessage] = useState('');
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
   const [isInitializing, setIsInitializing] = useState<boolean>(true);
@@ -117,7 +121,12 @@ export const useChatSession = (isMiaChat = false, scenarioId?: number) => {
   };
 
   const sendMessage = useCallback(async (text: string, isInitialGreeting = false) => {
-    const userMessage: ChatMessage = { role: isInitialGreeting ? 'model' : 'user', content: text, id: Date.now(), isLoading: !isInitialGreeting };
+    const userMessage: ChatMessage = { 
+      role: isInitialGreeting ? 'model' : 'user', 
+      content: text, 
+      id: Date.now(), 
+      isLoading: !isInitialGreeting 
+    };
     setChatHistory(prev => [...prev, userMessage]);
     if (!isInitialGreeting) {
       setIsTyping(true);
@@ -131,7 +140,11 @@ export const useChatSession = (isMiaChat = false, scenarioId?: number) => {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ messages: conversationHistory }),
+          body: JSON.stringify({
+            messages: conversationHistory,
+            chatType: isMiaChat ? 'main' : 'roleplay',
+            scenarioDetails: !isMiaChat ? scenarioDetails : undefined,
+          }),
         });
 
         if (!response.ok) {
@@ -144,11 +157,21 @@ export const useChatSession = (isMiaChat = false, scenarioId?: number) => {
           mateReply = data.reply;
         }
 
-        const assistantMessage: ChatMessage = { role: 'model', content: mateReply, id: Date.now() };
+        const feedback: Feedback = {
+          correctedVersion: data.feedback.correctedVersion,
+          explanation: data.feedback.explanation,
+          feedbackType: data.feedback.feedbackType as FeedbackType
+        };
+
+        const assistantMessage: ChatMessage = { 
+          role: 'model', 
+          content: mateReply, 
+          id: Date.now() 
+        };
         
         setChatHistory(prev => [
           ...prev.slice(0, -1),
-          { ...userMessage, feedback: data.feedback, isLoading: false },
+          { ...userMessage, feedback, isLoading: false },
           assistantMessage
         ]);
 
@@ -157,13 +180,21 @@ export const useChatSession = (isMiaChat = false, scenarioId?: number) => {
         console.error('Error sending message:', error);
         setChatHistory(prev => [
           ...prev.slice(0, -1),
-          { ...prev[prev.length - 1], isLoading: false, feedback: { correctedVersion: '', explanation: 'Error occurred' } },
+          { 
+            ...prev[prev.length - 1], 
+            isLoading: false, 
+            feedback: { 
+              correctedVersion: '', 
+              explanation: 'Error occurred',
+              feedbackType: 'NONE'
+            } 
+          },
         ]);
       } finally {
         setIsTyping(false);
       }
     }
-  }, [chatHistory, autoPlayMessage]);
+  }, [chatHistory, autoPlayMessage, isMiaChat, scenarioDetails]);
 
   const handleSend = useCallback(() => {
     if (message.trim()) {
@@ -283,7 +314,11 @@ export const useChatSession = (isMiaChat = false, scenarioId?: number) => {
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ messages: conversationHistory }),
+            body: JSON.stringify({
+              messages: conversationHistory,
+              chatType: isMiaChat ? 'main' : 'roleplay',
+              scenarioDetails: !isMiaChat ? scenarioDetails : undefined,
+            }),
           });
   
           if (!chatResponse.ok) {
@@ -296,11 +331,21 @@ export const useChatSession = (isMiaChat = false, scenarioId?: number) => {
             mateReply = data.reply;
           }
   
-          const assistantMessage: ChatMessage = { role: 'model', content: mateReply, id: Date.now() };
+          const feedback: Feedback = {
+            correctedVersion: data.feedback.correctedVersion,
+            explanation: data.feedback.explanation,
+            feedbackType: data.feedback.feedbackType as FeedbackType
+          };
+
+          const assistantMessage: ChatMessage = { 
+            role: 'model', 
+            content: mateReply, 
+            id: Date.now() 
+          };
           
           setChatHistory(prev => [
             ...prev.slice(0, -1),
-            { ...userMessage, feedback: data.feedback, isLoading: false },
+            { ...userMessage, feedback, isLoading: false },
             assistantMessage
           ]);
           
@@ -310,7 +355,15 @@ export const useChatSession = (isMiaChat = false, scenarioId?: number) => {
           console.error('Error sending message:', error);
           setChatHistory(prev => [
             ...prev.slice(0, -1),
-            { ...userMessage, isLoading: false, feedback: { correctedVersion: '', explanation: 'Error occurred' } },
+            { 
+              ...userMessage, 
+              isLoading: false, 
+              feedback: { 
+                correctedVersion: '', 
+                explanation: 'Error occurred',
+                feedbackType: 'NONE'
+              } 
+            },
           ]);
         } finally {
           setIsTyping(false);
@@ -325,7 +378,7 @@ export const useChatSession = (isMiaChat = false, scenarioId?: number) => {
       setIsProcessingAudio(false);
       setIsRecording(false);
     }
-  }, [chatHistory, autoPlayMessage, AI_BACKEND_URL, BACKEND_URL, showPopup, setPlaybackMode]);
+  }, [chatHistory, autoPlayMessage, AI_BACKEND_URL, BACKEND_URL, showPopup, setPlaybackMode, isMiaChat, scenarioDetails]);
 
   const startNewChat = useCallback(async () => {
     await stopAllAudio();

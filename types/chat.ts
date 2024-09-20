@@ -1,12 +1,18 @@
 // types/index.ts
+
+export type FeedbackType = 'NONE' | 'MINOR' | 'MAJOR';
+
+export type Feedback = {
+  correctedVersion: string;
+  explanation: string;
+  feedbackType: FeedbackType;
+};
+
 export type ChatMessage = {
-    role: 'user' | 'model';
-    content: string;
-    id: number;
-    feedback?: {
-      correctedVersion: string;
-      explanation: string;
-    };
-    isLoading?: boolean;
-    audioUri?: string;
-  };
+  role: 'user' | 'model';
+  content: string;
+  id: number;
+  feedback?: Feedback;
+  isLoading?: boolean;
+  audioUri?: string;
+};

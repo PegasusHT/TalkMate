@@ -57,7 +57,12 @@ const Chat: React.FC = () => {
     stopAllAudio,
     startNewChat,
     initializeChat,
-} = useChatSession(false, scenarioId);
+} = useChatSession(false, scenarioId, {
+    aiName,
+    aiRole,
+    scenarioTitle,
+    userRole,
+  });
 
   const flatListRef = useRef<FlatList<ChatMessageType>>(null);
 
