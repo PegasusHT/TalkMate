@@ -14,6 +14,7 @@ const Layout = () => {
         }} />
         <Stack.Screen name="chat" options={{ headerShown: false }} />
         <Stack.Screen name='roleplays' options={{ headerShown: false }} />
+        <Stack.Screen name='customScenario' options={{ headerShown: false }} />
       </Stack>
     </GestureHandlerRootView>
    

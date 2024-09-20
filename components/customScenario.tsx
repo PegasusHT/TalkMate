@@ -2,12 +2,20 @@ import React from 'react';
 import { View, Text, Image } from 'react-native';
 import { Mic, Pen } from 'lucide-react-native';
 const CustomIcon = require('@/assets/icons/customIcon.png');
+import { useNavigation } from '@react-navigation/native';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 
 const CustomeScenarioFeature = () => {
+  const navigation = useNavigation();
+  const handlePress = () => {
+    navigation.navigate('customScenario' as never);
+  };
+
   return (
     <View className="bg-white w-11/12 rounded-lg overflow-hidden shadow-xl my-6"
       style={{ borderWidth: 1.2, borderColor: '#e5e7eb' }}
       >
+      <TouchableOpacity onPress={handlePress}>
       <View className="p-4">
         <Text className="text-2xl font-bold mb-4">Custom Scenarios</Text>
         <View className="flex-row">
@@ -35,6 +43,7 @@ const CustomeScenarioFeature = () => {
         source={CustomIcon}
         className="absolute right-0 bottom-0 w-32 h-44"
       />
+      </TouchableOpacity>
     </View>
   );
 };
