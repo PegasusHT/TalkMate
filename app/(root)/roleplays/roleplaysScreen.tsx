@@ -16,6 +16,8 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import axios from 'axios';
 import ENV from '@/utils/envConfig';
 
+const convoIcon = require('@/assets/images/store-manager.jpeg');
+
 const { BACKEND_URL } = ENV;
 
 interface CharacterCard {
@@ -171,7 +173,8 @@ const RoleplaysScreen: React.FC = () => {
               onPress={() => handleScenarioPress(scenario.id)}
               className="w-[48%] bg-indigo-700 rounded-xl mb-4 overflow-hidden"
             >
-              <Image source={{ uri: scenario.image }} className="w-full h-32" />
+              <Image source={convoIcon} className="w-full h-32" />
+              {/* <Image source={{ uri: scenario.image }} className="w-full h-32" /> */}
               <View className="flex-row justify-between items-center mt-2 p-2">
                 <Text className="text-white font-semibold w-5/6">
                   {`Convo ${scenario.id}: ${scenario.title}`}

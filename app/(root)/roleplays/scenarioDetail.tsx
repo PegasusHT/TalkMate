@@ -6,6 +6,9 @@ import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 import { ActivityIndicator } from 'react-native';
+
+const bgImage = require('@/assets/images/store-manager-bg.jpeg');
+
 interface ScenarioDetails {
   id: number;
   title: string;
@@ -75,32 +78,30 @@ const ScenarioDetail: React.FC = () => {
     : scenarioDetails.aiRole.traits.split(',').map(trait => trait.trim());
 
   return (
-    <View className="flex-1">
+    <SafeAreaView className="flex-1">
       <ScrollView className="flex-1 bg-indigo-900">
         <ImageBackground 
+          source={bgImage} 
+          className="w-full h-64 justify-end items-end"
+        >        
+        {/* <ImageBackground 
           source={{ uri: scenarioDetails.aiRole.backgroundImage }} 
           className="w-full h-64 justify-end"
-        >
-          <View className="flex-row justify-between items-end p-4 pb-0">
-            <Image 
-              source={{ uri: scenarioDetails.aiRole.image }} 
-              className="w-32 h-32 rounded-full"
-            />
-            <View className="bg-gray-700 bg-opacity-80 rounded-lg p-3 mb-6 mr-6 w-2/5">
-              <Text className="text-white font-semibold text-[20px] pb-2">AI's role: {scenarioDetails.aiRole.role}</Text>
-              <View className="flex flex-wrap gap-1 mt-1">
-                {traitsArray.map((trait, index) => (
-                  <View key={index} className="bg-gray-600 rounded-full px-2">
-                    <Text className="text-white text-sm">{trait}</Text>
-                  </View>
-                ))}
-              </View>
+        > */}
+          <View className="bg-gray-700 bg-opacity-80 rounded-lg p-3 mb-6 mr-6 w-2/5">
+            <Text className="text-white font-semibold text-[20px] pb-2">AI's role: {scenarioDetails.aiRole.role}</Text>
+            <View className="flex flex-wrap gap-1 mt-1">
+              {traitsArray.map((trait, index) => (
+                <View key={index} className="bg-gray-600 rounded-full px-2">
+                  <Text className="text-white text-sm">{trait}</Text>
+                </View>
+              ))}
             </View>
           </View>
         </ImageBackground>
         
         <TouchableOpacity 
-          className="absolute left-4 top-12 bg-gray-600 bg-opacity-50 rounded-full p-2" 
+          className="absolute left-4 top-4 bg-gray-600 bg-opacity-50 rounded-full p-2" 
           onPress={() => navigation.goBack()}
         >
           <ArrowLeft size={24} color="#FFFFFF" />
@@ -163,7 +164,7 @@ const ScenarioDetail: React.FC = () => {
           </TouchableOpacity>
         </View>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 };
 
