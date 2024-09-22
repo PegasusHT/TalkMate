@@ -94,7 +94,7 @@ const CustomScenarioUI = () => {
       } else {
         // Parse free-form input
         parsed.userRole = "Language learner";
-        parsed.aiName = "English practice partner";
+        parsed.aiName = "Lisa";
         parsed.aiRole = "English practice partner";
         parsed.aiTraits = "adaptive,helpful";
         parsed.objectives = ["Practice English in a custom scenario"];
