@@ -85,9 +85,9 @@ const DictionaryScreen: React.FC<Props> = () => {
 
   return (
     <TouchableWithoutFeedback onPress={handleOutsidePress}>
-      <View className={`flex-1 pt-6 ${isEmphasized ? 'bg-gray-900' : 'bg-indigo-800'}`}>
+      <View className={`flex-1 pt-6 ${isEmphasized ? 'bg-gray-900' : 'bg-slate-100'}`}>
         <View className="p-4">
-          <Text className="text-white text-2xl font-bold mb-4">What do you want to say?</Text>
+          <Text className="text-indigo-600 text-2xl font-bold mb-4">What do you want to say?</Text>
           
           <View className="bg-white rounded-full flex-row items-center px-4 py-4 mb-4">
             <Ionicons name="search" size={24} color="gray" />
