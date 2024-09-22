@@ -23,7 +23,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({ aiName, chatType, onNewChat, on
 
   return (
     <>
-      <View className="flex-row items-center justify-between pb-4 px-4 border-b border-gray-200">
+      <View className="flex-row items-center justify-between pb-1 px-4 border-b border-gray-200">
         <View className="flex-row items-center">
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <ArrowLeft size={24} color="#000" />
@@ -33,7 +33,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({ aiName, chatType, onNewChat, on
             className="w-10 h-10 ml-2 mr-[-10px]"
           />
           <View className="absolute left-16 bottom-0 w-3 h-3 bg-green-500 rounded-full" />
-          <Text className="text-lg font-semibold ml-4">{aiName}</Text>
+          <Text className="text-lg font-semibold ml-4">{aiName.charAt(0).toUpperCase() + aiName.slice(1)}</Text>
         </View>
         <TouchableOpacity onPress={() => setModalVisible(true)}>
           <MoreVertical size={24} color="#000" />

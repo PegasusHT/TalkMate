@@ -3,6 +3,7 @@ import { View, FlatList, KeyboardAvoidingView, Platform, Text, Animated } from '
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import { useRoute, RouteProp } from '@react-navigation/native';
+import axios from 'axios';
 import ChatHeader from '@/components/chat/ChatHeader';
 import ChatInput from '@/components/chat/ChatInput';
 import ChatMessage from '@/components/chat/ChatMessage';
@@ -10,6 +11,9 @@ import FeedbackModal from '@/components/chat/FeedbackModal';
 import { useChatSession } from '@/hooks/useChatSession';
 import TypingIndicator from '@/components/chat/animation/TypingIndicator';
 import { ChatMessage as ChatMessageType } from '@/types/chat';
+import ENV from '@/utils/envConfig';
+
+const { BACKEND_URL } = ENV;
 
 type RootStackParamList = {
   chatScene: { 
@@ -30,12 +34,15 @@ const ChatScene: React.FC = () => {
   const route = useRoute<ChatSceneRouteProp>();
   const { aiName, aiRole, aiTraits, userRole, objectives, scenarioTitle, scenarioId, initialMessage } = route.params;
   const greetingFetched = useRef(false);
+  const greetingPlayed = useRef(false);
 
   const {
     message,
     setMessage,
     chatHistory,
+    setChatHistory,
     isTyping,
+    setIsTyping,
     showFeedbackModal,
     setShowFeedbackModal,
     currentFeedback,
@@ -66,27 +73,33 @@ const ChatScene: React.FC = () => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    if (!greetingFetched.current) {
-      greetingFetched.current = true;
-      if (initialMessage) {
-        sendMessage(initialMessage, true);
-      } else {
-        initializeChat(scenarioId);
+    const fetchGreeting = async () => {
+      if (!greetingFetched.current) {
+        greetingFetched.current = true;
+        if (initialMessage) {
+          await sendMessage(initialMessage, true);
+        } else {
+          await initializeChat(scenarioId);
+        }
       }
-    }
+    };
+
+    fetchGreeting();
   }, [scenarioId, initializeChat, initialMessage, sendMessage]);
+
+  useEffect(() => {
+    if (chatHistory.length > 0 && !greetingPlayed.current) {
+      const greetingMessage = chatHistory[0];
+      playAudio(greetingMessage.id, greetingMessage.content);
+      greetingPlayed.current = true;
+    }
+  }, [chatHistory, playAudio]);
 
   useEffect(() => {
     if (flatListRef.current) {
       flatListRef.current.scrollToEnd({ animated: true });
     }
   }, [chatHistory]);
-
-  useEffect(() => {
-    return () => {
-      stopAllAudio();
-    };
-  }, [stopAllAudio]);
 
   useFocusEffect(
     useCallback(() => {
@@ -95,6 +108,12 @@ const ChatScene: React.FC = () => {
       };
     }, [stopAllAudio])
   );
+
+  useEffect(() => {
+    return () => {
+      stopAllAudio();
+    };
+  }, [stopAllAudio]);
 
   useEffect(() => {
     if (popupMessage) {
@@ -113,6 +132,43 @@ const ChatScene: React.FC = () => {
       ]).start();
     }
   }, [popupMessage, fadeAnim]);
+
+  const startNewCustomChat = useCallback(async () => {
+    await stopAllAudio();
+    setChatHistory([]);
+    setMessage('');
+    setIsTyping(false);
+    setShowFeedbackModal(false);
+    setCurrentFeedback(null);
+
+    try {
+      const response = await axios.post(`${BACKEND_URL}/session`, {
+        customScenario: scenarioTitle,
+        aiName,
+        role: aiRole,
+        traits: aiTraits.join(','),
+        context: 'Custom English practice scenario',
+        userRole,
+        objectives,
+      });
+
+      const { greetingMessage } = response.data;
+      
+      if (greetingMessage) {
+        const greetingMessageObject: ChatMessageType = { 
+          role: 'model', 
+          content: greetingMessage, 
+          id: Date.now()
+        };
+        setChatHistory([greetingMessageObject]);
+        
+        await playAudio(greetingMessageObject.id, greetingMessageObject.content);
+      }
+    } catch (error) {
+      console.error('Error creating new custom session:', error);
+      // Implement error handling (e.g., show an error message to the user)
+    }
+  }, [aiName, aiRole, aiTraits, userRole, objectives, scenarioTitle, stopAllAudio, playAudio, setChatHistory, setMessage]);
 
   const handleAudioPress = (messageId: number, text: string, audioUri?: string) => {
     playAudio(messageId, text, audioUri);
@@ -147,7 +203,7 @@ const ChatScene: React.FC = () => {
         <ChatHeader 
           aiName={aiName}
           chatType="roleplay"
-          onNewChat={startNewChat}
+          onNewChat={startNewCustomChat}
         />
 
         <FlatList

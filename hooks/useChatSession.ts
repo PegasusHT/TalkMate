@@ -501,9 +501,9 @@ export const useChatSession = (isMiaChat = false, scenarioId?: number, scenarioD
   return {
     message,
     setMessage,
-    chatHistory,
+    chatHistory, setChatHistory,
     isInitializing,
-    isTyping,
+    isTyping, setIsTyping,
     showFeedbackModal,
     setShowFeedbackModal,
     currentFeedback,
