@@ -16,7 +16,7 @@ const HomeScreen: React.FC<Props> = () => {
     >
       <View className="flex-1 justify-start items-center bg-slate-100 pt-8">
         <View className='w-full pl-4'>
-          <Text className="text-3xl font-bold text-blue-600">
+          <Text className="text-3xl font-bold text-indigo-600">
             Practice modes
           </Text>
         </View>

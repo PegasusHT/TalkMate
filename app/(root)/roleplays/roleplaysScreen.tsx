@@ -133,32 +133,32 @@ const RoleplaysScreen: React.FC = () => {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-blue-600 p-4">
+    <SafeAreaView className="flex-1 bg-slate-100 p-4">
       <TouchableOpacity className="pb-4" onPress={() => navigation.goBack()}>
-        <ArrowLeft size={28} color="#FFFFFF" />
+        <ArrowLeft size={28} color="black" />
       </TouchableOpacity>
-      <View className="bg-indigo-700 rounded-xl p-4 mb-8 mt-6">
+      <View className="bg-white rounded-xl border-[0.6px] p-4 mb-8 mt-6">
         <View className="flex-row justify-between items-center mb-2">
-          <Text className="text-white text-xl font-semibold">Character Card</Text>
+          <Text className=" text-xl font-semibold">Character Card</Text>
         </View>
-        <Text className="text-white">Name: {card.name}</Text>
+        <Text className="">Name: {card.name}</Text>
         <View className="flex-row items-center mt-2">
           <TouchableOpacity 
             onPress={() => openModal('role')} 
-            className="flex-1 flex-row justify-between items-center bg-indigo-800 p-2 rounded-md"
+            className="flex-1 flex-row justify-between items-center bg-white border-t-[0.2px] p-2 rounded-md"
           >
-            <Text className="text-white">{card.role || 'Select a role'}</Text>
-            <ChevronDown color="white" size={20} />
+            <Text className="">{card.role || 'Select a role'}</Text>
+            <ChevronDown color="black" size={20} />
           </TouchableOpacity>
         </View>
         <View className="flex-row items-center mt-2">
           <TouchableOpacity 
             onPress={() => openModal('context')} 
-            className={`flex-1 flex-row justify-between items-center bg-indigo-800 p-2 rounded-md ${!card.role ? 'opacity-50' : ''}`}
+            className={`flex-1 flex-row justify-between items-center p-2 border-t-[0.2px] rounded-md ${!card.role ? 'opacity-50' : ''}`}
             disabled={!card.role}
           >
-            <Text className="text-white">{card.context || 'Select a context'}</Text>
-            <ChevronDown color="white" size={20} />
+            <Text className="">{card.context || 'Select a context'}</Text>
+            <ChevronDown color="black" size={20} />
           </TouchableOpacity>
         </View>
       </View>
@@ -192,18 +192,18 @@ const RoleplaysScreen: React.FC = () => {
         visible={modalVisible}
         onRequestClose={() => setModalVisible(false)}
       >
-        <View className="flex-1 justify-end bg-black bg-opacity-50">
-          <View className="bg-indigo-800 rounded-t-xl p-4">
-            <Text className="text-white text-xl font-semibold mb-4">{`Select ${modalType}`}</Text>
+        <View className="flex-1 justify-end">
+          <View className="bg-white rounded-t-xl border-2 p-4">
+            <Text className=" text-xl font-semibold border-b-2 mb-4">{`Select ${modalType}`}</Text>
             <FlatList
               data={modalType === 'role' ? optionsData?.roles : availableContexts}
               keyExtractor={(item) => item}
               renderItem={({ item }) => (
                 <TouchableOpacity 
                   onPress={() => selectOption(item)}
-                  className="py-2 border-b border-indigo-700"
+                  className="py-2 border-b "
                 >
-                  <Text className="text-white text-lg">{item}</Text>
+                  <Text className=" text-lg">{item}</Text>
                 </TouchableOpacity>
               )}
             />

@@ -78,8 +78,9 @@ const ScenarioDetail: React.FC = () => {
     : scenarioDetails.aiRole.traits.split(',').map(trait => trait.trim());
 
   return (
-    <SafeAreaView className="flex-1">
-      <ScrollView className="flex-1 bg-indigo-900">
+    <View className="flex-1">
+      <ScrollView className="flex-1 bg-indigo-800"
+        bounces={false}>
         <ImageBackground 
           source={bgImage} 
           className="w-full h-64 justify-end items-end"
@@ -101,13 +102,13 @@ const ScenarioDetail: React.FC = () => {
         </ImageBackground>
         
         <TouchableOpacity 
-          className="absolute left-4 top-4 bg-gray-600 bg-opacity-50 rounded-full p-2" 
+          className="absolute left-4 top-14 bg-gray-600 bg-opacity-50 rounded-full p-2" 
           onPress={() => navigation.goBack()}
         >
           <ArrowLeft size={24} color="#FFFFFF" />
         </TouchableOpacity>
 
-        <View className="px-4 mt-4 bg-indigo-900 rounded-2xl pt-6">
+        <View className="px-4 mt-4 bg-indigo-800 rounded-2xl pt-6">
           <Text className="text-white text-3xl font-semibold mb-2">{scenarioDetails.title}</Text>
           <Text className="text-white mb-6">{scenarioDetails.description}</Text>
 
@@ -135,8 +136,8 @@ const ScenarioDetail: React.FC = () => {
           <View className="mb-6">
             <Text className="text-white text-xl font-semibold mb-2">Useful Phrases</Text>
             {scenarioDetails.usefulPhrases.map((phrase, index) => (
-              <View key={index} className="bg-indigo-800 rounded-lg p-3 mb-3">
-                <Text className="text-white font-semibold pr-4">{phrase.phrase}</Text>
+              <View key={index} className="bg-indigo-700 rounded-lg p-3 mb-3">
+                <Text className="text-white font-semibold pr-5">{phrase.phrase}</Text>
                 <Text className="text-gray-400 italic">{phrase.pronunciation}</Text>
                 <TouchableOpacity 
                   onPress={() => handleAudioPress(phrase.phrase, index)} 
@@ -164,7 +165,7 @@ const ScenarioDetail: React.FC = () => {
           </TouchableOpacity>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 };
 
