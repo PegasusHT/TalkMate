@@ -13,6 +13,11 @@ const situations = [
   "accidentally switched phones with a spy"
 ];
 
+const aiNames = [
+  "Zoe", "Xander", "Luna", "Finn", "Nova", "Kai", "Aria", "Leo", "Ivy", "Max",
+  "Cleo", "Axel", "Sage", "Rex", "Skye", "Jett", "Roxy", "Zane", "Echo", "Dash"
+];
+
 const aiRoles = [
   "store manager", "dance instructor", "time police officer", "gadget expert", "game show host",
   "fashion designer", "paranormal investigator", "renowned chef", "eccentric inventor", "intergalactic tour guide"
@@ -20,8 +25,8 @@ const aiRoles = [
 
 const aiTraits = [
   "overly enthusiastic", "comically serious", "absurdly logical", "dramatically poetic",
-  "constantly quoting movies", "speaks only in rhymes", "obsessed with puns",
-  "thinks everything is a conspiracy", "extremely superstitious", "hilariously clumsy"
+  "constantly quoting movies", "speaking only in rhymes", "obsessed with puns",
+  "thinking everything is a conspiracy", "extremely superstitious", "hilariously clumsy"
 ];
 
 const objectives = [
@@ -29,22 +34,23 @@ const objectives = [
   "decipher the ancient meme prophecy", "win the annual rubber duck race",
   "master the art of extreme origami", "become the king of dad jokes",
   "uncover the truth about the missing socks", "organize a flash mob of mimes",
-  "train a team of squirrels for a heist", "start a interspecies book club"
+  "train a team of squirrels for a heist", "start an interspecies book club"
 ];
 
 const generateScenario = () => {
   const userRole = userRoles[Math.floor(Math.random() * userRoles.length)];
   const situation = situations[Math.floor(Math.random() * situations.length)];
+  const aiName = aiNames[Math.floor(Math.random() * aiNames.length)];
   const aiRole = aiRoles[Math.floor(Math.random() * aiRoles.length)];
   const aiTrait = aiTraits[Math.floor(Math.random() * aiTraits.length)];
   const objective = objectives[Math.floor(Math.random() * objectives.length)];
 
-  const scenarioText = `I'm ${userRole} who is ${situation}. A ${aiRole} is approaching. They seem ${aiTrait}. I'll try to ${objective}.`;
+  const scenarioText = `I'm ${userRole} who is ${situation}. ${aiName}, a ${aiRole}, is approaching. ${aiName} seems to be ${aiTrait}. I'll try to ${objective}.`;
 
   return {
     scenarioText,
-    aiName: aiRole,
-    aiRole: aiRole
+    aiName,
+    aiRole
   };
 };
 
@@ -62,9 +68,11 @@ export const useScenarioSuggester = () => {
 
   const updateScenario = (newScenario: string) => {
     setScenario(newScenario);
-    setAiName('');
-    setAiRole('');
+    if (newScenario !== scenario) {
+      setAiName('');
+      setAiRole('');
+    }
   };
 
-  return { scenario, setScenario: updateScenario, aiName, aiRole, handleSuggest };
+  return { scenario, setScenario: updateScenario, aiName, setAiName, aiRole, setAiRole, handleSuggest };
 };

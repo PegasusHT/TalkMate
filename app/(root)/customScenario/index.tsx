@@ -1,4 +1,3 @@
-//app/(root)/customScenario/index.tsx
 import React from 'react';
 import { View, Text, TextInput, TouchableOpacity, SafeAreaView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -26,7 +25,7 @@ type RootStackParamList = {
 type CustomScenarioNavigationProp = StackNavigationProp<RootStackParamList, 'chatScene'>;
 
 const CustomScenarioUI = () => {
-    const { scenario, setScenario, aiName, aiRole, handleSuggest } = useScenarioSuggester();
+    const { scenario, setScenario, aiName, setAiName, aiRole, setAiRole, handleSuggest } = useScenarioSuggester();
     const navigation = useNavigation<CustomScenarioNavigationProp>();
   
     const handleStart = async () => {
@@ -34,9 +33,9 @@ const CustomScenarioUI = () => {
         // Parse the scenario to extract key information
         const parsedScenario = parseScenario(scenario);
     
-        const finalAiName = aiName || parsedScenario.aiName || 'English practice partner';
         const finalAiRole = aiRole || parsedScenario.aiRole || 'English practice partner';
-    
+        const finalAiName = aiName || parsedScenario.aiName || 'Lisa';
+
         const response = await axios.post(`${BACKEND_URL}/session`, {
           customScenario: scenario,
           aiName: finalAiName,
@@ -48,7 +47,7 @@ const CustomScenarioUI = () => {
         });
     
         const { greetingMessage } = response.data;
-    
+        
         navigation.navigate('chatScene', {
           aiName: finalAiName,
           aiRole: finalAiRole,
@@ -75,18 +74,18 @@ const CustomScenarioUI = () => {
       } = {};
     
       // Check if it's a suggested scenario or free-form input
-      if (text.startsWith("I'm") && text.includes("who is") && text.includes("is approaching")) {
+      if (text.startsWith("I'm") && text.includes("is approaching")) {
         // Parse suggested scenario format
         const userRoleMatch = text.match(/I'm (a |an )?(.*?) who/i);
         if (userRoleMatch) parsed.userRole = userRoleMatch[2];
     
-        const aiRoleMatch = text.match(/(?:A|An) (.*?) is approaching/i);
-        if (aiRoleMatch) {
-          parsed.aiRole = aiRoleMatch[1];
-          parsed.aiName = aiRoleMatch[1];
-        }
+        const aiNameMatch = text.match(/(.*?),\s*a/);
+        if (aiNameMatch) parsed.aiName = aiNameMatch[1];
+
+        const aiRoleMatch = text.match(/a (.*?) is approaching/i);
+        if (aiRoleMatch) parsed.aiRole = aiRoleMatch[1];
     
-        const aiTraitsMatch = text.match(/They seem (.*?)\./i);
+        const aiTraitsMatch = text.match(/seems to be (.*?)\./i);
         if (aiTraitsMatch) parsed.aiTraits = aiTraitsMatch[1];
     
         const objectivesMatch = text.match(/I'll try to (.*?)\./i);
@@ -94,8 +93,8 @@ const CustomScenarioUI = () => {
       } else {
         // Parse free-form input
         parsed.userRole = "Language learner";
-        parsed.aiName = "Lisa";
-        parsed.aiRole = "English practice partner";
+        parsed.aiName = aiName || "Lisa";
+        parsed.aiRole = aiRole || "English practice partner";
         parsed.aiTraits = "adaptive,helpful";
         parsed.objectives = ["Practice English in a custom scenario"];
     
