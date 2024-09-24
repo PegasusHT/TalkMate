@@ -7,7 +7,9 @@ import {
   ScrollView, 
   ActivityIndicator, 
   Modal, 
-  FlatList
+  FlatList,
+  PanResponder,
+  Animated
 } from 'react-native';
 import { ArrowRight, ArrowLeft, ChevronDown } from 'lucide-react-native';
 import { useNavigation } from 'expo-router';
@@ -50,8 +52,39 @@ const RoleplaysScreen: React.FC = () => {
   const [availableRoles, setAvailableRoles] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
-  const [modalType, setModalType] = useState<'mainCategory' | 'role'>('mainCategory');
+  const [modalType, setModalType] = useState<'category' | 'role'>('category');
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+  const [modalY] = useState(new Animated.Value(0));
+
+  const panResponder = PanResponder.create({
+    onStartShouldSetPanResponder: () => true,
+    onPanResponderMove: (_, gestureState) => {
+      if (gestureState.dy > 0) {
+        modalY.setValue(gestureState.dy);
+      }
+    },
+    onPanResponderRelease: (_, gestureState) => {
+      if (gestureState.dy > 50) {
+        closeModal();
+      } else {
+        Animated.spring(modalY, {
+          toValue: 0,
+          useNativeDriver: true,
+        }).start();
+      }
+    },
+  });
+
+  const closeModal = () => {
+    Animated.timing(modalY, {
+      toValue: 300,
+      duration: 300,
+      useNativeDriver: true,
+    }).start(() => {
+      setModalVisible(false);
+      modalY.setValue(0);
+    });
+  };
 
   const fetchOptions = useCallback(async () => {
     try {
@@ -90,13 +123,13 @@ const RoleplaysScreen: React.FC = () => {
     }
   };
 
-  const openModal = (type: 'mainCategory' | 'role') => {
+  const openModal = (type: 'category' | 'role') => {
     setModalType(type);
     setModalVisible(true);
   };
 
   const selectOption = (option: string) => {
-    if (modalType === 'mainCategory') {
+    if (modalType === 'category') {
       setCard({ mainCategory: option, role: '' });
       if (optionsData) {
         setAvailableRoles(optionsData.mainCategories[option] || []);
@@ -119,7 +152,7 @@ const RoleplaysScreen: React.FC = () => {
         </View>
         <View className="flex-row items-center mt-2">
           <TouchableOpacity 
-            onPress={() => openModal('mainCategory')} 
+            onPress={() => openModal('category')} 
             className="flex-1 flex-row justify-between items-center bg-white border-t-[0.2px] p-2 rounded-md"
           >
             <Text>{card.mainCategory || 'Select a category'}</Text>
@@ -151,11 +184,10 @@ const RoleplaysScreen: React.FC = () => {
               <Image source={convoIcon} className="w-full h-32" />
               <View className="flex-row justify-between items-center mt-2 p-2">
                 <Text className="text-white font-semibold w-5/6">
-                  {`${scenario.title}`}
+                  Convo {`${scenario.id}`}: {`${scenario.title}`}
                 </Text>
                 <ArrowRight color="white" size={20} />
               </View>
-              <Text className="text-white text-xs px-2 pb-2">{scenario.context}</Text>
             </TouchableOpacity>
           ))}
         </ScrollView>
@@ -165,31 +197,57 @@ const RoleplaysScreen: React.FC = () => {
         animationType="slide"
         transparent={true}
         visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
+        onRequestClose={closeModal} 
       >
-        <View className="flex-1 justify-end">
-          <View className="bg-white rounded-t-xl border-2 p-4">
-            <Text className="text-xl font-semibold border-b-2 mb-4">{`Select ${modalType}`}</Text>
+        <TouchableOpacity
+          style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)' }}
+          activeOpacity={1}
+          onPressOut={closeModal}
+        >
+          <Animated.View
+            {...panResponder.panHandlers}
+            style={{
+              transform: [{ translateY: modalY }],
+              backgroundColor: 'white',
+              borderTopLeftRadius: 20,
+              borderTopRightRadius: 20,
+              padding: 20,
+              marginTop: 'auto',
+            }}
+          >
+            <View className="w-16 h-1 bg-gray-300 rounded-full self-center mb-4" />
+            <Text className="text-xl font-semibold mb-4 mt-4 text-center">
+              {`Select ${modalType === 'category' ? 'a career field' : 'a role'}`}
+            </Text>
             <FlatList
-              data={modalType === 'mainCategory' ? Object.keys(optionsData?.mainCategories || {}) : availableRoles}
-              keyExtractor={(item) => item}
+              data={modalType === 'category' ? Object.keys(optionsData?.mainCategories || {}) : availableRoles}
+              keyExtractor={(item) => item} className='mb-6'
               renderItem={({ item }) => (
                 <TouchableOpacity 
                   onPress={() => selectOption(item)}
-                  className="py-2 border-b"
+                  className="flex-row items-center py-3 border-b border-gray-200"
                 >
-                  <Text className="text-lg">{item}</Text>
+                  <View className={`w-6 h-6 rounded-full border-2 mr-4 ${
+                    (modalType === 'category' ? card.mainCategory : card.role) === item
+                      ? 'bg-gray-200 border-indigo-700'
+                      : 'border-gray-300'
+                  }`}>
+                    {(modalType === 'category' ? card.mainCategory : card.role) === item && (
+                      <View className="w-3 h-3 rounded-full bg-indigo-700 m-auto" />
+                    )}
+                  </View>
+                  <Text className={`text-lg ${
+                    (modalType === 'category' ? card.mainCategory : card.role) === item
+                      ? 'text-indigo-700 font-semibold'
+                      : 'text-gray-800'
+                  }`}>
+                    {item}
+                  </Text>
                 </TouchableOpacity>
               )}
             />
-            <TouchableOpacity 
-              onPress={() => setModalVisible(false)}
-              className="mt-4 bg-indigo-600 p-3 rounded-md"
-            >
-              <Text className="text-white text-center font-semibold">Close</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+          </Animated.View>
+        </TouchableOpacity>
       </Modal>
     </SafeAreaView>
   );
