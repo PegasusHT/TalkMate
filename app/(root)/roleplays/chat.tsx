@@ -11,8 +11,8 @@ import FeedbackModal from '@/components/chat/FeedbackModal';
 import { useChatSession } from '@/hooks/useChatSession';
 import TypingIndicator from '@/components/chat/animation/TypingIndicator';
 import { ChatMessage as ChatMessageType } from '@/types/chat';
-import axios from 'axios';
 import ENV from '@/utils/envConfig';
+import { ObjectId } from 'mongodb';
 
 const { BACKEND_URL } = ENV;
 type RootStackParamList = {
@@ -23,7 +23,7 @@ type RootStackParamList = {
     userRole: string;
     objectives: string[];
     scenarioTitle: string;
-    scenarioId: number; 
+    scenarioId: ObjectId; 
   };
 };
 
@@ -61,7 +61,7 @@ const Chat: React.FC = () => {
     aiName,
     aiRole,
     scenarioTitle,
-    userRole,
+    userRole
   });
 
   const flatListRef = useRef<FlatList<ChatMessageType>>(null);

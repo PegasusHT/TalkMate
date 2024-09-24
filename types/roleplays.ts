@@ -1,3 +1,5 @@
+import { ObjectId } from 'mongodb'; 
+
 interface AIMate {
     id: string;
     name: string;
@@ -19,15 +21,16 @@ interface AIMate {
   }
 
   interface ScenarioDetails {
+    _id: ObjectId;
     id: number;
     title: string;
     description: string;
-    aiRole: {
+    aiMate: {
       name: string;
       role: string;
-      traits: string | string[];
+      traits: string[];
       image: string;
-      backgroundImage: string;
+      primaryRole: string;
     };
     userRole: string;
     objectives: string[];
@@ -35,7 +38,7 @@ interface AIMate {
       phrase: string;
       pronunciation: string;
     }[];
-  }
+  }  
   
   interface RoleplaySession {
     id: string;

@@ -11,13 +11,14 @@ import {
   PanResponder,
   Animated
 } from 'react-native';
-import { ArrowRight, ArrowLeft, ChevronDown } from 'lucide-react-native';
+import { ArrowRight, ArrowLeft, ChevronDown, CodeSquare } from 'lucide-react-native';
 import { useNavigation } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StackNavigationProp } from '@react-navigation/stack';
 import axios from 'axios';
 import ENV from '@/utils/envConfig';
 import { ScenarioDetails } from '@/types/roleplays';
+import { ObjectId } from 'mongodb'; 
 
 const convoIcon = require('@/assets/images/store-manager.jpeg');
 
@@ -29,6 +30,7 @@ interface CharacterCard {
 }
 
 interface ConversationScenario {
+  _id: ObjectId;
   id: number;
   title: string;
   image: string;
@@ -113,9 +115,10 @@ const RoleplaysScreen: React.FC = () => {
     }
   }, []);
 
-  const handleScenarioPress = async (id: number) => {
+  const handleScenarioPress = async (_id: ObjectId) => {
     try {
-      const response = await axios.get(`${BACKEND_URL}/scenarios/${id}`);
+      const stringId = _id.toString();
+      const response = await axios.get(`${BACKEND_URL}/scenarios/${stringId}`);
       const scenarioDetails: ScenarioDetails = response.data;
       navigation.navigate('scenarioDetail', { scenarioDetails });
     } catch (error) {
@@ -178,7 +181,7 @@ const RoleplaysScreen: React.FC = () => {
           {scenarios.map((scenario) => (
             <TouchableOpacity
               key={scenario.id}
-              onPress={() => handleScenarioPress(scenario.id)}
+              onPress={() => handleScenarioPress(scenario._id)}
               className="w-[48%] bg-indigo-700 rounded-xl mb-4 overflow-hidden"
             >
               <Image source={convoIcon} className="w-full h-32" />

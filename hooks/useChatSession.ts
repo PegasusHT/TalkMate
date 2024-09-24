@@ -4,12 +4,13 @@ import { Audio } from 'expo-av';
 import ENV from '@/utils/envConfig'; 
 import { useAudioMode } from './useAudioMode'; 
 import axios from 'axios';
+import { ObjectId } from 'mongodb';
 
 const { BACKEND_URL, AI_BACKEND_URL } = ENV;
 
 const MAX_TOKENS = 4000;
 
-export const useChatSession = (isMiaChat = false, scenarioId?: number, scenarioDetails?: {
+export const useChatSession = (isMiaChat = false, scenarioId?: ObjectId, scenarioDetails?: {
   aiName: string;
   aiRole: string;
   scenarioTitle: string;
@@ -399,7 +400,7 @@ export const useChatSession = (isMiaChat = false, scenarioId?: number, scenarioD
       if (isMiaChat) {
         response = await axios.post(`${BACKEND_URL}/session`, {
           aiName: 'Mia',
-          role: 'English practice buddy',
+          primaryRole: 'English practice buddy',
           traits: 'friendly,patient,encouraging',
           context: 'English language learning',
         });
@@ -439,7 +440,7 @@ export const useChatSession = (isMiaChat = false, scenarioId?: number, scenarioD
     }
   }, [isMiaChat, scenarioId, stopAllAudio, autoPlayMessage]);
 
-  const initializeChat = useCallback(async (scenarioId?: number) => {
+  const initializeChat = useCallback(async (scenarioId?: ObjectId) => {
     if (!isInitializing || hasInitialized.current) return;
     hasInitialized.current = true;
 
@@ -449,7 +450,7 @@ export const useChatSession = (isMiaChat = false, scenarioId?: number, scenarioD
         // For Mia's main chat
         response = await axios.post(`${BACKEND_URL}/session`, {
           aiName: 'Mia',
-          role: 'English practice buddy',
+          primaryRole: 'English practice buddy',
           traits: 'friendly,patient,encouraging',
           context: 'English language learning',
         });

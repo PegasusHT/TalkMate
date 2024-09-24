@@ -7,6 +7,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 import { ActivityIndicator } from 'react-native';
 import { ScenarioDetails } from '@/types/roleplays';
+import { ObjectId } from 'mongodb';
 
 const bgImage = require('@/assets/images/store-manager-bg.jpeg');
 
@@ -19,7 +20,7 @@ type RootStackParamList = {
     userRole: string;
     objectives: string[];
     scenarioTitle: string;
-    scenarioId: number;
+    scenarioId: ObjectId;
   };
 };
 
@@ -34,15 +35,13 @@ const ScenarioDetail: React.FC = () => {
 
   const handleStartConversation = () => {
     navigation.navigate('chat', {
-      aiName: scenarioDetails.aiRole.name,
-      aiRole: scenarioDetails.aiRole.role,
-      aiTraits: Array.isArray(scenarioDetails.aiRole.traits) 
-        ? scenarioDetails.aiRole.traits 
-        : scenarioDetails.aiRole.traits.split(',').map(trait => trait.trim()),
+      aiName: scenarioDetails.aiMate?.name || 'AI Assistant',
+      aiRole: scenarioDetails.aiMate?.role || 'Assistant',
+      aiTraits: scenarioDetails.aiMate?.traits || [],
       userRole: scenarioDetails.userRole,
       objectives: scenarioDetails.objectives,
       scenarioTitle: scenarioDetails.title,
-      scenarioId: scenarioDetails.id
+      scenarioId: scenarioDetails._id,
     });
   };
 
@@ -54,25 +53,20 @@ const ScenarioDetail: React.FC = () => {
     }
   };
 
-  // Convert traits to array if it's a string
-  const traitsArray = Array.isArray(scenarioDetails.aiRole.traits) 
-    ? scenarioDetails.aiRole.traits 
-    : scenarioDetails.aiRole.traits.split(',').map(trait => trait.trim());
+  // The traits are already an array based on our updated type definition
+  const traitsArray = scenarioDetails.aiMate?.traits || [];
 
   return (
     <View className="flex-1">
-      <ScrollView className="flex-1 bg-indigo-800"
-        bounces={false}>
+      <ScrollView className="flex-1 bg-indigo-800" bounces={false}>
         <ImageBackground 
           source={bgImage} 
           className="w-full h-64 justify-end items-end"
         >        
-        {/* <ImageBackground 
-          source={{ uri: scenarioDetails.aiRole.backgroundImage }} 
-          className="w-full h-64 justify-end"
-        > */}
           <View className="bg-gray-700 bg-opacity-80 rounded-lg p-3 mb-6 mr-6 w-2/5">
-            <Text className="text-white font-semibold text-[20px] pb-2">AI's role: {scenarioDetails.aiRole.role}</Text>
+            <Text className="text-white font-semibold text-[20px] pb-2">
+              {scenarioDetails.aiMate?.role || 'AI Assistant'}
+            </Text>
             <View className="flex flex-wrap gap-1 mt-1">
               {traitsArray.map((trait, index) => (
                 <View key={index} className="bg-gray-600 rounded-full px-2">
