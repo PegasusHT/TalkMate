@@ -9,74 +9,54 @@ import {
   Modal, 
   FlatList
 } from 'react-native';
-import { ArrowRight, ArrowLeft, ChevronDown, X } from 'lucide-react-native';
+import { ArrowRight, ArrowLeft, ChevronDown } from 'lucide-react-native';
 import { useNavigation } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StackNavigationProp } from '@react-navigation/stack';
 import axios from 'axios';
 import ENV from '@/utils/envConfig';
+import { ScenarioDetails } from '@/types/roleplays';
 
 const convoIcon = require('@/assets/images/store-manager.jpeg');
 
 const { BACKEND_URL } = ENV;
 
 interface CharacterCard {
-  name: string;
+  mainCategory: string;
   role: string;
-  context: string;
 }
-
-interface ScenarioDetails {
-  id: number;
-  title: string;
-  description: string;
-  aiRole: {
-    name: string;
-    role: string;
-    traits: string[];
-    image: string;
-  };
-  userRole: string;
-  objectives: string[];
-  usefulPhrases: {
-    phrase: string;
-    pronunciation: string;
-  }[];
-}
-
-type RootStackParamList = {
-  scenarioDetail: { scenarioDetails: ScenarioDetails };
-};
 
 interface ConversationScenario {
   id: number;
   title: string;
   image: string;
   isNew?: boolean;
+  context: string;
 }
 
 interface OptionsData {
+  mainCategories: { [key: string]: string[] };
   roles: string[];
-  contexts: string[];
-  roleContextMap: { [key: string]: string[] };
 }
 
+type RootStackParamList = {
+  scenarioDetail: { scenarioDetails: ScenarioDetails };
+};
+
 const RoleplaysScreen: React.FC = () => {
-  const [card, setCard] = useState<CharacterCard>({ name: 'Jimmy', role: '', context: '' });
+  const [card, setCard] = useState<CharacterCard>({ mainCategory: '', role: '' });
   const [scenarios, setScenarios] = useState<ConversationScenario[]>([]);
   const [optionsData, setOptionsData] = useState<OptionsData | null>(null);
-  const [availableContexts, setAvailableContexts] = useState<string[]>([]);
+  const [availableRoles, setAvailableRoles] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
-  const [modalType, setModalType] = useState<'role' | 'context'>('role');
+  const [modalType, setModalType] = useState<'mainCategory' | 'role'>('mainCategory');
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 
   const fetchOptions = useCallback(async () => {
     try {
       const response = await axios.get(`${BACKEND_URL}/scenarios/options`);
-      const data: OptionsData = response.data;
-      setOptionsData(data);
-      setAvailableContexts(data.contexts);
+      setOptionsData(response.data);
     } catch (error) {
       console.error('Error fetching options:', error);
     }
@@ -86,12 +66,11 @@ const RoleplaysScreen: React.FC = () => {
     fetchOptions();
   }, [fetchOptions]);
 
-  const fetchScenarios = useCallback(async () => {
-    if (!card.role || !card.context) return;
+  const fetchScenarios = useCallback(async (role: string) => {
     setLoading(true);
     try {
-      const response = await axios.get(`${BACKEND_URL}/scenarios/by-role-context`, {
-        params: { role: card.role, context: card.context }
+      const response = await axios.get(`${BACKEND_URL}/scenarios/by-role`, {
+        params: { role }
       });
       setScenarios(response.data);
     } catch (error) {
@@ -99,11 +78,7 @@ const RoleplaysScreen: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [card.role, card.context]);
-
-  useEffect(() => {
-    fetchScenarios();
-  }, [fetchScenarios]);
+  }, []);
 
   const handleScenarioPress = async (id: number) => {
     try {
@@ -115,19 +90,20 @@ const RoleplaysScreen: React.FC = () => {
     }
   };
 
-  const openModal = (type: 'role' | 'context') => {
+  const openModal = (type: 'mainCategory' | 'role') => {
     setModalType(type);
     setModalVisible(true);
   };
 
   const selectOption = (option: string) => {
-    if (modalType === 'role') {
-      setCard(prev => ({ ...prev, role: option, context: '' }));
+    if (modalType === 'mainCategory') {
+      setCard({ mainCategory: option, role: '' });
       if (optionsData) {
-        setAvailableContexts(optionsData.roleContextMap[option] || []);
+        setAvailableRoles(optionsData.mainCategories[option] || []);
       }
     } else {
-      setCard(prev => ({ ...prev, context: option }));
+      setCard(prev => ({ ...prev, role: option }));
+      fetchScenarios(option);
     }
     setModalVisible(false);
   };
@@ -139,32 +115,31 @@ const RoleplaysScreen: React.FC = () => {
       </TouchableOpacity>
       <View className="bg-white rounded-xl border-[0.6px] p-4 mb-8 mt-6">
         <View className="flex-row justify-between items-center mb-2">
-          <Text className=" text-xl font-semibold">Character Card</Text>
+          <Text className="text-xl font-semibold">Character Card</Text>
         </View>
-        <Text className="">Name: {card.name}</Text>
         <View className="flex-row items-center mt-2">
           <TouchableOpacity 
-            onPress={() => openModal('role')} 
+            onPress={() => openModal('mainCategory')} 
             className="flex-1 flex-row justify-between items-center bg-white border-t-[0.2px] p-2 rounded-md"
           >
-            <Text className="">{card.role || 'Select a role'}</Text>
+            <Text>{card.mainCategory || 'Select a category'}</Text>
             <ChevronDown color="black" size={20} />
           </TouchableOpacity>
         </View>
         <View className="flex-row items-center mt-2">
           <TouchableOpacity 
-            onPress={() => openModal('context')} 
-            className={`flex-1 flex-row justify-between items-center p-2 border-t-[0.2px] rounded-md ${!card.role ? 'opacity-50' : ''}`}
-            disabled={!card.role}
+            onPress={() => openModal('role')} 
+            className={`flex-1 flex-row justify-between items-center p-2 border-t-[0.2px] rounded-md ${!card.mainCategory ? 'opacity-50' : ''}`}
+            disabled={!card.mainCategory}
           >
-            <Text className="">{card.context || 'Select a context'}</Text>
+            <Text>{card.role || 'Select a role'}</Text>
             <ChevronDown color="black" size={20} />
           </TouchableOpacity>
         </View>
       </View>
 
       {loading ? (
-        <ActivityIndicator size="large" color="#FFFFFF" />
+        <ActivityIndicator size="large" color="#6366f1" />
       ) : (
         <ScrollView contentContainerStyle={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
           {scenarios.map((scenario) => (
@@ -174,13 +149,13 @@ const RoleplaysScreen: React.FC = () => {
               className="w-[48%] bg-indigo-700 rounded-xl mb-4 overflow-hidden"
             >
               <Image source={convoIcon} className="w-full h-32" />
-              {/* <Image source={{ uri: scenario.image }} className="w-full h-32" /> */}
               <View className="flex-row justify-between items-center mt-2 p-2">
                 <Text className="text-white font-semibold w-5/6">
-                  {`Convo ${scenario.id}: ${scenario.title}`}
+                  {`${scenario.title}`}
                 </Text>
                 <ArrowRight color="white" size={20} />
               </View>
+              <Text className="text-white text-xs px-2 pb-2">{scenario.context}</Text>
             </TouchableOpacity>
           ))}
         </ScrollView>
@@ -194,16 +169,16 @@ const RoleplaysScreen: React.FC = () => {
       >
         <View className="flex-1 justify-end">
           <View className="bg-white rounded-t-xl border-2 p-4">
-            <Text className=" text-xl font-semibold border-b-2 mb-4">{`Select ${modalType}`}</Text>
+            <Text className="text-xl font-semibold border-b-2 mb-4">{`Select ${modalType}`}</Text>
             <FlatList
-              data={modalType === 'role' ? optionsData?.roles : availableContexts}
+              data={modalType === 'mainCategory' ? Object.keys(optionsData?.mainCategories || {}) : availableRoles}
               keyExtractor={(item) => item}
               renderItem={({ item }) => (
                 <TouchableOpacity 
                   onPress={() => selectOption(item)}
-                  className="py-2 border-b "
+                  className="py-2 border-b"
                 >
-                  <Text className=" text-lg">{item}</Text>
+                  <Text className="text-lg">{item}</Text>
                 </TouchableOpacity>
               )}
             />

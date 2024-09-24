@@ -17,6 +17,25 @@ interface AIMate {
     difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
     tags: string[];
   }
+
+  interface ScenarioDetails {
+    id: number;
+    title: string;
+    description: string;
+    aiRole: {
+      name: string;
+      role: string;
+      traits: string | string[];
+      image: string;
+      backgroundImage: string;
+    };
+    userRole: string;
+    objectives: string[];
+    usefulPhrases: {
+      phrase: string;
+      pronunciation: string;
+    }[];
+  }
   
   interface RoleplaySession {
     id: string;
@@ -25,50 +44,6 @@ interface AIMate {
     userRole: string;
     mateRole: string;
   }
-  
-  const aiMates: AIMate[] = [
-    {
-      id: 'mate1',
-      name: 'Sarah',
-      avatar: 'sarah.jpg',
-      background: 'Marketing professional',
-      personality: 'Friendly and outgoing',
-      specialties: ['Business English', 'Small Talk', 'Presentations'],
-      level: 'Intermediate'
-    },
-    {
-      id: 'mate2',
-      name: 'Dr. Chen',
-      avatar: 'dr_chen.jpg',
-      background: 'University professor',
-      personality: 'Patient and knowledgeable',
-      specialties: ['Academic English', 'Debates', 'Research Discussions'],
-      level: 'Advanced'
-    },
-    // Add more AI mates...
-  ];
-  
-  const scenarios: Scenario[] = [
-    {
-      id: 'scen1',
-      title: 'Job Interview',
-      description: 'Practice answering common job interview questions',
-      category: 'Professional',
-      subcategory: 'Job Search',
-      difficulty: 'Intermediate',
-      tags: ['interview', 'career', 'formal']
-    },
-    {
-      id: 'scen2',
-      title: 'Ordering at a Restaurant',
-      description: 'Learn how to order food and interact with wait staff',
-      category: 'Daily Life',
-      subcategory: 'Dining Out',
-      difficulty: 'Beginner',
-      tags: ['food', 'casual conversation', 'service']
-    },
-    // Add more scenarios...
-  ];
   
   function createRoleplaySession(mateId: string, scenarioId: string): RoleplaySession {
     return {
@@ -80,5 +55,5 @@ interface AIMate {
     };
   }
   
-  export { aiMates, scenarios, createRoleplaySession };
-  export type { AIMate, Scenario, RoleplaySession };
+  export { createRoleplaySession };
+  export type { AIMate, Scenario,ScenarioDetails, RoleplaySession };

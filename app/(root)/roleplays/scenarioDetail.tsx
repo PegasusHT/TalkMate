@@ -6,27 +6,9 @@ import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 import { ActivityIndicator } from 'react-native';
+import { ScenarioDetails } from '@/types/roleplays';
 
 const bgImage = require('@/assets/images/store-manager-bg.jpeg');
-
-interface ScenarioDetails {
-  id: number;
-  title: string;
-  description: string;
-  aiRole: {
-    name: string;
-    role: string;
-    traits: string | string[];
-    image: string;
-    backgroundImage: string;
-  };
-  userRole: string;
-  objectives: string[];
-  usefulPhrases: {
-    phrase: string;
-    pronunciation: string;
-  }[];
-}
 
 type RootStackParamList = {
   ScenarioDetail: { scenarioDetails: ScenarioDetails };
