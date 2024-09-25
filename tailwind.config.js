@@ -9,39 +9,29 @@ module.exports = {
   theme: {
     extend: {
         fontFamily: {
-            Jakarta: ["Jakarta", "sans-serif"],
-            JakartaBold: ["Jakarta-Bold", "sans-serif"],
-            JakartaExtraBold: ["Jakarta-ExtraBold", "sans-serif"],
-            JakartaExtraLight: ["Jakarta-ExtraLight", "sans-serif"],
-            JakartaLight: ["Jakarta-Light", "sans-serif"],
-            JakartaMedium: ["Jakarta-Medium", "sans-serif"],
-            JakartaSemiBold: ["Jakarta-SemiBold", "sans-serif"],
+            Nunito: ["Nunito", "sans-serif"],
+            NunitoBold: ["Nunito-Bold", "sans-serif"],
+            NunitoExtraBold: ["Nunito-ExtraBold", "sans-serif"],
+            NunitoExtraLight: ["Nunito-ExtraLight", "sans-serif"],
+            NunitoLight: ["Nunito-Light", "sans-serif"],
+            NunitoMedium: ["Nunito-Medium", "sans-serif"],
+            NunitoSemiBold: ["Nunito-SemiBold", "sans-serif"],
         },
         colors: {
             theme:{
-                500: '#0000ff'
+                500: '#0000ff',
+                
             },
             primary: {
-                100: "#F5F8FF",
-                200: "#EBF4FF",
-                300: "#C3D9FF",
-                400: "#9BBFFF",
-                500: "#0286FF",
-                600: "#6A85E6",
-                700: "#475A99",
-                800: "#364573",
-                900: "#242B4D",
+
+                500: "#585FF9",
+                //500: "#FFA900",
             },
             secondary: {
-                100: "#F8F8F8",
-                200: "#F1F1F1",
-                300: "#D9D9D9",
-                400: "#C2C2C2",
-                500: "#AAAAAA",
-                600: "#999999",
-                700: "#666666",
-                800: "#4D4D4D",
-                900: "#333333",
+                
+                500: "#FFC132",
+                //500: '#191D1f',
+               
             },
             success: {
                 100: "#F0FFF4",
