@@ -23,7 +23,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({ aiName, chatType, onNewChat, on
 
   return (
     <>
-      <View className="flex-row items-center justify-between pb-1 px-4 border-b border-gray-200">
+      <View className="flex-row items-center justify-between pb-1 px-4 border-b mb-2 border-gray-200">
         <View className="flex-row items-center">
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <ArrowLeft size={24} color="#000" />

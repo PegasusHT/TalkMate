@@ -6,7 +6,7 @@ const playbackMode = {
   playsInSilentModeIOS: true,
   staysActiveInBackground: false,
   interruptionModeIOS: InterruptionModeIOS.DoNotMix,
-    interruptionModeAndroid: InterruptionModeAndroid.DoNotMix,
+  interruptionModeAndroid: InterruptionModeAndroid.DoNotMix,
   shouldDuckAndroid: false,
   playThroughEarpieceAndroid: false,
 };
@@ -29,9 +29,17 @@ export const useAudioMode = () => {
     setMode('recording');
   }, []);
 
+  const resetAudioMode = useCallback(async () => {
+    await Audio.setAudioModeAsync(playbackMode);
+    await new Promise(resolve => setTimeout(resolve, 200));
+    await Audio.setAudioModeAsync(recordingMode);
+    setMode('recording');
+  }, []);
+
   return {
     mode,
     setPlaybackMode,
     setRecordingMode,
+    resetAudioMode,
   };
 };

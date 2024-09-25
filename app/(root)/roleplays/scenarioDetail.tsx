@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeft, Volume2, Clapperboard, Goal, Pause } from 'lucide-react-native';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { useAudioPlayer } from '@/hooks/useAudioPlayer';
+import { useAudioPlayer } from '@/hooks/Audio/useAudioPlayer';
 import { ActivityIndicator } from 'react-native';
 import { ScenarioDetails } from '@/types/roleplays';
 import { ObjectId } from 'mongodb';

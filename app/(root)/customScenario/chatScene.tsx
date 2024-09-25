@@ -12,6 +12,7 @@ import { useChatSession } from '@/hooks/useChatSession';
 import TypingIndicator from '@/components/chat/animation/TypingIndicator';
 import { ChatMessage as ChatMessageType } from '@/types/chat';
 import ENV from '@/utils/envConfig';
+import { ObjectId } from 'mongodb';
 
 const { BACKEND_URL } = ENV;
 
@@ -23,7 +24,7 @@ type RootStackParamList = {
     userRole: string;
     objectives: string[];
     scenarioTitle: string;
-    scenarioId: number | undefined;
+    scenarioId: ObjectId;
     initialMessage?: string;
   };
 };

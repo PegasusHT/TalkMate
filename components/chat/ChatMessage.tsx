@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
-import { Volume2, Pause, Check, AlertOctagon, AlertTriangle } from 'lucide-react-native';
+import { Volume2, Pause, Check, AlertTriangle } from 'lucide-react-native';
 import { ChatMessage as ChatMessageType } from '@/types/chat';
 
 type ChatMessageProps = {
@@ -23,10 +23,10 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
   };
 
   const renderAudioButton = () => {
-    if (isPlaying) {
-      return <Pause size={22} color="#007AFF" />;
-    } else if (isAudioLoading) {
+    if (isAudioLoading) {
       return <ActivityIndicator size="small" color="#007AFF" />;
+    } else if (isPlaying) {
+      return <Pause size={22} color="#007AFF" />;
     } else {
       return <Volume2 size={22} color="#007AFF" />;
     }
@@ -56,7 +56,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
           <View className='flex flex-row'>
             {renderFeedbackIcon()}
             {item.audioUri && (
-              <TouchableOpacity className="mr-2" onPress={handleAudioPress}>
+              <TouchableOpacity className="mr-2" onPress={handleAudioPress} disabled={isAudioLoading}>
                 {renderAudioButton()}
               </TouchableOpacity>
             )}
@@ -66,7 +66,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
           <Text className={item.role === 'user' ? 'text-white' : 'text-black'}>{item.content}</Text>
         </View>
         {item.role === 'model' && (
-          <TouchableOpacity className="ml-2" onPress={handleAudioPress}>
+          <TouchableOpacity className="ml-2" onPress={handleAudioPress} disabled={isAudioLoading}>
             {renderAudioButton()}
           </TouchableOpacity>
         )}

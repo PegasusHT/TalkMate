@@ -2,7 +2,7 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { ChatMessage, Feedback, FeedbackType } from '@/types/chat';
 import { Audio } from 'expo-av';
 import ENV from '@/utils/envConfig'; 
-import { useAudioMode } from './useAudioMode'; 
+import { useAudioMode } from './Audio/useAudioMode';
 import axios from 'axios';
 import { ObjectId } from 'mongodb';
 
@@ -31,61 +31,77 @@ export const useChatSession = (isMiaChat = false, scenarioId?: ObjectId, scenari
   const [isAudioLoading, setIsAudioLoading] = useState(false);
   const soundObject = useRef(new Audio.Sound());
   const [popupMessage, setPopupMessage] = useState<string | null>(null);
-  const { mode, setPlaybackMode, setRecordingMode } = useAudioMode();
+  const { setPlaybackMode, setRecordingMode } = useAudioMode();
 
   useEffect(() => {
     setPlaybackMode();
   }, [setPlaybackMode]);
 
-  const playAudio = useCallback(async (messageId: number, text: string, audioUri?: string) => {
-    if (playingAudioId === messageId) {
-      await stopAudio();
-      return;
-    }
-
+  const stopAudio = useCallback(async () => {
     try {
+      const playbackStatus = await soundObject.current.getStatusAsync();
+      if (playbackStatus.isLoaded) {
+        await soundObject.current.stopAsync();
+        await soundObject.current.unloadAsync();
+      }
+    } catch (error) {
+      console.log('Error stopping audio:', error);
+    } finally {
+      setPlayingAudioId(null);
+      setIsAudioLoading(false);
+    }
+  }, []);
+
+  const playAudio = useCallback(async (messageId: number, text: string, audioUri?: string) => {
+    try {
+      // If the same audio is currently playing, stop it
+      if (playingAudioId === messageId) {
+        await stopAudio();
+        return;
+      }
+  
+      // Stop any currently playing audio
+      await stopAudio();
+  
       await setPlaybackMode();
       setIsAudioLoading(true);
-      await stopAudio();
-
+      setPlayingAudioId(messageId);
+  
       if (audioUri) {
         // Play user's recorded audio
         await soundObject.current.unloadAsync();
         await soundObject.current.loadAsync({ uri: audioUri });
-        await soundObject.current.playAsync();
       } else {
         // Play AI-generated audio
         const formData = new FormData();
         formData.append('text', text);
-
+  
         const response = await fetch(`${AI_BACKEND_URL}/tts/`, {
           method: 'POST',
           body: formData,
         });
-
+  
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-
+  
         const data = await response.json();
         const audioBase64 = data.audio;
-
+  
         const aiAudioUri = `data:audio/mp3;base64,${audioBase64}`;
-
+  
         await soundObject.current.unloadAsync();
         await soundObject.current.loadAsync({ uri: aiAudioUri });
-        await soundObject.current.playAsync();
       }
-
-      setPlayingAudioId(messageId);
-
+  
+      setIsAudioLoading(false);
+      await soundObject.current.playAsync();
+  
       soundObject.current.setOnPlaybackStatusUpdate((status) => {
-        if (status.isLoaded && !status.isPlaying && !('didJustFinish' in status)) {
-          setIsAudioLoading(false);
-        }
-        if ('didJustFinish' in status && status.didJustFinish) {
-          setPlayingAudioId(null);
-          setIsAudioLoading(false);
+        if (status.isLoaded) {
+          if (!status.isPlaying && status.didJustFinish) {
+            setPlayingAudioId(null);
+          }
         }
       });
     } catch (error) {
@@ -93,15 +109,7 @@ export const useChatSession = (isMiaChat = false, scenarioId?: ObjectId, scenari
       setPlayingAudioId(null);
       setIsAudioLoading(false);
     }
-  }, [playingAudioId, setPlaybackMode]);
-
-  const stopAudio = useCallback(async () => {
-    if (playingAudioId !== null) {
-      await soundObject.current.stopAsync();
-      setPlayingAudioId(null);
-      setIsAudioLoading(false);
-    }
-  }, [playingAudioId]);
+  }, [playingAudioId, setPlaybackMode, stopAudio]);
 
   const autoPlayMessage = useCallback(async (message: ChatMessage) => {
     if (message.role === 'model') {

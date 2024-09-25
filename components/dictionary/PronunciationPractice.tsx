@@ -8,7 +8,7 @@ import ENV from '@/utils/envConfig';
 import { PerformanceData, PhoneticWord, DictionaryDefinition } from '@/types/dictionary';
 import { useNavigation } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useAudioMode } from '@/hooks/useAudioMode';
+import { useAudioMode } from '@/hooks/Audio/useAudioMode';
 
 type PronunciationPracticeProp = {
   sentence: string;

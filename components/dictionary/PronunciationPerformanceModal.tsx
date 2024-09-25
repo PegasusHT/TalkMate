@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, Modal, TouchableOpacity, ScrollView, Pressable, Alert } from 'react-native';
 import { Ear } from 'lucide-react-native';
 import { Audio, AVPlaybackStatus } from 'expo-av';
-import { useAudioMode } from '@/hooks/useAudioMode';
+import { useAudioMode } from '@/hooks/Audio/useAudioMode';
 
 type PerformanceData = {
   recording_transcript: string;
