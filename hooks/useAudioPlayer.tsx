@@ -20,13 +20,13 @@ export const useAudioPlayer = () => {
     try {
       await setPlaybackMode();
       setIsAudioLoading(true);
+      setPlayingAudioId(messageId);
       await stopAudio();
 
       if (audioUri) {
         // Play user's recorded audio
         await soundObject.current.unloadAsync();
         await soundObject.current.loadAsync({ uri: audioUri });
-        await soundObject.current.playAsync();
       } else {
         // Play AI-generated audio
         const formData = new FormData();
@@ -48,18 +48,14 @@ export const useAudioPlayer = () => {
 
         await soundObject.current.unloadAsync();
         await soundObject.current.loadAsync({ uri: aiAudioUri });
-        await soundObject.current.playAsync();
       }
 
-      setPlayingAudioId(messageId);
+      await soundObject.current.playAsync();
+      setIsAudioLoading(false);
 
       soundObject.current.setOnPlaybackStatusUpdate((status) => {
-        if (status.isLoaded && !status.isPlaying && !('didJustFinish' in status)) {
-          setIsAudioLoading(false);
-        }
-        if ('didJustFinish' in status && status.didJustFinish) {
+        if (status.isLoaded && !status.isPlaying && status.didJustFinish) {
           setPlayingAudioId(null);
-          setIsAudioLoading(false);
         }
       });
     } catch (error) {
@@ -77,20 +73,9 @@ export const useAudioPlayer = () => {
     }
   }, [playingAudioId]);
 
-  const stopAllAudio = useCallback(async () => {
-    try {
-      if (playingAudioId !== null) {
-        await stopAudio();
-      }
-    } catch (error) {
-      console.log('Error stopping audio:', error);
-    }
-  }, [playingAudioId, stopAudio]);
-
   return {
     playAudio,
     stopAudio,
-    stopAllAudio,
     playingAudioId,
     isAudioLoading,
   };
