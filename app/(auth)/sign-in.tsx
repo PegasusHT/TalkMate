@@ -37,7 +37,7 @@ const SignIn: React.FC = () => {
           <View className="flex-1 justify-center items-center">
             <View className="w-full max-w-[400px] bg-white p-6 rounded-lg border border-black">
               {error ? <Text className="text-red-500 mb-4">{error}</Text> : null}
-              <Text className="text-2xl font-bold text-center mb-5">Sign In</Text>
+              <Text className="text-2xl font-NunitoBold text-center mb-5">Sign In</Text>
               
               <TouchableOpacity
                 className="w-full mb-4 bg-white border border-black p-2 rounded-lg"

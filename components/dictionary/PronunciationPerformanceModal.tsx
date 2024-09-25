@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, Modal, TouchableOpacity, ScrollView, Pressable, Alert } from 'react-native';
+import { View, Modal, TouchableOpacity, ScrollView, Pressable, Alert } from 'react-native';
+import Text from '@/components/customText';
 import { Ear } from 'lucide-react-native';
 import { Audio, AVPlaybackStatus } from 'expo-av';
 import { useAudioMode } from '@/hooks/Audio/useAudioMode';
@@ -126,7 +127,7 @@ const PronunciationPerformanceModal: React.FC<PronunciationPerformanceModalProps
         <View className="bg-slate-200 rounded-t-3xl p-6" style={{ height: '60%' }}>
           <TouchableOpacity 
             onPress={playRecordedAudio} 
-            className={`absolute right-4 top-4 rounded-full p-2 z-10 ${isPlaying ? 'bg-red-300' : 'bg-indigo-700'}`}
+            className={`absolute right-4 top-4 rounded-full p-2 z-10 ${isPlaying ? 'bg-red-300' : 'bg-primary-500'}`}
           >
             <Ear color={isPlaying ? "black" : "white"} size={24} />
           </TouchableOpacity>
@@ -139,13 +140,13 @@ const PronunciationPerformanceModal: React.FC<PronunciationPerformanceModalProps
                   : 'N/A'}
               </Text>
             </Text>
-            <Text className="text-lg font-semibold mb-2">Word Accuracies:</Text>
+            <Text className="text-lg font-NunitoSemiBold mb-2">Word Accuracies:</Text>
             {
               performanceData.real_and_transcribed_words && performanceData.real_and_transcribed_words.length > 0 ? (
                 performanceData.real_and_transcribed_words.map((word, index) => (
                   <View key={index} className="mb-4">
                     <Text>
-                      <Text className="font-bold">{word[0]}</Text> 
+                      <Text className="font-NunitoBold">{word[0]}</Text> 
                       {performanceData.real_words_phonetic[index] && `(/${performanceData.real_words_phonetic[index]}/)`}:{' '}
                       <Text className={getColorForAccuracy(performanceData.current_words_pronunciation_accuracy[index])}>
                         {performanceData.current_words_pronunciation_accuracy[index] !== undefined
@@ -154,7 +155,7 @@ const PronunciationPerformanceModal: React.FC<PronunciationPerformanceModalProps
                       </Text>
                     </Text>
                     <Text>
-                      Transcribed as: <Text className="font-bold">{word[1] || 'Not detected'}</Text> 
+                      Transcribed as: <Text className="font-NunitoBold">{word[1] || 'Not detected'}</Text> 
                       {word[1] !== '-' && performanceData.recorded_words_phonetic[index] && 
                         ` (/${performanceData.recorded_words_phonetic[index]}/)`}
                     </Text>
@@ -170,14 +171,14 @@ const PronunciationPerformanceModal: React.FC<PronunciationPerformanceModalProps
               ) : (
                 <Text>No transcription available</Text>
               )}
-            <Text className="text-lg font-semibold mt-4 mb-2">Your Transcription:</Text>
+            <Text className="text-lg font-NunitoSemiBold mt-4 mb-2">Your Transcription:</Text>
             <Text>{performanceData.recording_transcript || 'No transcription available'}</Text>
           </ScrollView>
           <TouchableOpacity
             onPress={handleTryAgain}
-            className="bg-indigo-700 p-4 rounded-full mt-4 mb-8"
+            className="bg-primary-500 p-4 rounded-full mt-4 mb-8"
           >
-            <Text className="text-white text-center font-bold">Try Again</Text>
+            <Text className="text-white text-center font-NunitoBold">Try Again</Text>
           </TouchableOpacity>
         </View>
       </View>

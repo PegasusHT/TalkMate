@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, Modal, TouchableOpacity } from 'react-native';
+import { View, Modal, TouchableOpacity } from 'react-native';
+import Text from '@/components/customText';
 import { ChevronRight } from 'lucide-react-native';
 import { ChatMessage } from '@/types/chat';
 import { useNavigation } from '@react-navigation/native';
@@ -43,20 +44,20 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ isVisible, onClose, feedb
           <View className="bg-white h-full rounded-t-3xl p-6">
             <View className="w-12 h-1 bg-gray-300 rounded-full self-center mb-4" />
             <View className="bg-yellow-100 rounded-lg p-4 mb-4">
-              <Text className="font-semibold mb-2">Your message</Text>
+              <Text className="font-NunitoSemiBold mb-2">Your message</Text>
               <Text>{originalMessage}</Text>
             </View>
             <View className="bg-green-100 rounded-lg p-4 mb-4">
-              <Text className="font-semibold mb-2">Improved message</Text>
+              <Text className="font-NunitoSemiBold mb-2">Improved message</Text>
               <Text>{feedback.correctedVersion}</Text>
             </View>
             <View className="bg-orange-100 rounded-lg p-4 mb-4 pb-8">
-              <Text className="font-semibold mb-2">Explanation</Text>
+              <Text className="font-NunitoSemiBold mb-2">Explanation</Text>
               <Text>{feedback.explanation}</Text>
             </View>
             <View className='flex-1'/>
-            <TouchableOpacity onPress={handlePracticePronunciation} className="bg-blue-500 p-4 rounded-full flex-row justify-center items-center">
-              <Text className="text-white text-center font-bold mr-2">
+            <TouchableOpacity onPress={handlePracticePronunciation} className="bg-primary-500 p-4 rounded-full flex-row justify-center items-center">
+              <Text className="text-white text-center font-NunitoBold mr-2">
                 Practice pronunciation
               </Text>
               <ChevronRight color="white" size={20} />

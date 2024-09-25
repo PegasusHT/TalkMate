@@ -1,5 +1,6 @@
 import React from 'react';
-import { ScrollView,View, Text } from 'react-native';
+import { ScrollView,View } from 'react-native';
+import Text from '@/components/customText';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootTabParamList } from '@/types/types'; 
 import ChatFeature from '@/components/chatPage';
@@ -16,7 +17,7 @@ const HomeScreen: React.FC<Props> = () => {
     >
       <View className="flex-1 justify-start items-center bg-slate-100 pt-8">
         <View className='w-full pl-4'>
-          <Text className="text-3xl font-bold text-indigo-600">
+          <Text className="text-3xl font-NunitoBold text-primary-500">
             Practice modes
           </Text>
         </View>

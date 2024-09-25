@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { View, FlatList, KeyboardAvoidingView, Platform, Text, Animated } from 'react-native';
+import { View, FlatList, KeyboardAvoidingView, Platform, Animated } from 'react-native';
+import Text from '@/components/customText';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import { useRoute, RouteProp } from '@react-navigation/native';

@@ -9,6 +9,8 @@ module.exports = {
   theme: {
     extend: {
         fontFamily: {
+            sans: ['Nunito', 'sans-serif'],
+            Nunito: ["Nunito", "sans-serif"],
             Nunito: ["Nunito", "sans-serif"],
             NunitoBold: ["Nunito-Bold", "sans-serif"],
             NunitoExtraBold: ["Nunito-ExtraBold", "sans-serif"],
@@ -25,12 +27,13 @@ module.exports = {
             primary: {
 
                 500: "#585FF9",
-                //500: "#FFA900",
+                // 500: '#191d1f',
             },
             secondary: {
                 
                 500: "#FFC132",
-                //500: '#191D1f',
+                // 500: "#FFA900",
+                
                
             },
             success: {

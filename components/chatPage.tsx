@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, Image } from 'react-native';
+import { View, Image } from 'react-native';
+import Text from '@/components/customText';
 import { Pencil, Book } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
@@ -18,7 +19,7 @@ const ChatFeature = () => {
       >
       <TouchableOpacity onPress={handlePress}>
       <View className="p-4">
-        <Text className="text-2xl font-bold mb-4">Chat</Text>
+        <Text className="text-2xl font-NunitoBold mb-4">Chat</Text>
         <View className="flex-row">
           <View className="flex-1 mr-4">
             <View className="flex-row mb-3">
@@ -31,7 +32,7 @@ const ChatFeature = () => {
                 <Text className="ml-1 text-gray-600">Reading</Text>
               </View>
             </View>
-            <Text className="text-cl font-semibold mb-2 mr-28">
+            <Text className="text-cl font-NunitoSemiBold mb-2 mr-28">
               Enhance your language skills by chatting with our AI teacher.
             </Text>
             <Text className="text-sm text-gray-500">

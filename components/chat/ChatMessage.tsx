@@ -1,7 +1,9 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, TouchableOpacity, ActivityIndicator } from 'react-native';
+import Text from '@/components/customText';
 import { Volume2, Pause, Check, AlertTriangle } from 'lucide-react-native';
 import { ChatMessage as ChatMessageType } from '@/types/chat';
+import { primaryColor } from '@/constant/color';
 
 type ChatMessageProps = {
   item: ChatMessageType;
@@ -24,11 +26,11 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
 
   const renderAudioButton = () => {
     if (isAudioLoading) {
-      return <ActivityIndicator size="small" color="#007AFF" />;
+      return <ActivityIndicator size="small" color={primaryColor} />;
     } else if (isPlaying) {
-      return <Pause size={22} color="#007AFF" />;
+      return <Pause size={22} color={primaryColor} />;
     } else {
-      return <Volume2 size={22} color="#007AFF" />;
+      return <Volume2 size={22} color={primaryColor} />;
     }
   };
 
@@ -62,7 +64,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
             )}
           </View>
         )}
-        <View className={`rounded-lg p-3 max-w-[80%] ${item.role === 'user' ? 'bg-indigo-700' : 'bg-gray-200'}`}>
+        <View className={`rounded-lg p-3 max-w-[80%] ${item.role === 'user' ? 'bg-primary-500' : 'bg-gray-200'}`}>
           <Text className={item.role === 'user' ? 'text-white' : 'text-black'}>{item.content}</Text>
         </View>
         {item.role === 'model' && (

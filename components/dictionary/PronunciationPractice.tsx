@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
-import { View, ScrollView, Text, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
+import { View, ScrollView, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
+import Text from '@/components/customText';
 import { Mic, Volume2, VolumeX, Snail, ArrowLeft } from 'lucide-react-native';
 import { Audio } from 'expo-av';
 import * as FileSystem from 'expo-file-system';
@@ -310,7 +311,7 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
         </TouchableOpacity>
       </View>
       <View className="flex-1 justify-start px-4 pt-4">
-        <Text className="text-2xl font-bold mb-1 mt-4">{sentence}</Text>
+        <Text className="text-2xl font-NunitoBold mb-1 mt-4">{sentence}</Text>
         <View className="flex-row flex-wrap mb-2">
           <Text className="text-lg mr-1">/</Text>
           {phoneticWords.map((phoneticWord, index) => (
@@ -344,7 +345,7 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
               <View className="mb-4">
                 {dictionaryDefinition.meanings.map((meaning, index) => (
                   <View key={index} className="mb-2">
-                    <Text className="font-semibold">{meaning.part_of_speech}</Text>
+                    <Text className="font-NunitoSemiBold">{meaning.part_of_speech}</Text>
                     {meaning.definitions.map((def, defIndex) => (
                       <View key={defIndex} className="ml-4">
                         <Text>{defIndex + 1}. {def.definition}</Text>
@@ -366,7 +367,7 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
         onPress={handleMicPress}
         disabled={isProcessing}
         className={`self-center p-6 rounded-full ${
-          isRecording ? 'bg-red-500' : isProcessing ? 'bg-gray-500' : 'bg-blue-500'
+          isRecording ? 'bg-red-500' : isProcessing ? 'bg-gray-500' : 'bg-primary-500'
         }`}
       >
         {isProcessing ? (

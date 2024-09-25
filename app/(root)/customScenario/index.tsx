@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, TextInput, TouchableOpacity, SafeAreaView } from 'react-native';
+import { View, TextInput, TouchableOpacity, SafeAreaView } from 'react-native';
+import Text from '@/components/customText';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { Sparkles, ArrowLeft } from 'lucide-react-native';
@@ -116,7 +117,7 @@ const CustomScenarioUI = () => {
         <ArrowLeft size={24} color="#000" />
       </TouchableOpacity>
       <View className='flex justify-center items-center pt-4'>
-        <Text className="text-2xl font-bold text-blue-800 mb-4">Create custom conversation</Text>
+        <Text className="text-2xl font-NunitoBold text-primary-500 mb-4">Create custom conversation</Text>
       </View>
       <Text className="text-lg mb-6">
         Enter any conversation topic or scenario you want to practice, or use the 'Suggest' button for a random scenario.
@@ -135,15 +136,15 @@ const CustomScenarioUI = () => {
           className="absolute flex flex-row justify-center items-center bottom-2 right-2 bg-white rounded-full p-2"
         >
           <Sparkles size={24} color="#4B5563" />
-          <Text className='font-semibold'>Suggest</Text>
+          <Text className='font-NunitoSemiBold'>Suggest</Text>
         </TouchableOpacity>
       </View>
       <View className='flex-1'/>
       <TouchableOpacity
         onPress={handleStart}
-        className="bg-blue-500 rounded-full py-3 px-6"
+        className="bg-primary-500 rounded-full py-3 px-6"
       >
-        <Text className="text-white text-center font-semibold text-lg">Start</Text>
+        <Text className="text-white text-center font-NunitoSemiBold text-lg">Start</Text>
       </TouchableOpacity>
      </View>
     </SafeAreaView>

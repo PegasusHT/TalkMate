@@ -1,6 +1,6 @@
 //app/(root)/index.tsx
 import React from 'react';
-import { Text } from 'react-native';
+import Text from '@/components/customText';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import HomeScreen from '@/app/(root)/(tabs)/home';
@@ -51,7 +51,7 @@ const getTabBarIcon = (routeName: keyof RootTabParamList) => {
 
 const getTabBarLabel = (label: string) => {
   return ({ focused }: { focused: boolean }) => (
-    <Text className={`text-xs ${focused ? 'text-blue-600' : 'text-gray-500'}`}>
+    <Text className={`text-xs ${focused ? 'text-primary-500' : 'text-gray-500'}`}>
       {label}
     </Text>
   );
@@ -72,7 +72,7 @@ const Home = () => {
     <Tab.Navigator
       screenOptions={({ route }) => ({
         tabBarIcon: getTabBarIcon(route.name),
-        tabBarActiveTintColor: 'blue',
+        tabBarActiveTintColor: '#585FF9',
         tabBarInactiveTintColor: 'gray',
         tabBarStyle: {
           backgroundColor: 'white',

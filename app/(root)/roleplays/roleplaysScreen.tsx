@@ -151,7 +151,7 @@ const RoleplaysScreen: React.FC = () => {
       </TouchableOpacity>
       <View className="bg-white rounded-xl border-[0.6px] p-4 mb-8 mt-6">
         <View className="flex-row justify-between items-center mb-2">
-          <Text className="text-xl font-semibold">Character Card</Text>
+          <Text className="text-xl font-NunitoSemiBold">Character Card</Text>
         </View>
         <View className="flex-row items-center mt-2">
           <TouchableOpacity 
@@ -182,11 +182,11 @@ const RoleplaysScreen: React.FC = () => {
             <TouchableOpacity
               key={scenario.id}
               onPress={() => handleScenarioPress(scenario._id)}
-              className="w-[48%] bg-indigo-700 rounded-xl mb-4 overflow-hidden"
+              className="w-[48%] bg-primary-500 rounded-xl mb-4 overflow-hidden"
             >
               <Image source={convoIcon} className="w-full h-32" />
-              <View className="flex-row justify-between items-center mt-2 p-2">
-                <Text className="text-white font-semibold w-5/6">
+              <View className="flex-row justify-between items-center p-2">
+                <Text className="text-white font-NunitoSemiBold w-5/6">
                   Convo {`${scenario.id}`}: {`${scenario.title}`}
                 </Text>
                 <ArrowRight color="white" size={20} />
@@ -219,8 +219,8 @@ const RoleplaysScreen: React.FC = () => {
             }}
           >
             <View className="w-16 h-1 bg-gray-300 rounded-full self-center mb-4" />
-            <Text className="text-xl font-semibold mb-4 mt-4 text-center">
-              {`Select ${modalType === 'category' ? 'a career field' : 'a role'}`}
+            <Text className="text-xl font-NunitoSemiBold mb-4 mt-4 text-center">
+              {`Select ${modalType === 'category' ? 'a category' : 'a role'}`}
             </Text>
             <FlatList
               data={modalType === 'category' ? Object.keys(optionsData?.mainCategories || {}) : availableRoles}
@@ -232,16 +232,16 @@ const RoleplaysScreen: React.FC = () => {
                 >
                   <View className={`w-6 h-6 rounded-full border-2 mr-4 ${
                     (modalType === 'category' ? card.mainCategory : card.role) === item
-                      ? 'bg-gray-200 border-indigo-700'
+                      ? 'bg-gray-200 border-primary-500'
                       : 'border-gray-300'
                   }`}>
                     {(modalType === 'category' ? card.mainCategory : card.role) === item && (
-                      <View className="w-3 h-3 rounded-full bg-indigo-700 m-auto" />
+                      <View className="w-3 h-3 rounded-full bg-primary-500 m-auto" />
                     )}
                   </View>
                   <Text className={`text-lg ${
                     (modalType === 'category' ? card.mainCategory : card.role) === item
-                      ? 'text-indigo-700 font-semibold'
+                      ? 'text-primary-500 font-NunitoSemiBold'
                       : 'text-gray-800'
                   }`}>
                     {item}
