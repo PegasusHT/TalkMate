@@ -15,6 +15,7 @@ export const useChatSession = (isMiaChat = false, scenarioId?: ObjectId, scenari
   aiRole: string;
   scenarioTitle: string;
   userRole: string;
+  objectives: string[];
 }) => {
   const [message, setMessage] = useState('');
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);

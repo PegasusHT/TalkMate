@@ -67,7 +67,7 @@ const ChatScene: React.FC = () => {
     aiName,
     aiRole,
     scenarioTitle,
-    userRole,
+    userRole, objectives
   });
 
   const flatListRef = useRef<FlatList<ChatMessageType>>(null);
