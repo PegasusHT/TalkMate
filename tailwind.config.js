@@ -10,6 +10,12 @@ module.exports = {
     extend: {
         fontFamily: {
             sans: ['Nunito', 'sans-serif'],
+            // sans: ['Gilroy-Regular', 'sans-serif'],
+            'gilroy': ['Gilroy-Regular', 'sans-serif'],
+            'gilroy-semibold': ['Gilroy-SemiBold', 'sans-serif'],
+            'gilroy-bold': ['Gilroy-Bold', 'sans-serif'],
+            'gilroy-extrabold': ['Gilroy-ExtraBold', 'sans-serif'],
+            'gilroy-light': ['Gilroy-Light', 'sans-serif'],
             Nunito: ["Nunito", "sans-serif"],
             Nunito: ["Nunito", "sans-serif"],
             NunitoBold: ["Nunito-Bold", "sans-serif"],

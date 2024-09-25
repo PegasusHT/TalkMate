@@ -20,6 +20,12 @@ SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
+    "Gilroy-Bold": require("../assets/fonts/Gilroy-Bold.ttf"),
+    "Gilroy-ExtraBold": require("../assets/fonts/Gilroy-ExtraBold.ttf"),
+    "Gilroy-Light": require("../assets/fonts/Gilroy-Light.ttf"),
+    "Gilroy-Regular": require("../assets/fonts/Gilroy-Regular.ttf"),
+    "Gilroy-SemiBold": require("../assets/fonts/Gilroy-SemiBold.ttf"),
+    
     "Nunito-Bold": require("../assets/fonts/Nunito-Bold.ttf"),
     "Nunito-ExtraBold": require("../assets/fonts/Nunito-ExtraBold.ttf"),
     "Nunito-ExtraLight": require("../assets/fonts/Nunito-ExtraLight.ttf"),

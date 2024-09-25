@@ -117,14 +117,14 @@ const CustomScenarioUI = () => {
         <ArrowLeft size={24} color="#000" />
       </TouchableOpacity>
       <View className='flex justify-center items-center pt-4'>
-        <Text className="text-2xl font-NunitoBold text-primary-500 mb-4">Create custom conversation</Text>
+        <Text className="text-2xl font-gilroy-bold text-primary-500 mb-4">Create custom conversation</Text>
       </View>
       <Text className="text-lg mb-6">
         Enter any conversation topic or scenario you want to practice, or use the 'Suggest' button for a random scenario.
       </Text>
       <View className="bg-gray-100 border border-1 rounded-3xl pl-3 pr-2 pt-1 pb-12 mb-6">
         <TextInput
-          className="text-lg h-32" 
+          className="text-lg h-32 font-Nunito" 
           placeholder="What do you want to talk about?"
           value={scenario}
           onChangeText={setScenario}
