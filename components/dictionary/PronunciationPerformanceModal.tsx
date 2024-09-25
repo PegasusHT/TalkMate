@@ -126,7 +126,7 @@ const PronunciationPerformanceModal: React.FC<PronunciationPerformanceModalProps
         <View className="bg-slate-200 rounded-t-3xl p-6" style={{ height: '60%' }}>
           <TouchableOpacity 
             onPress={playRecordedAudio} 
-            className={`absolute right-4 top-4 rounded-full p-2 z-10 ${isPlaying ? 'bg-red-300' : 'bg-blue-500'}`}
+            className={`absolute right-4 top-4 rounded-full p-2 z-10 ${isPlaying ? 'bg-red-300' : 'bg-indigo-700'}`}
           >
             <Ear color={isPlaying ? "black" : "white"} size={24} />
           </TouchableOpacity>
@@ -175,7 +175,7 @@ const PronunciationPerformanceModal: React.FC<PronunciationPerformanceModalProps
           </ScrollView>
           <TouchableOpacity
             onPress={handleTryAgain}
-            className="bg-theme-500 p-4 rounded-full mt-4 mb-8"
+            className="bg-indigo-700 p-4 rounded-full mt-4 mb-8"
           >
             <Text className="text-white text-center font-bold">Try Again</Text>
           </TouchableOpacity>
