@@ -11,7 +11,7 @@ import { ScenarioDetails } from '@/types/roleplays';
 import { ObjectId } from 'mongodb';
 
 const bgImage = require('@/assets/images/store-manager-bg.jpeg');
-const subColor = '#585FF9';
+const subColor = 'black';
 
 type RootStackParamList = {
   ScenarioDetail: { scenarioDetails: ScenarioDetails };
@@ -102,22 +102,23 @@ const ScenarioDetail: React.FC = () => {
 
           <View className="mb-6 p-2 bg-slate-100 rounded-lg text">
             <View className="flex-row items-center mb-2">
-              <Goal size={28} color={'#FFC132'} className='mx-2'/>
-              <Text className="text-3xl font-NunitoSemiBold">Objectives</Text>
+              {/* <Goal size={28} color={'#FFC132'} className='mx-2'/> */}
+              <Goal size={28} color={'black'} className='mx-2 opacity-90'/>
+              <Text className="text-3xl ">Objectives</Text>
             </View>
             {scenarioDetails.objectives.map((objective, index) => (
               <View key={index} className="flex-row items-center mb-2">
-                <View className="bg-black w-2 h-2 mx-2 rounded-full mr-2" />
-                <Text className=" mx-2 font-NunitoSemiBold" >{objective}</Text>
+                <View className="bg-black opacity-70 w-2 h-2 mx-2 rounded-full mr-2" />
+                <Text className=" mx-2 font-NunitoLight" >{objective}</Text>
               </View>
             ))}
           </View>
 
           <View className="mb-6">
-            <Text className=" text-xl font-NunitoSemiBold mb-2">Useful Phrases</Text>
+            <Text className=" text-xl d mb-2">Useful Phrases</Text>
             {scenarioDetails.usefulPhrases.map((phrase, index) => (
               <View key={index} className="bg-slate-100 rounded-lg p-3 mb-3">
-                <Text className=" font-NunitoSemiBold pr-5">{phrase.phrase}</Text>
+                <Text className=" font-Nunito pr-5">{phrase.phrase}</Text>
                 <Text className="text-gray-400 italic">{phrase.pronunciation}</Text>
                 <TouchableOpacity 
                   onPress={() => handleAudioPress(phrase.phrase, index)} 
