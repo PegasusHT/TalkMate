@@ -11,6 +11,7 @@ import { ScenarioDetails } from '@/types/roleplays';
 import { ObjectId } from 'mongodb';
 
 const bgImage = require('@/assets/images/store-manager-bg.jpeg');
+const subColor = '#585FF9';
 
 type RootStackParamList = {
   ScenarioDetail: { scenarioDetails: ScenarioDetails };
@@ -59,7 +60,7 @@ const ScenarioDetail: React.FC = () => {
 
   return (
     <View className="flex-1">
-      <ScrollView className="flex-1 bg-primary-500" bounces={false}>
+      <ScrollView className="flex-1 bg-white" bounces={false}>
         <ImageBackground 
           source={bgImage} 
           className="w-full h-64 justify-end items-end"
@@ -85,36 +86,38 @@ const ScenarioDetail: React.FC = () => {
           <ArrowLeft size={24} color="#FFFFFF" />
         </TouchableOpacity>
 
-        <View className="px-4 mt-4 bg-primary-500 rounded-2xl pt-6">
-          <Text className="text-white text-3xl font-NunitoSemiBold mb-2">{scenarioDetails.title}</Text>
-          <Text className="text-white mb-6">{scenarioDetails.description}</Text>
+        <View className="px-4 mt-4 rounded-2xl pt-6">
+          <Text style={{color: subColor}} className="text-3xl font-NunitoSemiBold mb-2">
+            {scenarioDetails.title}
+          </Text>
+          <Text className="mb-6">{scenarioDetails.description}</Text>
 
           <View className="mb-6">
             <View className='flex flex-row gap-2'>
-              <Clapperboard size={16} color={'white'} />
-              <Text className="text-white text-2lg font-NunitoSemiBold mb-2">Your Role</Text>
+              <Clapperboard size={16} color={subColor} />
+              <Text style={{color: subColor}} className="text-2lg font-NunitoSemiBold mb-2">Your Role</Text>
             </View>
-            <Text className="text-white">{scenarioDetails.userRole}</Text>
+            <Text className="">{scenarioDetails.userRole}</Text>
           </View>
 
-          <View className="mb-6 p-2 rounded-lg bg-pink-100 text">
+          <View className="mb-6 p-2 bg-slate-100 rounded-lg text">
             <View className="flex-row items-center mb-2">
-              <Goal size={28} color={'#eb6207'} className='mx-2'/>
-              <Text className="text-[#eb6207] text-3xl font-NunitoSemiBold">Objectives</Text>
+              <Goal size={28} color={'#FFC132'} className='mx-2'/>
+              <Text className="text-3xl font-NunitoSemiBold">Objectives</Text>
             </View>
             {scenarioDetails.objectives.map((objective, index) => (
               <View key={index} className="flex-row items-center mb-2">
-                <View className="w-2 h-2 bg-[#dd660c] mx-2 rounded-full mr-2" />
-                <Text className="text-[#bf8d5f] mx-2 font-NunitoSemiBold" >{objective}</Text>
+                <View className="bg-black w-2 h-2 mx-2 rounded-full mr-2" />
+                <Text className=" mx-2 font-NunitoSemiBold" >{objective}</Text>
               </View>
             ))}
           </View>
 
           <View className="mb-6">
-            <Text className="text-white text-xl font-NunitoSemiBold mb-2">Useful Phrases</Text>
+            <Text className=" text-xl font-NunitoSemiBold mb-2">Useful Phrases</Text>
             {scenarioDetails.usefulPhrases.map((phrase, index) => (
-              <View key={index} className="bg-secondary-500 rounded-lg p-3 mb-3">
-                <Text className="text-white font-NunitoSemiBold pr-5">{phrase.phrase}</Text>
+              <View key={index} className="bg-slate-100 rounded-lg p-3 mb-3">
+                <Text className=" font-NunitoSemiBold pr-5">{phrase.phrase}</Text>
                 <Text className="text-gray-400 italic">{phrase.pronunciation}</Text>
                 <TouchableOpacity 
                   onPress={() => handleAudioPress(phrase.phrase, index)} 
@@ -124,10 +127,10 @@ const ScenarioDetail: React.FC = () => {
                     isAudioLoading ? (
                       <ActivityIndicator size="small" color="white" />
                     ) : (
-                      <Pause color="white" size={20} />
+                      <Pause color="black" size={20} />
                     )
                   ) : (
-                    <Volume2 color="white" size={20} />
+                    <Volume2 color="black" size={20} />
                   )}
                 </TouchableOpacity>
               </View>
@@ -136,7 +139,7 @@ const ScenarioDetail: React.FC = () => {
 
           <TouchableOpacity
             onPress={handleStartConversation}
-            className="bg-secondary-500 rounded-full py-3 px-6 mb-8"
+            className="bg-primary-500 rounded-full py-3 px-6 mb-8"
           >
             <Text className="text-white text-center font-NunitoSemiBold text-lg">Start Conversation</Text>
           </TouchableOpacity>
