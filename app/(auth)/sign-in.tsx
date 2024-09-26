@@ -1,110 +1,131 @@
-import React, { useState, useEffect } from 'react';
-import { SafeAreaView, Text, View, TextInput, TouchableOpacity, Alert,
-    KeyboardAvoidingView, Platform, Keyboard, TouchableWithoutFeedback
- } from 'react-native';
+import React from 'react';
+import { SafeAreaView, View, TouchableOpacity, ScrollView, Image } from 'react-native';
 import { router } from 'expo-router';
-import { StackNavigationProp } from '@react-navigation/stack';
-import * as Google from 'expo-auth-session/providers/google'
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { makeRedirectUri } from 'expo-auth-session';
+import { ArrowLeft } from 'lucide-react-native';
+import * as Google from 'expo-auth-session/providers/google';
 import * as WebBrowser from 'expo-web-browser';
 import ENV from '@/utils/envConfig';
+import Text from '@/components/customText';
+import BoardingHeader from '@/components/boarding/boardingHeader';
+import { SvgXml } from 'react-native-svg';
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 WebBrowser.maybeCompleteAuthSession();
 
-const {GOOGLE_IOS_CLIENT_ID, GOOGLE_WEB_CLIENT_ID }=ENV
+const { GOOGLE_IOS_CLIENT_ID, GOOGLE_WEB_CLIENT_ID } = ENV;
 
-type RootStackParamList = {
-  Register: undefined;
-};
-
-type SignInScreenNavigationProp = StackNavigationProp<RootStackParamList>;
+const AuthIcon = require('@/assets/icons/auth.png');
 
 const SignIn: React.FC = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [request, response, promptAsync] = Google.useAuthRequest({
+    webClientId: GOOGLE_WEB_CLIENT_ID,
+    iosClientId: GOOGLE_IOS_CLIENT_ID,
+    scopes: ['profile', 'email'],
+  });
 
-  const [request, response, promptAsync] = Google.useAuthRequest(
-    {
-      webClientId: GOOGLE_WEB_CLIENT_ID,
-      iosClientId: GOOGLE_IOS_CLIENT_ID,
-      scopes: ['profile', 'email'], 
-    }
-  );
-
-  useEffect(() => {
-    if (response?.type === 'success') {
-      const { authentication } = response;
-      router.replace('/(root)');
-    } else if (response?.type === 'error') {
-      setError('Authentication failed. Please try again.');
-      console.error('Authentication error:', response.error);
-    }
-  }, [response]);
-
-  const handleGoogleSignIn = async () => {
-    // TODO: Implement Google Sign-In
-    router.replace('/(root)')
+  const handleGoogleSignIn = () => {
+    promptAsync();
   };
 
-  return (
-    <SafeAreaView className="flex-1 bg-slate-100 px-4">
-      <KeyboardAvoidingView 
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        className="flex-1"
-      >
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View className="flex-1 justify-center items-center">
-            <View className="w-full max-w-[400px] bg-white p-6 rounded-lg border border-black">
-              {error ? <Text className="text-red-500 mb-4">{error}</Text> : null}
-              <Text className="text-2xl font-NunitoBold text-center mb-5">Sign In</Text>
+  const handleAppleSignIn = () => {
+    // Implement Apple Sign-In
+    console.log('Apple Sign-In');
+  };
 
-              {/* <Text className="text-sm mb-1">Email</Text>
-              <TextInput
-                className="w-full h-10 border border-black rounded px-2 mb-4"
-                placeholder="Email"
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
-                autoCapitalize="none"
-              />
-              
-              <Text className="text-sm mb-1">Password</Text>
-              <TextInput
-                className="w-full h-10 border border-black rounded px-2 mb-4"
-                placeholder="Password"
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry
-              />
-              
-              <TouchableOpacity
-                className="w-full bg-black p-2 rounded"
-                onPress={handleSubmit}
-              >
-                <Text className="text-white text-center">Sign In</Text>
-              </TouchableOpacity> */}
-              
-              <TouchableOpacity
-                className="w-full mb-4 bg-white border border-black p-2 rounded-lg"
-                onPress={() => promptAsync()} // Wrap promptAsync in an arrow function
-              >
-                <Text className="text-center">Sign in with Google</Text>
-              </TouchableOpacity>
-              
-              <TouchableOpacity
-                className="mt-4"
-                onPress={() => {
-                    router.replace('/(auth)/sign-up')
-                }}
-              >
-                <Text className="text-sm text-gray-500">Don't have an account?</Text>
-              </TouchableOpacity>
-            </View>
+  const handleFacebookSignIn = () => {
+    // Implement Facebook Sign-In
+    console.log('Facebook Sign-In');
+  };
+
+  const googleSvg = `
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+    <path fill="none" d="M1 1h22v22H1z"/>
+  </svg>
+  `;
+
+  const appleSvg = `
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+    <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
+  </svg>
+  `;
+
+  const facebookSvg = `
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+    <path fill="#1877F2" d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+  </svg>
+  `;
+  
+  const SocialButton = ({ onPress, icon, text }: { onPress: () => void; icon: string; text: string }) => (
+    <TouchableOpacity
+      className="mx-4 mb-3 bg-white border border-gray-300 p-4 rounded-2xl flex-row items-center justify-center"
+      onPress={onPress}
+    >
+      <SvgXml xml={icon} width={22} height={22} style={{ marginRight: 10 }} />
+      <Text className="text-center text-lg font-NunitoSemiBold">{text}</Text>
+    </TouchableOpacity>
+  );
+
+  return (
+    <SafeAreaView className="flex-1 bg-slate-100 mx-2">
+      <BoardingHeader />
+      <ScrollView className="flex-1" contentContainerStyle={{ flexGrow: 1 }} bounces={false}>
+        <View className='px-2 pb-6 pt-3'>
+          <View className=" flex flex-row">
+            <TouchableOpacity
+              onPress={() => router.back()}
+              className="pt-1 mr-2"
+            >
+              <ArrowLeft size={22} color="black" />
+            </TouchableOpacity>
+            <Text className="text-2xl font-NunitoBold mb-2">Login</Text>
           </View>
-        </TouchableWithoutFeedback>
-      </KeyboardAvoidingView>
+        </View>
+
+        <View className="flex-1 justify-end mb-8">
+          <View className='items-center pb-6'>
+            <Image
+              source={AuthIcon}
+              className="h-[340px] w-[200px] mt-[-20px] mr-[-20px]"
+            />
+          </View>
+          
+          <View className="space-y-4">
+            <SocialButton
+              onPress={handleGoogleSignIn}
+              icon={googleSvg}
+              text="Continue with Google"
+            />
+            <SocialButton
+              onPress={handleAppleSignIn}
+              icon={appleSvg}
+              text="Continue with Apple"
+            />
+            <SocialButton
+              onPress={handleFacebookSignIn}
+              icon={facebookSvg}
+              text="Continue with Facebook"
+            />
+          </View>
+
+          <View className="mt-6 flex-row justify-center ">
+            <Text className="text-gray-600 text-lg">Not a member yet? </Text>
+            <TouchableOpacity onPress={() => router.push('/(auth)/sign-up')}>
+              <Text className="text-blue-500 underline text-lg font-NunitoSemiBold">Sign up</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Terms and conditions */}
+          <Text className="text-gray-500 text-xs text-center mt-6">
+            By selecting Continue, if your Google, Apple, or Facebook email does not
+            match the email you provided during the sign up, we will create a new
+            account for you. 
+          </Text>
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 };
