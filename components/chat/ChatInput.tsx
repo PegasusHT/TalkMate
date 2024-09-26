@@ -2,6 +2,7 @@ import React from 'react';
 import { View, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Send, Mic, Trash2 } from 'lucide-react-native';
 import RecordingAnimation from '@/components/chat/animation/recordingAnimation';
+import { primaryColor } from '@/constant/color';
 
 type ChatInputProps = {
   message: string;
@@ -65,9 +66,9 @@ const ChatInput: React.FC<ChatInputProps> = ({
       />
       <TouchableOpacity onPress={message ? handleSend : handleMicPressWithAudioStop}>
         {message ? (
-          <Send size={28} color="#007AFF" />
+          <Send size={28} color={primaryColor} />
         ) : (
-          <Mic size={28} color="#007AFF" />
+          <Mic size={28} color={primaryColor} />
         )}
       </TouchableOpacity>
     </View>

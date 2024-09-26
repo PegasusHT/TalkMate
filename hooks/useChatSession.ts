@@ -1,14 +1,22 @@
-//path: hooks/useChatSession.ts
 import { useState, useCallback, useRef, useEffect } from 'react';
-import Constants from 'expo-constants';
-import { ChatMessage } from '@/types/chat';
-import { Audio, InterruptionModeAndroid, InterruptionModeIOS } from 'expo-av';
+import { ChatMessage, Feedback, FeedbackType } from '@/types/chat';
+import { Audio } from 'expo-av';
+import ENV from '@/utils/envConfig'; 
+import { useAudioMode } from './Audio/useAudioMode';
+import axios from 'axios';
+import { ObjectId } from 'mongodb';
 
-const BACKEND_URL = Constants.expoConfig?.extra?.BACKEND_URL?.dev || '';
-const AI_BACKEND_URL = Constants.expoConfig?.extra?.AI_BACKEND_URL.dev || '';
+const { BACKEND_URL, AI_BACKEND_URL } = ENV;
+
 const MAX_TOKENS = 4000;
 
-export const useChatSession = () => {
+export const useChatSession = (isMiaChat = false, scenarioId?: ObjectId, scenarioDetails?: {
+  aiName: string;
+  aiRole: string;
+  scenarioTitle: string;
+  userRole: string;
+  objectives: string[];
+}) => {
   const [message, setMessage] = useState('');
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
   const [isInitializing, setIsInitializing] = useState<boolean>(true);
@@ -23,55 +31,78 @@ export const useChatSession = () => {
   const [playingAudioId, setPlayingAudioId] = useState<number | null>(null);
   const [isAudioLoading, setIsAudioLoading] = useState(false);
   const soundObject = useRef(new Audio.Sound());
+  const [popupMessage, setPopupMessage] = useState<string | null>(null);
+  const { setPlaybackMode, setRecordingMode } = useAudioMode();
+
+  useEffect(() => {
+    setPlaybackMode();
+  }, [setPlaybackMode]);
+
+  const stopAudio = useCallback(async () => {
+    try {
+      const playbackStatus = await soundObject.current.getStatusAsync();
+      if (playbackStatus.isLoaded) {
+        await soundObject.current.stopAsync();
+        await soundObject.current.unloadAsync();
+      }
+    } catch (error) {
+      console.log('Error stopping audio:', error);
+    } finally {
+      setPlayingAudioId(null);
+      setIsAudioLoading(false);
+    }
+  }, []);
 
   const playAudio = useCallback(async (messageId: number, text: string, audioUri?: string) => {
-    if (playingAudioId === messageId) {
-      await stopAudio();
-      return;
-    }
-
     try {
-      setIsAudioLoading(true);
+      // If the same audio is currently playing, stop it
+      if (playingAudioId === messageId) {
+        await stopAudio();
+        return;
+      }
+  
+      // Stop any currently playing audio
       await stopAudio();
-
+  
+      await setPlaybackMode();
+      setIsAudioLoading(true);
+      setPlayingAudioId(messageId);
+  
       if (audioUri) {
         // Play user's recorded audio
         await soundObject.current.unloadAsync();
         await soundObject.current.loadAsync({ uri: audioUri });
-        await soundObject.current.playAsync();
       } else {
         // Play AI-generated audio
         const formData = new FormData();
         formData.append('text', text);
-
+  
         const response = await fetch(`${AI_BACKEND_URL}/tts/`, {
           method: 'POST',
           body: formData,
         });
-
+  
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-
+  
         const data = await response.json();
         const audioBase64 = data.audio;
-
+  
         const aiAudioUri = `data:audio/mp3;base64,${audioBase64}`;
-
+  
         await soundObject.current.unloadAsync();
         await soundObject.current.loadAsync({ uri: aiAudioUri });
-        await soundObject.current.playAsync();
       }
-
-      setPlayingAudioId(messageId);
-
+  
+      setIsAudioLoading(false);
+      await soundObject.current.playAsync();
+  
       soundObject.current.setOnPlaybackStatusUpdate((status) => {
-        if (status.isLoaded && !status.isPlaying && !('didJustFinish' in status)) {
-          setIsAudioLoading(false);
-        }
-        if ('didJustFinish' in status && status.didJustFinish) {
-          setPlayingAudioId(null);
-          setIsAudioLoading(false);
+        if (status.isLoaded) {
+          if (!status.isPlaying && status.didJustFinish) {
+            setPlayingAudioId(null);
+          }
         }
       });
     } catch (error) {
@@ -79,15 +110,7 @@ export const useChatSession = () => {
       setPlayingAudioId(null);
       setIsAudioLoading(false);
     }
-  }, [playingAudioId]);
-
-  const stopAudio = useCallback(async () => {
-    if (playingAudioId !== null) {
-      await soundObject.current.stopAsync();
-      setPlayingAudioId(null);
-      setIsAudioLoading(false);
-    }
-  }, [playingAudioId]);
+  }, [playingAudioId, setPlaybackMode, stopAudio]);
 
   const autoPlayMessage = useCallback(async (message: ChatMessage) => {
     if (message.role === 'model') {
@@ -107,52 +130,81 @@ export const useChatSession = () => {
     }).reverse();
   };
 
-  const sendMessage = useCallback(async (text: string) => {
-    const userMessage: ChatMessage = { role: 'user', content: text, id: Date.now(), isLoading: true };
+  const sendMessage = useCallback(async (text: string, isInitialGreeting = false) => {
+    const userMessage: ChatMessage = { 
+      role: isInitialGreeting ? 'model' : 'user', 
+      content: text, 
+      id: Date.now(), 
+      isLoading: !isInitialGreeting 
+    };
     setChatHistory(prev => [...prev, userMessage]);
-    setIsTyping(true);
-    setShowTopics(false);
+    if (!isInitialGreeting) {
+      setIsTyping(true);
+      setShowTopics(false);
 
-    try {
-      const conversationHistory = trimConversationHistory([...chatHistory, userMessage]);
-      
-      const response = await fetch(`${BACKEND_URL}/chat`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ messages: conversationHistory }),
-      });
+      try {
+        const conversationHistory = trimConversationHistory([...chatHistory, userMessage]);
+        
+        const response = await fetch(`${BACKEND_URL}/chat`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            messages: conversationHistory,
+            chatType: isMiaChat ? 'main' : 'roleplay',
+            scenarioDetails: !isMiaChat ? scenarioDetails : undefined,
+          }),
+        });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        let mateReply = 'Hi';
+        if (data && data.reply) {
+          mateReply = data.reply;
+        }
+
+        const feedback: Feedback = {
+          correctedVersion: data.feedback.correctedVersion,
+          explanation: data.feedback.explanation,
+          feedbackType: data.feedback.feedbackType as FeedbackType
+        };
+
+        const assistantMessage: ChatMessage = { 
+          role: 'model', 
+          content: mateReply, 
+          id: Date.now() 
+        };
+        
+        setChatHistory(prev => [
+          ...prev.slice(0, -1),
+          { ...userMessage, feedback, isLoading: false },
+          assistantMessage
+        ]);
+
+        await autoPlayMessage(assistantMessage);
+      } catch (error) {
+        console.error('Error sending message:', error);
+        setChatHistory(prev => [
+          ...prev.slice(0, -1),
+          { 
+            ...prev[prev.length - 1], 
+            isLoading: false, 
+            feedback: { 
+              correctedVersion: '', 
+              explanation: 'Error occurred',
+              feedbackType: 'NONE'
+            } 
+          },
+        ]);
+      } finally {
+        setIsTyping(false);
       }
-
-      const data = await response.json();
-      let mateReply = 'Hi';
-      if (data && data.reply) {
-        mateReply = data.reply;
-      }
-
-      const assistantMessage: ChatMessage = { role: 'model', content: mateReply, id: Date.now() };
-      
-      setChatHistory(prev => [
-        ...prev.slice(0, -1),
-        { ...userMessage, feedback: data.feedback, isLoading: false },
-        assistantMessage
-      ]);
-
-      await autoPlayMessage(assistantMessage);
-    } catch (error) {
-      console.error('Error sending message:', error);
-      setChatHistory(prev => [
-        ...prev.slice(0, -1),
-        { ...prev[prev.length - 1], isLoading: false, feedback: { correctedVersion: '', explanation: 'Error occurred' } },
-      ]);
-    } finally {
-      setIsTyping(false);
     }
-  }, [chatHistory, autoPlayMessage]);
+  }, [chatHistory, autoPlayMessage, isMiaChat, scenarioDetails]);
 
   const handleSend = useCallback(() => {
     if (message.trim()) {
@@ -162,37 +214,25 @@ export const useChatSession = () => {
   }, [message, sendMessage]);
 
   const stopAllAudio = useCallback(async () => {
-    if (playingAudioId !== null) {
-      await stopAudio();
+    try {
+      if (playingAudioId !== null) {
+        await stopAudio();
+      }
+    } catch (error) {
+      console.log('Error stopping audio:', error);
     }
-    await Audio.setAudioModeAsync({
-      playsInSilentModeIOS: true,
-      staysActiveInBackground: true,
-      interruptionModeIOS: InterruptionModeIOS.DoNotMix,
-      interruptionModeAndroid: InterruptionModeAndroid.DoNotMix,
-      shouldDuckAndroid: true,
-      playThroughEarpieceAndroid: false,
-    });
   }, [playingAudioId, stopAudio]);
 
   const handleMicPress = useCallback(async () => {
+    await setRecordingMode();
     try {
-      await stopAllAudio();
-
       const { status } = await Audio.requestPermissionsAsync();
       if (status !== 'granted') {
         console.error('Permission to access microphone was denied');
         return;
       }
 
-      await Audio.setAudioModeAsync({
-        allowsRecordingIOS: true,
-        playsInSilentModeIOS: true,
-        interruptionModeIOS: InterruptionModeIOS.DoNotMix,
-        interruptionModeAndroid: InterruptionModeAndroid.DoNotMix,
-        shouldDuckAndroid: true,
-        playThroughEarpieceAndroid: false,
-      });
+      await stopAllAudio();
 
       const { recording } = await Audio.Recording.createAsync(
         Audio.RecordingOptionsPresets.HIGH_QUALITY
@@ -203,17 +243,25 @@ export const useChatSession = () => {
     } catch (error) {
       console.error('Failed to start recording', error);
     }
-  }, [stopAllAudio]);
+  }, [setRecordingMode, stopAllAudio]);
 
   const stopRecording = useCallback(async () => {
     if (!recordingObject.current) return;
 
     try {
       await recordingObject.current.stopAndUnloadAsync();
-      setIsRecording(false);
+      await setPlaybackMode();
     } catch (error) {
       console.error('Failed to stop recording', error);
+    } finally {
+      setIsRecording(false);
+      recordingObject.current = null;
     }
+  }, [setPlaybackMode]);
+
+  const showPopup = useCallback((message: string) => {
+    setPopupMessage(message);
+    setTimeout(() => setPopupMessage(null), 2000); 
   }, []);
 
   const sendAudio = useCallback(async () => {
@@ -247,8 +295,14 @@ export const useChatSession = () => {
   
       const result = await response.json();
   
-      if (result.results && result.results.length > 0 && result.results[0].transcript) {
+      if (result.results && result.results.length > 0) {
         const transcribedText = result.results[0].transcript;
+        
+        if (!transcribedText || transcribedText.trim() === '') {
+          showPopup("I couldn't hear anything. Please try speaking again.");
+          return;
+        }
+        
         const userMessage: ChatMessage = { 
           role: 'user', 
           content: transcribedText, 
@@ -270,7 +324,11 @@ export const useChatSession = () => {
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ messages: conversationHistory }),
+            body: JSON.stringify({
+              messages: conversationHistory,
+              chatType: isMiaChat ? 'main' : 'roleplay',
+              scenarioDetails: !isMiaChat ? scenarioDetails : undefined,
+            }),
           });
   
           if (!chatResponse.ok) {
@@ -283,40 +341,59 @@ export const useChatSession = () => {
             mateReply = data.reply;
           }
   
-          const assistantMessage: ChatMessage = { role: 'model', content: mateReply, id: Date.now() };
+          const feedback: Feedback = {
+            correctedVersion: data.feedback.correctedVersion,
+            explanation: data.feedback.explanation,
+            feedbackType: data.feedback.feedbackType as FeedbackType
+          };
+
+          const assistantMessage: ChatMessage = { 
+            role: 'model', 
+            content: mateReply, 
+            id: Date.now() 
+          };
           
           setChatHistory(prev => [
             ...prev.slice(0, -1),
-            { ...userMessage, feedback: data.feedback, isLoading: false },
+            { ...userMessage, feedback, isLoading: false },
             assistantMessage
           ]);
-  
+          
+          await setPlaybackMode();
           await autoPlayMessage(assistantMessage);
         } catch (error) {
           console.error('Error sending message:', error);
           setChatHistory(prev => [
             ...prev.slice(0, -1),
-            { ...userMessage, isLoading: false, feedback: { correctedVersion: '', explanation: 'Error occurred' } },
+            { 
+              ...userMessage, 
+              isLoading: false, 
+              feedback: { 
+                correctedVersion: '', 
+                explanation: 'Error occurred',
+                feedbackType: 'NONE'
+              } 
+            },
           ]);
         } finally {
           setIsTyping(false);
         }
       } else {
-        console.error('Unexpected response format:', result);
+        showPopup("I couldn't transcribe the audio. Please try again.");
       }
     } catch (error) {
       console.error('Failed to send audio', error);
+      showPopup("An error occurred while processing your audio. Please try again.");
     } finally {
       setIsProcessingAudio(false);
       setIsRecording(false);
     }
-  }, [chatHistory, autoPlayMessage, AI_BACKEND_URL, BACKEND_URL]);
+  }, [chatHistory, autoPlayMessage, AI_BACKEND_URL, BACKEND_URL, showPopup, setPlaybackMode, isMiaChat, scenarioDetails]);
 
   const startNewChat = useCallback(async () => {
     await stopAllAudio();
 
     setChatHistory([]);
-
     setMessage('');
     setIsTyping(false);
     setShowFeedbackModal(false);
@@ -328,54 +405,98 @@ export const useChatSession = () => {
     setIsAudioLoading(false);
 
     try {
-      const response = await fetch(`${BACKEND_URL}/session`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      const data = await response.json();
-      if (data.greetingMessage) {
-        const greetingMessage: ChatMessage = { 
+      let response;
+      if (isMiaChat) {
+        response = await axios.post(`${BACKEND_URL}/session`, {
+          aiName: 'Mia',
+          primaryRole: 'English practice buddy',
+          traits: 'friendly,patient,encouraging',
+          context: 'English language learning',
+        });
+      } else if (scenarioId) {
+        response = await axios.post(`${BACKEND_URL}/session`, { scenarioId });
+      } else {
+        throw new Error('Invalid chat initialization: missing scenarioId for non-Mia chat');
+      }
+
+      const { greetingMessage } = response.data;
+      
+      if (greetingMessage) {
+        const greetingMessageObject: ChatMessage = { 
           role: 'model', 
-          content: data.greetingMessage, 
+          content: greetingMessage, 
           id: Date.now()
         };
-        setChatHistory([greetingMessage]);
-        setShowTopics(true);
+        setChatHistory([greetingMessageObject]);
+        setShowTopics(isMiaChat); // Only show topics for Mia's chat
         
-        await autoPlayMessage(greetingMessage);
+        await autoPlayMessage(greetingMessageObject);
       }
     } catch (error) {
       console.error('Error creating new session:', error);
+      // Fallback greeting for Mia if the request fails
+      if (isMiaChat) {
+        const fallbackGreeting = "Hey there! 👋 I'm Mia, your friendly English practice buddy! 😊 Ask me anything or select a topic below:";
+        const fallbackGreetingObject: ChatMessage = {
+          role: 'model',
+          content: fallbackGreeting,
+          id: Date.now()
+        };
+        setChatHistory([fallbackGreetingObject]);
+        setShowTopics(true);
+        await autoPlayMessage(fallbackGreetingObject);
+      }
     }
-  }, [stopAllAudio, autoPlayMessage]);
+  }, [isMiaChat, scenarioId, stopAllAudio, autoPlayMessage]);
 
-  const initializeChat = useCallback(async () => {
+  const initializeChat = useCallback(async (scenarioId?: ObjectId) => {
     if (!isInitializing || hasInitialized.current) return;
     hasInitialized.current = true;
 
     try {
-      const response = await fetch(`${BACKEND_URL}/session`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      const data = await response.json();
-      if (data.greetingMessage) {
-        const greetingMessage: ChatMessage = { 
+      let response;
+      if (isMiaChat) {
+        // For Mia's main chat
+        response = await axios.post(`${BACKEND_URL}/session`, {
+          aiName: 'Mia',
+          primaryRole: 'English practice buddy',
+          traits: 'friendly,patient,encouraging',
+          context: 'English language learning',
+        });
+      } else if (scenarioId) {
+        // For roleplay scenarios
+        response = await axios.post(`${BACKEND_URL}/session`, { scenarioId });
+      } else {
+        throw new Error('Invalid chat initialization: missing scenarioId for non-Mia chat');
+      }
+
+      const { greetingMessage } = response.data;
+      
+      if (greetingMessage) {
+        const greetingMessageObject: ChatMessage = { 
           role: 'model', 
-          content: data.greetingMessage, 
+          content: greetingMessage, 
           id: Date.now()
         };
-        setChatHistory(prev => [...prev, greetingMessage]);
-        setShowTopics(true);
+        setChatHistory([greetingMessageObject]);
+        setShowTopics(isMiaChat); // Only show topics for Mia's chat
         
-        await autoPlayMessage(greetingMessage);
+        await autoPlayMessage(greetingMessageObject);
       }
     } catch (error) {
-      console.error('Error creating session:', error);
+      console.error('Error initializing chat:', error);
+      // Fallback greeting for Mia if the request fails
+      if (isMiaChat) {
+        const fallbackGreeting = "Hey there! 👋 I'm Mia, your friendly English practice buddy! 😊 Ask me anything or select a topic below:";
+        const fallbackGreetingObject: ChatMessage = {
+          role: 'model',
+          content: fallbackGreeting,
+          id: Date.now()
+        };
+        setChatHistory([fallbackGreetingObject]);
+        setShowTopics(true);
+        await autoPlayMessage(fallbackGreetingObject);
+      }
     } finally {
       setIsInitializing(false);
     }
@@ -390,9 +511,9 @@ export const useChatSession = () => {
   return {
     message,
     setMessage,
-    chatHistory,
+    chatHistory, setChatHistory,
     isInitializing,
-    isTyping,
+    isTyping, setIsTyping,
     showFeedbackModal,
     setShowFeedbackModal,
     currentFeedback,
@@ -412,6 +533,7 @@ export const useChatSession = () => {
     playingAudioId,
     isAudioLoading,
     stopAllAudio, 
-    startNewChat
+    startNewChat,
+    popupMessage
   };
 };

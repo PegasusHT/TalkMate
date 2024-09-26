@@ -1,6 +1,8 @@
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, TouchableOpacity } from 'react-native';
+import Text from '@/components/customText';
 import { Ionicons } from '@expo/vector-icons';
+import { primaryColor } from '@/constant/color';
 
 type CustomHeaderProps = {
   username: string;
@@ -12,15 +14,15 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({ username, onGoalPress, onSt
   return (
     <View className="flex-row justify-between items-center p-4 pt-16 bg-white">
       <View className="flex-row items-center">
-        <Ionicons name="logo-octocat" size={30} color="blue" />
-        <Text className="ml-2 text-lg font-semibold">Hi, {username}!</Text>
+        <Ionicons name="logo-octocat" size={30} color={primaryColor} />
+        <Text className="ml-2 text-lg font-NunitoSemiBold">Hi, {username}!</Text>
       </View>
       <View className="flex-row">
         <TouchableOpacity onPress={onGoalPress} className="mr-4 bg-slate-200 p-2 rounded-lg">
-          <Ionicons name="flag-outline" size={26} color="blue" />
+          <Ionicons name="flag-outline" size={26} color={primaryColor}  />
         </TouchableOpacity>
         <TouchableOpacity onPress={onStreakPress} className='bg-slate-200 p-2 rounded-lg'>
-          <Ionicons name="flame-outline" size={26} color="blue" />
+          <Ionicons name="flame-outline" size={26} color={primaryColor}  />
         </TouchableOpacity>
       </View>
     </View>

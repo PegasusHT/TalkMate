@@ -1,6 +1,7 @@
 //path: app/(root)/chat/Chat.tsx
 import React, { useEffect, useRef, useCallback } from 'react';
-import { View, FlatList, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, FlatList, KeyboardAvoidingView, Platform, Animated } from 'react-native';
+import Text from '@/components/customText';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import ChatHeader from '@/components/chat/ChatHeader';
@@ -39,9 +40,11 @@ const ChatSession: React.FC = () => {
     isAudioLoading,
     stopAllAudio,
     startNewChat,
-  } = useChatSession();
+    popupMessage,
+  } = useChatSession(true);
 
   const flatListRef = useRef<FlatList<ChatMessageType>>(null);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     initializeChat();
@@ -67,6 +70,24 @@ const ChatSession: React.FC = () => {
     }, [stopAllAudio])
   );
 
+  useEffect(() => {
+    if (popupMessage) {
+      Animated.sequence([
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+        Animated.delay(1400),
+        Animated.timing(fadeAnim, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
+  }, [popupMessage, fadeAnim]);
+
   const handleAudioPress = (messageId: number, text: string, audioUri?: string) => {
     playAudio(messageId, text, audioUri);
   };
@@ -91,17 +112,17 @@ const ChatSession: React.FC = () => {
     return null;
   };
 
-  const handleNewChat = () => {
-    startNewChat();
-  };
-
   return (
     <SafeAreaView className="flex-1 bg-white">
       <KeyboardAvoidingView 
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
         className="flex-1"
       >
-        <ChatHeader onNewChat={handleNewChat} />
+        <ChatHeader 
+          aiName="Mia"
+          chatType="main"
+          onNewChat={startNewChat}
+        />
 
         <FlatList
           ref={flatListRef}
@@ -125,6 +146,24 @@ const ChatSession: React.FC = () => {
           isProcessingAudio={isProcessingAudio}
           stopAllAudio={stopAllAudio}
         />
+
+        {popupMessage && (
+          <Animated.View 
+            style={{
+              opacity: fadeAnim,
+              position: 'absolute',
+              bottom: 100,
+              left: 20,
+              right: 20,
+              backgroundColor: 'rgba(0, 0, 0, 0.7)',
+              padding: 10,
+              borderRadius: 5,
+              alignItems: 'center',
+            }}
+          >
+            <Text style={{ color: 'white', textAlign: 'center' }}>{popupMessage}</Text>
+          </Animated.View>
+        )}
       </KeyboardAvoidingView>
 
       <FeedbackModal

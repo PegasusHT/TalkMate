@@ -1,81 +1,110 @@
-//path: components/dictionary/PronunciationPractice.tsx
-import React, { useState, useCallback, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
-import { RouteProp, useRoute, useNavigation } from '@react-navigation/native';
-import { Mic, Volume2, VolumeX, Snail } from 'lucide-react-native';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
+import { View, ScrollView, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
+import Text from '@/components/customText';
+import { Mic, Volume2, VolumeX, Snail, ArrowLeft } from 'lucide-react-native';
 import { Audio } from 'expo-av';
-import Constants from 'expo-constants';
 import * as FileSystem from 'expo-file-system';
 import PronunciationPerformanceModal from '@/components/dictionary/PronunciationPerformanceModal';
+import ENV from '@/utils/envConfig';
+import { PerformanceData, PhoneticWord, DictionaryDefinition } from '@/types/dictionary';
+import { useNavigation } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useAudioMode } from '@/hooks/Audio/useAudioMode';
 
-const AI_BACKEND_URL = Constants.expoConfig?.extra?.AI_BACKEND_URL?.dev || '';
-
-type RootStackParamList = {
-  'pronunciation-practice': { sentence: string };
+type PronunciationPracticeProp = {
+  sentence: string;
 };
 
-type PronunciationPracticeRouteProp = RouteProp<RootStackParamList, 'pronunciation-practice'>;
-
-type PerformanceData = {
-  recording_transcript: string;
-  real_and_transcribed_words: [string, string][];
-  real_and_transcribed_words_ipa: [string, string][];
-  pronunciation_accuracy: number;
-  current_words_pronunciation_accuracy: number[];
-  pronunciation_categories: number[];
-  real_words_phonetic: string[];
-  recorded_words_phonetic: string[];
-  audio_uri?: string;
-};
-
-type PhoneticWord = {
-  word: string;
-  accuracy?: number;
-};
-
-type PronunciationPracticeProp= {
-    sentence: string
-}
-
-const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({sentence}) => {
-  const route = useRoute<PronunciationPracticeRouteProp>();
-  const navigation = useNavigation();
+const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }) => {
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [performanceResult, setPerformanceResult] = useState<PerformanceData | null>(null);
   const [showPerformanceModal, setShowPerformanceModal] = useState(false);
-  const [sound, setSound] = useState<Audio.Sound | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isLoadingAudio, setIsLoadingAudio] = useState(false);
   const [phoneticWords, setPhoneticWords] = useState<PhoneticWord[]>([]);
-  const recordingObject = React.useRef<Audio.Recording | null>(null);
+  const [permissionStatus, setPermissionStatus] = useState<Audio.PermissionStatus | null>(null);
+  const recordingObject = useRef<Audio.Recording | null>(null);
+  const soundObject = useRef<Audio.Sound | null>(null);
+  const audioBase64Ref = useRef<string | null>(null);
+  const [dictionaryDefinition, setDictionaryDefinition] = useState<DictionaryDefinition | null>(null);
+  const [isLoadingDefinition, setIsLoadingDefinition] = useState(false);
+  const navigation = useNavigation();
+  const { mode, setPlaybackMode, setRecordingMode } = useAudioMode();
 
   useEffect(() => {
     fetchPhonetic();
+    checkPermissions();
+    if (sentence.trim().split(/\s+/).length === 1) {
+      fetchDictionaryDefinition(sentence.trim());
+    } else {
+      setDictionaryDefinition(null);
+    }
     return () => {
-      if (sound) {
-        sound.unloadAsync();
+      if (soundObject.current) {
+        soundObject.current.unloadAsync();
       }
     };
   }, [sentence]);
+
+  const fetchDictionaryDefinition = async (word: string) => {
+    setIsLoadingDefinition(true);
+    try {
+      const response = await fetch(`${ENV.AI_BACKEND_URL}/dictionary/${word}`);
+      if (response.status === 404) {
+        setDictionaryDefinition(null);
+      } else if (response.ok) {
+        const data = await response.json();
+        setDictionaryDefinition(data);
+      } else {
+        console.log(`Unexpected response status: ${response.status}`);
+        setDictionaryDefinition(null);
+      }
+    } catch (error) {
+      console.log('Failed to fetch dictionary definition', error);
+      setDictionaryDefinition(null);
+    } finally {
+      setIsLoadingDefinition(false);
+    }
+  };
+
+  const handleWordPress = (word: string) => {
+    if (sentence.split(' ').length === 1) {
+      fetchDictionaryDefinition(word);
+    }
+  };
+
+  const checkPermissions = async () => {
+    const { status } = await Audio.getPermissionsAsync();
+    setPermissionStatus(status);
+  };
+
+  const requestPermissions = async () => {
+    const { status } = await Audio.requestPermissionsAsync();
+    setPermissionStatus(status);
+    return status;
+  };
 
   const fetchPhonetic = async () => {
     try {
       const formData = new FormData();
       formData.append('text', sentence);
-
-      const response = await fetch(`${AI_BACKEND_URL}/get_phonetic/`, {
+  
+      const response = await fetch(`${ENV.AI_BACKEND_URL}/get_phonetic/`, {
         method: 'POST',
         body: formData,
       });
-
+  
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-
+  
       const result = await response.json();
       if (result && result.phonetic) {
         const words = result.phonetic.split(' ');
         setPhoneticWords(words.map((word: string) => ({ word })));
+      } else {
+        throw new Error('Invalid response format');
       }
     } catch (error) {
       console.error('Failed to fetch phonetic', error);
@@ -90,63 +119,90 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({sentence}) 
     return 'text-red-500';
   };
 
-  const playSound = async (rate: number = 1.0) => {
-    if (sound) {
-      await sound.playAsync();
-      setIsPlaying(true);
-    } else {
-      try {
-        // Create a FormData object to send the text
-        const formData = new FormData();
-        formData.append('text', sentence);
-  
-        // Make a POST request to the TTS endpoint
-        const response = await fetch(`${AI_BACKEND_URL}/tts/`, {
-          method: 'POST',
-          body: formData,
-        });
-  
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-  
-        const data = await response.json();
-        const audioBase64 = data.audio;
-  
-        // Create a data URI for the audio
-        const audioUri = `data:audio/mp3;base64,${audioBase64}`;
-  
-        // Create and play the sound
-        const { sound: newSound } = await Audio.Sound.createAsync(
-          { uri: audioUri },
-          { shouldPlay: true, rate }
-        );
-        setSound(newSound);
-        setIsPlaying(true);
-        newSound.setOnPlaybackStatusUpdate((status) => {
-          if ('didJustFinish' in status && status.didJustFinish) {
-            setIsPlaying(false);
-          }
-        });
-      } catch (error) {
-        console.error('Error playing sound:', error);
-        Alert.alert('Error', 'Failed to play the sentence. Please try again.');
+  const fetchAudio = async () => {
+    if (audioBase64Ref.current) return;
+
+    setIsLoadingAudio(true);
+    try {
+      const formData = new FormData();
+      formData.append('text', sentence);
+
+      const response = await fetch(`${ENV.AI_BACKEND_URL}/tts/`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
+
+      const data = await response.json();
+      audioBase64Ref.current = data.audio;
+    } catch (error) {
+      console.error('Error fetching audio:', error);
+      Alert.alert('Error', 'Failed to fetch the audio. Please try again.');
+    } finally {
+      setIsLoadingAudio(false);
+    }
+  };
+
+  const playSound = async (rate: number = 1.0) => {
+    if (isPlaying) {
+      await stopSound();
+    }
+
+    if (!audioBase64Ref.current) {
+      await fetchAudio();
+    }
+
+    if (!audioBase64Ref.current) {
+      Alert.alert('Error', 'Failed to load audio. Please try again.');
+      return;
+    }
+
+    try {
+      const { sound: newSound } = await Audio.Sound.createAsync(
+        { uri: `data:audio/mp3;base64,${audioBase64Ref.current}` },
+        { shouldPlay: true, rate }
+      );
+      soundObject.current = newSound;
+      setIsPlaying(true);
+
+      newSound.setOnPlaybackStatusUpdate((status) => {
+        if (status.isLoaded && status.didJustFinish) {
+          setIsPlaying(false);
+          newSound.unloadAsync();
+        }
+      });
+    } catch (error) {
+      console.error('Error playing sound:', error);
+      Alert.alert('Error', 'Failed to play the sentence. Please try again.');
     }
   };
 
   const stopSound = async () => {
-    if (sound) {
-      await sound.stopAsync();
-      setIsPlaying(false);
+    if (soundObject.current) {
+      await soundObject.current.stopAsync();
+      await soundObject.current.unloadAsync();
+      soundObject.current = null;
     }
+    setIsPlaying(false);
   };
 
   const handleMicPress = useCallback(async () => {
+    if (permissionStatus !== 'granted') {
+      const newStatus = await requestPermissions();
+      if (newStatus !== 'granted') {
+        Alert.alert('Permission Required', 'Microphone permission is required to record audio. Please enable it in your device settings.');
+        return;
+      }
+    }
+
     if (isRecording) {
       setIsRecording(false);
       setIsProcessing(true);
       try {
+        await setRecordingMode();
         await recordingObject.current?.stopAndUnloadAsync();
         const uri = recordingObject.current?.getURI();
         if (!uri) throw new Error('No recording URI found');
@@ -162,7 +218,7 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({sentence}) 
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 30000);
   
-        const response = await fetch(`${AI_BACKEND_URL}/assess_pronunciation/`, {
+        const response = await fetch(`${ENV.AI_BACKEND_URL}/assess_pronunciation/`, {
           method: 'POST',
           body: formData,
           headers: {
@@ -202,21 +258,24 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({sentence}) 
           throw new Error('Unexpected response format from the server');
         }
       } catch (error) {
-        console.error('Failed to process audio', error);
         if (error instanceof Error) {
           console.error('Error message:', error.message);
         }
         Alert.alert('Error', 'Failed to process your pronunciation. Please try again.');
       } finally {
         setIsProcessing(false);
+        recordingObject.current = null;
       }
     } else {
       try {
-        await Audio.requestPermissionsAsync();
         await Audio.setAudioModeAsync({
           allowsRecordingIOS: true,
           playsInSilentModeIOS: true,
         });
+        if (recordingObject.current) {
+          await recordingObject.current.stopAndUnloadAsync();
+        }
+
         const { recording } = await Audio.Recording.createAsync(
           Audio.RecordingOptionsPresets.HIGH_QUALITY
         );
@@ -227,7 +286,7 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({sentence}) 
         Alert.alert('Error', 'Failed to start recording. Please check your microphone permissions.');
       }
     }
-  }, [isRecording, sentence]);
+  }, [isRecording, sentence, permissionStatus]);
 
   const updatePhoneticAccuracy = (accuracies: number[]) => {
     setPhoneticWords(prevWords => 
@@ -245,10 +304,16 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({sentence}) 
   };
 
   return (
-    <View className="flex-1 bg-white p-6 justify-between">
-      <View className="flex-1 justify-start">
-        <Text className="text-2xl font-bold mb-2 mt-4">{sentence}</Text>
-        <View className="flex-row flex-wrap mb-4">
+    <SafeAreaView className="flex-1 bg-white px-4">
+      <View className=''>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <ArrowLeft size={28} color="#000" />
+        </TouchableOpacity>
+      </View>
+      <View className="flex-1 justify-start px-4 pt-4">
+        <Text className="text-2xl font-NunitoBold mb-1 mt-4">{sentence}</Text>
+        <View className="flex-row flex-wrap mb-2">
+          <Text className="text-lg mr-1">/</Text>
           {phoneticWords.map((phoneticWord, index) => (
             <Text 
               key={index} 
@@ -257,13 +322,14 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({sentence}) 
               {phoneticWord.word}
             </Text>
           ))}
+          <Text className="text-lg mr-1">/</Text>
         </View>
-        <View className="flex-row justify-start space-x-4 mb-8">
-          <TouchableOpacity onPress={() => playSound()} disabled={isPlaying}>
-            <Volume2 color={isPlaying ? "gray" : "black"} size={24} />
+        <View className="flex-row justify-start space-x-4 mb-4">
+          <TouchableOpacity onPress={() => playSound()} disabled={isPlaying || isLoadingAudio}>
+            <Volume2 color={isPlaying || isLoadingAudio ? "gray" : "black"} size={24} />
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => playSound(0.5)} disabled={isPlaying}>
-            <Snail color={isPlaying ? "gray" : "black"} size={24} />
+          <TouchableOpacity onPress={() => playSound(0.5)} disabled={isPlaying || isLoadingAudio}>
+            <Snail color={isPlaying || isLoadingAudio ? "gray" : "black"} size={24} />
           </TouchableOpacity>
           {isPlaying && (
             <TouchableOpacity onPress={stopSound}>
@@ -271,12 +337,37 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({sentence}) 
             </TouchableOpacity>
           )}
         </View>
+        {isLoadingDefinition ? (
+          <ActivityIndicator size="small" color="#0000ff" />
+        ) : (
+          <>
+            {dictionaryDefinition ? (
+              <View className="mb-4">
+                {dictionaryDefinition.meanings.map((meaning, index) => (
+                  <View key={index} className="mb-2">
+                    <Text className="font-NunitoSemiBold">{meaning.part_of_speech}</Text>
+                    {meaning.definitions.map((def, defIndex) => (
+                      <View key={defIndex} className="ml-4">
+                        <Text>{defIndex + 1}. {def.definition}</Text>
+                        {def.example && <Text className="italic">Example: {def.example}</Text>}
+                      </View>
+                    ))}
+                  </View>
+                ))}
+              </View>
+            ) : (
+              sentence.trim().split(/\s+/).length === 1 && (
+                <Text className="text-gray-500 italic mb-4">No definition found for this word.</Text>
+              )
+            )}
+          </>
+        )}
       </View>
       <TouchableOpacity
         onPress={handleMicPress}
         disabled={isProcessing}
         className={`self-center p-6 rounded-full ${
-          isRecording ? 'bg-red-500' : isProcessing ? 'bg-gray-500' : 'bg-blue-500'
+          isRecording ? 'bg-red-500' : isProcessing ? 'bg-gray-500' : 'bg-primary-500'
         }`}
       >
         {isProcessing ? (
@@ -293,7 +384,7 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({sentence}) 
           onTryAgain={handleTryAgain}
         />
       )}
-    </View>
+    </SafeAreaView>
   );
 };
 

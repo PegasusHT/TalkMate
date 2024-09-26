@@ -1,6 +1,7 @@
 //app/(root)/dictionary/Dictionary.tsx
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, TouchableWithoutFeedback, Keyboard, Platform } from 'react-native';
+import { View, TextInput, TouchableOpacity, ScrollView, TouchableWithoutFeedback, Keyboard, Platform } from 'react-native';
+import Text from '@/components/customText';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootTabParamList } from '@/types/types';
 import { Ionicons } from '@expo/vector-icons';
@@ -85,9 +86,9 @@ const DictionaryScreen: React.FC<Props> = () => {
 
   return (
     <TouchableWithoutFeedback onPress={handleOutsidePress}>
-      <ScrollView className={`flex-1 pt-6 ${isEmphasized ? 'bg-gray-900' : 'bg-indigo-900'}`}>
+      <View className={`flex-1 pt-6 ${isEmphasized ? 'bg-gray-900' : 'bg-slate-100'}`}>
         <View className="p-4">
-          <Text className="text-white text-2xl font-bold mb-4">What do you want to say?</Text>
+          <Text className="text-primary-500 text-2xl font-NunitoBold mb-4">What do you want to say?</Text>
           
           <View className="bg-white rounded-full flex-row items-center px-4 py-4 mb-4">
             <Ionicons name="search" size={24} color="gray" />
@@ -114,18 +115,18 @@ const DictionaryScreen: React.FC<Props> = () => {
 
           {inputText ? (
             <TouchableOpacity 
-              className="bg-blue-500 rounded-full py-4 mb-6"
+              className="bg-primary-500 rounded-full py-4 mb-6"
               onPress={handleCheck}
             >
-              <Text className="text-white text-center font-bold text-lg">Check</Text>
+              <Text className="text-white text-center font-NunitoBold text-lg">Check</Text>
             </TouchableOpacity>
           ) : (<></>)}
 
-          <View className={`flex-row justify-between mb-6 ${isEmphasized ? 'opacity-50' : ''}`}>
+          {/* <View className={`flex-row justify-between mb-6 ${isEmphasized ? 'opacity-50' : ''}`}>
             <TouchableOpacity className="bg-cyan-600 rounded-xl p-4 w-[48%]" disabled={isEmphasized}>
               <View className="items-center">
                 <Ionicons name="mic" size={24} color="white" />
-                <Text className="text-white font-bold mt-2">Speak</Text>
+                <Text className="text-white font-NunitoBold mt-2">Speak</Text>
                 <Text className="text-white text-xs text-center mt-1">
                   Speak your phrase to check the score
                 </Text>
@@ -135,15 +136,15 @@ const DictionaryScreen: React.FC<Props> = () => {
             <TouchableOpacity className="bg-pink-500 rounded-xl p-4 w-[48%]" disabled={isEmphasized}>
               <View className="items-center">
                 <Ionicons name="camera" size={24} color="white" />
-                <Text className="text-white font-bold mt-2">Scan Image</Text>
+                <Text className="text-white font-NunitoBold mt-2">Scan Image</Text>
                 <Text className="text-white text-xs text-center mt-1">
                   Convert image to text and speak the phrases
                 </Text>
               </View>
             </TouchableOpacity>
-          </View>
+          </View> */}
         </View>
-      </ScrollView>
+      </View>
     </TouchableWithoutFeedback>
   );
 };

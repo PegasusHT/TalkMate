@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, SafeAreaView } from 'react-native';
+import { View, SafeAreaView } from 'react-native';
+import Text from '@/components/customText';
 import { StatusBar } from 'expo-status-bar';
 
 const LearnScreen: React.FC = () => {
@@ -7,7 +8,7 @@ const LearnScreen: React.FC = () => {
     <SafeAreaView className="flex-1 bg-white">
       <StatusBar style="dark" />
       <View className="flex-1 justify-center items-center px-4">
-        <Text className="text-2xl font-bold text-blue-600">
+        <Text className="text-2xl font-NunitoBold text-primary-500">
           Welcome to the Learn Screen!
         </Text>
       </View>

@@ -9,10 +9,12 @@ const Layout = () => {
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="dictionary" options={{ 
           headerTitle: "Pronunciation Practice",
-          headerShown: true,
+          headerShown: false,
           headerBackTitleVisible: false  
         }} />
         <Stack.Screen name="chat" options={{ headerShown: false }} />
+        <Stack.Screen name='roleplays' options={{ headerShown: false }} />
+        <Stack.Screen name='customScenario' options={{ headerShown: false }} />
       </Stack>
     </GestureHandlerRootView>
    

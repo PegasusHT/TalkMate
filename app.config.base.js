@@ -1,9 +1,9 @@
 module.exports = {
     expo: {
-        name: "SpeakEase",
-        slug: "SpeakEase",
+        name: "TalkMate",
+        slug: "TalkMate",
         version: "1.0.0",
-        scheme: "speakease",
+        scheme: "talkmate",
       // Other non-sensitive configurations
     }
   };
