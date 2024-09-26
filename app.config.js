@@ -1,6 +1,7 @@
 module.exports = () => {
   const environment = process.env.APP_ENV || 'dev';
   const GOOGLE_IOS_CLIENT_ID = process.env.GOOGLE_IOS_CLIENT_ID;
+  const  GOOGLE_WEB_CLIENT_ID = process.env.GOOGLE_WEB_CLIENT_ID;
 
   return {
     expo: {
@@ -22,6 +23,7 @@ module.exports = () => {
       extra: {
         ENV: environment,
         GOOGLE_IOS_CLIENT_ID: GOOGLE_IOS_CLIENT_ID,
+        GOOGLE_WEB_CLIENT_ID: GOOGLE_WEB_CLIENT_ID,
         BACKEND_URL: {
           dev: "http://localhost:8080/api",
           staging: "https://speakease-backend.onrender.com/api",

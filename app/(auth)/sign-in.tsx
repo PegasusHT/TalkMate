@@ -12,7 +12,7 @@ import ENV from '@/utils/envConfig';
 
 WebBrowser.maybeCompleteAuthSession();
 
-const {GOOGLE_IOS_CLIENT_ID}=ENV
+const {GOOGLE_IOS_CLIENT_ID, GOOGLE_WEB_CLIENT_ID }=ENV
 
 type RootStackParamList = {
   Register: undefined;
@@ -27,6 +27,7 @@ const SignIn: React.FC = () => {
 
   const [request, response, promptAsync] = Google.useAuthRequest(
     {
+      webClientId: GOOGLE_WEB_CLIENT_ID,
       iosClientId: GOOGLE_IOS_CLIENT_ID,
       scopes: ['profile', 'email'], 
     }

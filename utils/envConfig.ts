@@ -6,6 +6,7 @@ export const getEnvironment = (): 'dev' | 'staging' | 'prod' => {
 
 type EnvConfig = {
   GOOGLE_IOS_CLIENT_ID: string;
+  GOOGLE_WEB_CLIENT_ID: string;
   BACKEND_URL: string;
   AI_BACKEND_URL: string;
 };
@@ -16,6 +17,7 @@ export const getEnvironmentConfig = (): EnvConfig => {
 
   return {
     GOOGLE_IOS_CLIENT_ID: envConfig.GOOGLE_IOS_CLIENT_ID,
+    GOOGLE_WEB_CLIENT_ID: envConfig.GOOGLE_WEB_CLIENT_ID,
     BACKEND_URL: envConfig.BACKEND_URL?.[environment] || '',
     AI_BACKEND_URL: envConfig.AI_BACKEND_URL?.[environment] || '',
   };
