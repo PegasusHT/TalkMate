@@ -122,7 +122,7 @@ const DictionaryScreen: React.FC<Props> = () => {
             </TouchableOpacity>
           ) : (<></>)}
 
-          <View className={`flex-row justify-between mb-6 ${isEmphasized ? 'opacity-50' : ''}`}>
+          {/* <View className={`flex-row justify-between mb-6 ${isEmphasized ? 'opacity-50' : ''}`}>
             <TouchableOpacity className="bg-cyan-600 rounded-xl p-4 w-[48%]" disabled={isEmphasized}>
               <View className="items-center">
                 <Ionicons name="mic" size={24} color="white" />
@@ -142,7 +142,7 @@ const DictionaryScreen: React.FC<Props> = () => {
                 </Text>
               </View>
             </TouchableOpacity>
-          </View>
+          </View> */}
         </View>
       </View>
     </TouchableWithoutFeedback>
