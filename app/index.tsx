@@ -24,7 +24,7 @@ const App = () => {
         }
     }, []);
 
-    return <Redirect href='/(root)' />;
+    return <Redirect href='/(auth)/sign-in' />;
 };
 
 export default App;

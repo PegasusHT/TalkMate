@@ -1,19 +1,27 @@
 module.exports = () => {
   const environment = process.env.APP_ENV || 'dev';
-      
+  const GOOGLE_IOS_CLIENT_ID = process.env.GOOGLE_IOS_CLIENT_ID;
+
   return {
     expo: {
       name: "TalkMate",
       slug: "TalkMate",
       version: "1.0.0",
-      scheme: "talkmate",
+      scheme: "com.jimmydev.talkmate",
       "splash": {
       "image": "./assets/images/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#2463EB"
       },
+      ios: {
+        bundleIdentifier: "com.jimmydev.TalkMate"
+      },
+      android: {
+        package: "com.jimmydev.TalkMate"
+      },
       extra: {
         ENV: environment,
+        GOOGLE_IOS_CLIENT_ID: GOOGLE_IOS_CLIENT_ID,
         BACKEND_URL: {
           dev: "http://localhost:8080/api",
           staging: "https://speakease-backend.onrender.com/api",

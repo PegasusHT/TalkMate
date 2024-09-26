@@ -5,15 +5,16 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "talkmate",
+    "scheme": "com.jimmydev.talkmate",
     "userInterfaceStyle": "automatic",
     "splash": {
-      "image": "./assets/images/splash.png",
+      "image": "",
       "resizeMode": "contain",
       "backgroundColor": "#2463EB"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.jimmydev.TalkMate"
     },
     "android": {
       "adaptiveIcon": {
