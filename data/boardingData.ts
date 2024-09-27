@@ -15,12 +15,12 @@ const boardingData: BoardingScreen[] = [
     paddingTop: 40,
   },
   {
-    title: "Learn with Real-life Scenarios Using Roleplay Mode",
-    description: "Various settings from daily conversations to creative and fantastic dialogues.",
+    title: "Immerse Yourself in Real-Life Scenarios with Roleplay",
+    description: "Experience immersive language learning in various settings, from casual chats to fantastical adventures.",
     image: require('@/assets/icons/boarding2.png') as ImageSourcePropType,
     paddingTop: 30,
   },
-  // Add more boarding screens as needed
+  
 ];
 
 export { boardingData, BoardingScreen };

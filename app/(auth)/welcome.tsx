@@ -1,11 +1,11 @@
 import React, { useState, useRef, useCallback } from 'react';
-import { View, Image, Dimensions, Animated, ScrollView, NativeSyntheticEvent, NativeScrollEvent, StatusBar } from 'react-native';
-import WelcomeHeader from '@/components/boarding/header/welcomeHeader';
+import { View, Image, Dimensions, Animated, ScrollView, NativeSyntheticEvent, NativeScrollEvent, StatusBar, TouchableOpacity } from 'react-native';
 import BoardingTab from '@/components/boarding/tabs/boardingTab';
 import Text from '@/components/customText';
 import { bgColor, primaryStrong } from '@/constant/color';
 import { Ionicons } from '@expo/vector-icons';
 import { boardingData } from '@/data/boardingData';
+import { Globe } from 'lucide-react-native';
 
 const { width, height } = Dimensions.get('window');
 
@@ -36,7 +36,6 @@ const WelcomeFlow: React.FC = () => {
     return (
         <View style={{ flex: 1, backgroundColor: bgColor }}>
             <StatusBar barStyle="dark-content" />
-            <WelcomeHeader />
             <View style={{ flex: 1 }}>
                 <Animated.ScrollView
                     ref={scrollViewRef}
@@ -47,17 +46,17 @@ const WelcomeFlow: React.FC = () => {
                     scrollEventThrottle={16}
                     bounces={false}
                     style={{ flex: 1 }}
-                    className='mt-[-40px] rounded-full'
+                    className='pt-[44]'
                 >
                     {boardingData.map((screen, index) => (
                         <View key={index} style={{ width, height: height - 80 }}>
                             <Animated.View style={{ flex: 1, opacity }}>
-                                <View
+                                <View style={{zIndex:-1}}
                                  className={`items-center `}>
 
                                     <Image 
                                         source={screen.image}
-                                        style={{ width: 270, height: 330 }}
+                                        style={{ width: 280, height: 360 }}
                                         resizeMode='contain'
                                     />
                                 </View>
@@ -68,7 +67,7 @@ const WelcomeFlow: React.FC = () => {
                 
                 <View style={{ 
                     position: 'absolute', 
-                    top:280,
+                    top:385,
                     bottom: 0, 
                     left: 0, 
                     right: 0, 
@@ -109,6 +108,28 @@ const WelcomeFlow: React.FC = () => {
 
             <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0 }}>
                 <BoardingTab />
+            </View>
+
+            <View
+              style={{
+                backgroundColor: bgColor,
+                position:'absolute'
+              }} 
+              className="flex-row justify-between items-center w-full ">
+                <View style={{ backgroundColor: bgColor, position: 'absolute', top: 60, left:15, zIndex: 20 }}
+                 className='rounded-full px-3 py-1'>
+                  <Text style={{ color: primaryStrong }} className='text-[17px]'>
+                    <Text className='font-NunitoBold'>TalkMate </Text>
+                    <Text className='font-NunitoRegular'>AI</Text>
+                  </Text>
+                </View>
+
+                <TouchableOpacity style={{position: 'absolute', top: 60, right:15, zIndex: 20  }}
+                className="flex-row items-center bg-white px-3 py-1 rounded-full">
+                    <Globe size={16} color={primaryStrong} />
+                    <Text style={{ color: primaryStrong }}
+                    className="ml-2 font-NunitoSemiBold">English</Text>
+                </TouchableOpacity>
             </View>
         </View>
     );
