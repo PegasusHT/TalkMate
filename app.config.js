@@ -8,6 +8,7 @@ module.exports = () => {
       name: "TalkMate",
       slug: "TalkMate",
       version: "1.0.0",
+      orientation: "portrait",
       scheme: "com.jimmydev.talkmate",
       "splash": {
       "image": "./assets/images/splash.png",

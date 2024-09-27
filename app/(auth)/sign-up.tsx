@@ -6,7 +6,7 @@ import { ArrowLeft } from 'lucide-react-native';
 import * as Google from 'expo-auth-session/providers/google';
 import * as WebBrowser from 'expo-web-browser';
 import ENV from '@/utils/envConfig';
-import BoardingHeader from '@/components/boarding/boardingHeader';
+import BoardingHeader from '@/components/boarding/header/boardingHeader';
 import { SvgXml } from 'react-native-svg';
 
 WebBrowser.maybeCompleteAuthSession();
