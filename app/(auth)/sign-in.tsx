@@ -8,7 +8,6 @@ import ENV from '@/utils/envConfig';
 import Text from '@/components/customText';
 import BoardingHeader from '@/components/boarding/boardingHeader';
 import { SvgXml } from 'react-native-svg';
-import Ionicons from '@expo/vector-icons/Ionicons';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -114,11 +113,10 @@ const SignIn: React.FC = () => {
           <View className="mt-6 flex-row justify-center ">
             <Text className="text-gray-600 text-lg">Not a member yet? </Text>
             <TouchableOpacity onPress={() => router.push('/(auth)/sign-up')}>
-              <Text className="text-blue-500 underline text-lg font-NunitoSemiBold">Sign up</Text>
+              <Text className="text-primary-500 underline text-lg font-NunitoSemiBold">Sign up</Text>
             </TouchableOpacity>
           </View>
 
-          {/* Terms and conditions */}
           <Text className="text-gray-500 text-xs text-center mt-6">
             By selecting Continue, if your Google, Apple, or Facebook email does not
             match the email you provided during the sign up, we will create a new
