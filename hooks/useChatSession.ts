@@ -47,6 +47,12 @@ export const useChatSession = (isMiaChat = false, scenarioId?: ObjectId, scenari
       }
     } catch (error) {
       console.log('Error stopping audio:', error);
+      // If there's an error stopping, try to unload anyway
+      try {
+        await soundObject.current.unloadAsync();
+      } catch (unloadError) {
+        console.log('Error unloading audio:', unloadError);
+      }
     } finally {
       setPlayingAudioId(null);
       setIsAudioLoading(false);
@@ -54,62 +60,86 @@ export const useChatSession = (isMiaChat = false, scenarioId?: ObjectId, scenari
   }, []);
 
   const playAudio = useCallback(async (messageId: number, text: string, audioUri?: string) => {
-    try {
-      // If the same audio is currently playing, stop it
-      if (playingAudioId === messageId) {
+    let retryCount = 0;
+    const maxRetries = 3;
+  
+    const attemptPlayback = async () => {
+      try {
+        // If the same audio is currently playing, stop it
+        if (playingAudioId === messageId) {
+          await stopAudio();
+          return;
+        }
+  
+        // Stop any currently playing audio
         await stopAudio();
-        return;
-      }
   
-      // Stop any currently playing audio
-      await stopAudio();
+        await setPlaybackMode();
+        setIsAudioLoading(true);
+        setPlayingAudioId(messageId);
   
-      await setPlaybackMode();
-      setIsAudioLoading(true);
-      setPlayingAudioId(messageId);
+        let uri: string;
+        if (audioUri) {
+          // Play user's recorded audio
+          uri = audioUri;
+        } else {
+          // Play AI-generated audio
+          const formData = new FormData();
+          formData.append('text', text);
   
-      if (audioUri) {
-        // Play user's recorded audio
+          console.log('Sending TTS request to server');
+          const response = await fetch(`${AI_BACKEND_URL}/tts/`, {
+            method: 'POST',
+            body: formData,
+          });
+  
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+  
+          const data = await response.json();
+          console.log('Received TTS response from server');
+          const audioBase64 = data.audio;
+  
+          uri = `data:audio/wav;base64,${audioBase64}`;
+        }
+  
+        console.log('Loading audio');
         await soundObject.current.unloadAsync();
-        await soundObject.current.loadAsync({ uri: audioUri });
-      } else {
-        // Play AI-generated audio
-        const formData = new FormData();
-        formData.append('text', text);
+        const { sound, status } = await Audio.Sound.createAsync(
+          { uri },
+          { shouldPlay: true }
+        );
   
-        const response = await fetch(`${AI_BACKEND_URL}/tts/`, {
-          method: 'POST',
-          body: formData,
+        soundObject.current = sound;
+  
+        console.log('Playing audio');
+        setIsAudioLoading(false);
+  
+        soundObject.current.setOnPlaybackStatusUpdate((status) => {
+          if (status.isLoaded) {
+            if (!status.isPlaying && status.didJustFinish) {
+              console.log('Audio finished playing');
+              setPlayingAudioId(null);
+            }
+          }
         });
   
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+        await soundObject.current.playAsync();
+      } catch (error) {
+        console.error('Error playing audio:', error);
+        if (retryCount < maxRetries) {
+          retryCount++;
+          console.log(`Retrying playback (attempt ${retryCount}/${maxRetries})`);
+          await attemptPlayback();
+        } else {
+          setPlayingAudioId(null);
+          setIsAudioLoading(false);
         }
-  
-        const data = await response.json();
-        const audioBase64 = data.audio;
-  
-        const aiAudioUri = `data:audio/mp3;base64,${audioBase64}`;
-  
-        await soundObject.current.unloadAsync();
-        await soundObject.current.loadAsync({ uri: aiAudioUri });
       }
+    };
   
-      setIsAudioLoading(false);
-      await soundObject.current.playAsync();
-  
-      soundObject.current.setOnPlaybackStatusUpdate((status) => {
-        if (status.isLoaded) {
-          if (!status.isPlaying && status.didJustFinish) {
-            setPlayingAudioId(null);
-          }
-        }
-      });
-    } catch (error) {
-      console.error('Error playing audio:', error);
-      setPlayingAudioId(null);
-      setIsAudioLoading(false);
-    }
+    await attemptPlayback();
   }, [playingAudioId, setPlaybackMode, stopAudio]);
 
   const autoPlayMessage = useCallback(async (message: ChatMessage) => {

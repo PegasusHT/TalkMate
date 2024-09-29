@@ -53,7 +53,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
 
   return (
     <View className=''>
-      <View className={`flex flex-row items-center px-2 m-2 ${item.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+      <View className={`flex flex-row items-center px-1 m-2 ${item.role === 'user' ? 'justify-end' : 'justify-start'}`}>
         {item.role === 'user' && (
           <View className='flex flex-row'>
             {renderFeedbackIcon()}
@@ -64,7 +64,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
             )}
           </View>
         )}
-        <View className={`rounded-lg p-3 max-w-[80%] ${item.role === 'user' ? 'bg-primary-500' : 'bg-gray-200'}`}>
+        <View className={`rounded-lg p-2 max-w-[80%] ${item.role === 'user' ? 'bg-primary-500' : 'bg-gray-200'}`}>
           <Text className={item.role === 'user' ? 'text-white' : 'text-black'}>{item.content}</Text>
         </View>
         {item.role === 'model' && (

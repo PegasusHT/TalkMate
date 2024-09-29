@@ -122,11 +122,11 @@ const ScenarioDetail: React.FC = () => {
                 <Text className="text-gray-400 italic">{phrase.pronunciation}</Text>
                 <TouchableOpacity 
                   onPress={() => handleAudioPress(phrase.phrase, index)} 
-                  className="absolute right-2 top-2"
+                  className="absolute right-3 top-3"
                 >
                   {playingAudioId === index ? (
                     isAudioLoading ? (
-                      <ActivityIndicator size="small" color="white" />
+                      <ActivityIndicator size="small" color="black" />
                     ) : (
                       <Pause color="black" size={20} />
                     )
