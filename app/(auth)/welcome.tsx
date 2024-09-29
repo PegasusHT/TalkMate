@@ -46,7 +46,7 @@ const WelcomeFlow: React.FC = () => {
                     scrollEventThrottle={16}
                     bounces={false}
                     style={{ flex: 1 }}
-                    className='pt-[44]'
+                    className='pt-[54]'
                 >
                     {boardingData.map((screen, index) => (
                         <View key={index} style={{ width, height: height - 80 }}>
@@ -56,7 +56,7 @@ const WelcomeFlow: React.FC = () => {
 
                                     <Image 
                                         source={screen.image}
-                                        style={{ width: 280, height: 360 }}
+                                        style={{ width: 260, height: 360 }}
                                         resizeMode='contain'
                                     />
                                 </View>
