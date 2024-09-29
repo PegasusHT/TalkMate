@@ -8,6 +8,7 @@ import ENV from '@/utils/envConfig';
 import Text from '@/components/customText';
 import BoardingHeader from '@/components/boarding/header/boardingHeader';
 import { SvgXml } from 'react-native-svg';
+import { AuthSessionResult } from 'expo-auth-session';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -28,19 +29,39 @@ const SignIn: React.FC = () => {
       // Here you would typically send the authentication token to your backend
       // and receive a response indicating whether the sign-in was successful
       // For this example, we'll simulate a successful sign-in
-      handleSignInSuccess();
+      handleSignInSuccess(response);
     } else if (response?.type === 'error') {
       handleSignInError();
     }
   }, [response]);
 
-  const handleSignInSuccess = () => {
-    router.replace('/(root)');
-    setTimeout(() => {
-      Alert.alert('Sign In Successful', 'Welcome back!');
-    }, 700);
+  const decodeJwt = (token: string) => {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+    return JSON.parse(jsonPayload);
   };
 
+  const handleSignInSuccess = (response: AuthSessionResult) => {
+    if (response.type === 'success') {
+      const { id_token } = response.params;
+      if (id_token) {
+        const decodedToken = decodeJwt(id_token);
+        const userEmail = decodedToken.email;
+        
+        router.replace('/(root)');
+        setTimeout(() => {
+          Alert.alert('Sign In Successful', `Welcome back, ${userEmail}!`);
+        }, 700);
+      } else {
+        Alert.alert('Sign In Error', 'Unable to retrieve user information.');
+      }
+    } else {
+      Alert.alert('Sign In Error', 'Authentication was not successful.');
+    }
+  };
 
   const handleSignInError = () => {
     Alert.alert('Sign In Failed', 'Please try again.', [

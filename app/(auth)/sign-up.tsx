@@ -8,6 +8,7 @@ import * as WebBrowser from 'expo-web-browser';
 import ENV from '@/utils/envConfig';
 import BoardingHeader from '@/components/boarding/header/boardingHeader';
 import { SvgXml } from 'react-native-svg';
+import { AuthSessionResult } from 'expo-auth-session';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -23,18 +24,39 @@ const SignUp = () => {
     useEffect(() => {
         if (response?.type === 'success') {
           const { authentication } = response;
-          handleSignUpSuccess();
+          handleSignUpSuccess(response);
         } else if (response?.type === 'error') {
           handleSignUpError();
         }
       }, [response]);
     
-    const handleSignUpSuccess = () => {
+    const decodeJwt = (token: string) => {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+        return JSON.parse(jsonPayload);
+    };
+
+    const handleSignUpSuccess = (response: AuthSessionResult) => {
+    if (response.type === 'success') {
+      const { id_token } = response.params;
+      if (id_token) {
+        const decodedToken = decodeJwt(id_token);
+        const userEmail = decodedToken.email;
+        
         router.replace('/(root)');
         setTimeout(() => {
-            Alert.alert('Sign Up Successful');
+          Alert.alert('Sign In Successful', `Welcome back, ${userEmail}!`);
         }, 700);
-    };
+      } else {
+        Alert.alert('Sign In Error', 'Unable to retrieve user information.');
+      }
+    } else {
+      Alert.alert('Sign In Error', 'Authentication was not successful.');
+    }
+  };
 
     const handleSignUpError = () => {
     Alert.alert('Sign Up Failed', 'Please try again.', [
