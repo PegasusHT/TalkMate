@@ -1,9 +1,10 @@
+//components/boarding/boardingButtons.tsx
 import React from 'react';
 import { View, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 import Text from '@/components/customText';
 import { bgColor, primaryStrong } from '@/constant/color';
-
+  
 const BoardingButtons: React.FC = () => {
     const handleGetStarted = () => {
         router.push('/(auth)/sign-up');
