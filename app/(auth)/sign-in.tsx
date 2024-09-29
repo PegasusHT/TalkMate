@@ -1,5 +1,5 @@
-import React from 'react';
-import { SafeAreaView, View, TouchableOpacity, ScrollView, Image } from 'react-native';
+import React, { useEffect } from 'react';
+import { SafeAreaView, View, TouchableOpacity, ScrollView, Image, Alert } from 'react-native';
 import { router } from 'expo-router';
 import { ArrowLeft } from 'lucide-react-native';
 import * as Google from 'expo-auth-session/providers/google';
@@ -21,6 +21,32 @@ const SignIn: React.FC = () => {
     iosClientId: GOOGLE_IOS_CLIENT_ID,
     scopes: ['profile', 'email'],
   });
+
+  useEffect(() => {
+    if (response?.type === 'success') {
+      const { authentication } = response;
+      // Here you would typically send the authentication token to your backend
+      // and receive a response indicating whether the sign-in was successful
+      // For this example, we'll simulate a successful sign-in
+      handleSignInSuccess();
+    } else if (response?.type === 'error') {
+      handleSignInError();
+    }
+  }, [response]);
+
+  const handleSignInSuccess = () => {
+    router.replace('/(root)');
+    setTimeout(() => {
+      Alert.alert('Sign In Successful', 'Welcome back!');
+    }, 700);
+  };
+
+
+  const handleSignInError = () => {
+    Alert.alert('Sign In Failed', 'Please try again.', [
+      { text: 'OK' }
+    ]);
+  };
 
   const handleGoogleSignIn = () => {
     promptAsync();

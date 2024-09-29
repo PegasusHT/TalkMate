@@ -1,6 +1,6 @@
-import { SafeAreaView, View, TouchableOpacity, ScrollView, Image } from 'react-native';
+import { SafeAreaView, View, TouchableOpacity, ScrollView, Image, Alert } from 'react-native';
 import Text from '@/components/customText';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { router } from 'expo-router';
 import { ArrowLeft } from 'lucide-react-native';
 import * as Google from 'expo-auth-session/providers/google';
@@ -19,6 +19,28 @@ const SignUp = () => {
         iosClientId: GOOGLE_IOS_CLIENT_ID,
         scopes: ['profile', 'email'],
     });
+
+    useEffect(() => {
+        if (response?.type === 'success') {
+          const { authentication } = response;
+          handleSignUpSuccess();
+        } else if (response?.type === 'error') {
+          handleSignUpError();
+        }
+      }, [response]);
+    
+    const handleSignUpSuccess = () => {
+        router.replace('/(root)');
+        setTimeout(() => {
+            Alert.alert('Sign Up Successful');
+        }, 700);
+    };
+
+    const handleSignUpError = () => {
+    Alert.alert('Sign Up Failed', 'Please try again.', [
+        { text: 'OK' }
+    ]);
+    };
 
     const handleGoogleSignUp = () => {
     promptAsync();
