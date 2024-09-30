@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { ChatMessage, Feedback, FeedbackType } from '@/types/chat';
-import { Audio } from 'expo-av';
+import { Audio, AVPlaybackStatus } from 'expo-av';
 import ENV from '@/utils/envConfig'; 
 import { useAudioMode } from './Audio/useAudioMode';
 import axios from 'axios';
@@ -83,11 +83,10 @@ export const useChatSession = (isMiaChat = false, scenarioId?: ObjectId, scenari
           // Play user's recorded audio
           uri = audioUri;
         } else {
-          // Play AI-generated audio
+          // Play AI-generated audio≤
           const formData = new FormData();
           formData.append('text', text);
   
-          console.log('Sending TTS request to server');
           const response = await fetch(`${AI_BACKEND_URL}/tts/`, {
             method: 'POST',
             body: formData,
@@ -96,15 +95,15 @@ export const useChatSession = (isMiaChat = false, scenarioId?: ObjectId, scenari
           if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
           }
+
+          console.log('res: ', response)
   
           const data = await response.json();
-          console.log('Received TTS response from server');
           const audioBase64 = data.audio;
   
           uri = `data:audio/wav;base64,${audioBase64}`;
         }
   
-        console.log('Loading audio');
         await soundObject.current.unloadAsync();
         const { sound, status } = await Audio.Sound.createAsync(
           { uri },
@@ -113,7 +112,6 @@ export const useChatSession = (isMiaChat = false, scenarioId?: ObjectId, scenari
   
         soundObject.current = sound;
   
-        console.log('Playing audio');
         setIsAudioLoading(false);
   
         soundObject.current.setOnPlaybackStatusUpdate((status) => {

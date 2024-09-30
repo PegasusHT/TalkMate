@@ -124,7 +124,7 @@ const CustomScenarioUI = () => {
       </Text>
       <View className="bg-gray-100 border border-1 rounded-3xl pl-3 pr-2 pt-1 pb-12 mb-6">
         <TextInput
-          className="text-lg h-32 font-Nunito" 
+          className="text-lg h-36 font-Nunito" 
           placeholder="What do you want to talk about?"
           value={scenario}
           onChangeText={setScenario}
