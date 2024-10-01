@@ -98,6 +98,7 @@ export const useChatSession = (isSophiaChat = false, scenarioId?: ObjectId, scen
     currentFeedback,
     setCurrentFeedback,
     showTopics,
+    setShowTopics, 
     sendMessage: wrappedSendMessage,
     handleSend: wrappedHandleSend,
     handleMicPress,

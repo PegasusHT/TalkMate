@@ -25,6 +25,7 @@ const ChatSession: React.FC = () => {
     currentFeedback,
     setCurrentFeedback,
     showTopics,
+    setShowTopics, 
     sendMessage,
     handleSend,
     handleMicPress,

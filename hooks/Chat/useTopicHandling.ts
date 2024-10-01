@@ -11,7 +11,6 @@ export const useTopicHandling = (
     const params = topic === 'Fun' ? 'a fun' : topic === 'Interesting' ? 'an interesting' : 'a ';
     const userMessage = `Hey, Sophia! Ask me ${params} question.`;
     
-    // Add the user message to chat history immediately
     const userChatMessage: ChatMessage = {
       role: 'user',
       content: userMessage,
@@ -19,10 +18,8 @@ export const useTopicHandling = (
     };
     setChatHistory(prev => [...prev, userChatMessage]);
 
-    // Hide topics after selection
     setShowTopics(false);
 
-    // Send the message to the AI
     await sendMessage(userMessage);
   }, [sendMessage, setChatHistory]);
 

@@ -114,6 +114,7 @@ export const useMessageHandling = (
     if (message.trim()) {
       sendMessage(message, chatHistory, setChatHistory);
       setMessage('');
+      setShowTopics(false);
     }
   }, [message, sendMessage]);
 
