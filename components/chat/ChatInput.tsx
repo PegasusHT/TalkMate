@@ -62,6 +62,8 @@ const ChatInput: React.FC<ChatInputProps> = ({
         className="flex-1 bg-gray-100 rounded-full px-4 py-2 mr-2 h-full"
         value={message}
         onChangeText={setMessage}
+        multiline
+        numberOfLines={4}
         placeholder="Type your message..."
       />
       <TouchableOpacity onPress={message ? handleSend : handleMicPressWithAudioStop}>

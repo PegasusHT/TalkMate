@@ -6,6 +6,7 @@ export type Feedback = {
   correctedVersion: string;
   explanation: string;
   feedbackType: FeedbackType;
+  isCorrect: boolean;
 };
 
 export type ChatMessage = {

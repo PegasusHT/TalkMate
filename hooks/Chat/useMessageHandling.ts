@@ -70,7 +70,8 @@ export const useMessageHandling = (
         const feedback: Feedback = {
           correctedVersion: data.feedback.correctedVersion,
           explanation: data.feedback.explanation,
-          feedbackType: data.feedback.feedbackType as FeedbackType
+          feedbackType: data.feedback.feedbackType as FeedbackType,
+          isCorrect: data.feedback.isCorrect
         };
 
         const assistantMessage: ChatMessage = { 
@@ -98,7 +99,8 @@ export const useMessageHandling = (
             feedback: { 
               correctedVersion: '', 
               explanation: 'Error occurred',
-              feedbackType: 'NONE'
+              feedbackType: 'NONE',
+              isCorrect: false
             } 
           },
         ]);

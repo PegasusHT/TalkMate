@@ -38,7 +38,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
     if (item.isLoading) {
       return <ActivityIndicator size="small" color="#007AFF" style={{ marginRight: 8 }} />;
     } else if (item.feedback) {
-      if (item.feedback.explanation.includes("ppassed")) {
+      if (item.feedback.isCorrect) {
         return <Check size={22} className='mr-2' color="#008000" />;
       } else {
         return (
