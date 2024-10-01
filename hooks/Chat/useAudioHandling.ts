@@ -6,7 +6,7 @@ import { ChatMessage, Feedback, FeedbackType } from '@/types/chat';
 
 const { AI_BACKEND_URL, BACKEND_URL } = ENV;
 
-const MAX_TOKENS = 4000; // Add this constant
+const MAX_TOKENS = 4000; 
 
 export const useAudioHandling = (
   setChatHistory: React.Dispatch<React.SetStateAction<ChatMessage[]>>,
@@ -55,52 +55,55 @@ export const useAudioHandling = (
   
     const attemptPlayback = async () => {
       try {
-        if (playingAudioId === messageId) {
-          await stopAudio();
-          return;
-        }
-  
         await stopAudio();
         await setPlaybackMode();
         setIsAudioLoading(true);
         setPlayingAudioId(messageId);
   
-        let uri: string;
         if (audioUri) {
-          uri = audioUri;
+          // Play user's recorded audio
+          await soundObject.current.unloadAsync();
+          await soundObject.current.loadAsync({ uri: audioUri });
+          await soundObject.current.playAsync();
         } else {
+          // Process TTS for AI response
           const formData = new FormData();
           formData.append('text', text);
-  
-          const response = await fetch(`${AI_BACKEND_URL}/tts/`, {
-            method: 'POST',
-            body: formData,
+          formData.append('speaker', 'p240');
+
+          // Send both quick and full TTS requests simultaneously
+          const [quickResponse, fullResponse] = await Promise.all([
+            fetch(`${AI_BACKEND_URL}/tts/quick`, { method: 'POST', body: formData }),
+            fetch(`${AI_BACKEND_URL}/tts/full`, { method: 'POST', body: formData })
+          ]);
+
+          if (!quickResponse.ok || !fullResponse.ok) {
+            throw new Error(`HTTP error! status: ${quickResponse.status} ${fullResponse.status}`);
+          }
+
+          const quickData = await quickResponse.json();
+          const fullData = await fullResponse.json();
+
+          // Play quick audio
+          const quickUri = `data:audio/wav;base64,${quickData.audio}`;
+          await soundObject.current.unloadAsync();
+          await soundObject.current.loadAsync({ uri: quickUri });
+          await soundObject.current.playAsync();
+
+          // Set up listener to play full audio after quick audio finishes
+          soundObject.current.setOnPlaybackStatusUpdate((status) => {
+            if (status.isLoaded && !status.isPlaying && status.didJustFinish) {
+              const fullUri = `data:audio/wav;base64,${fullData.audio}`;
+              soundObject.current.unloadAsync().then(() => {
+                soundObject.current.loadAsync({ uri: fullUri }).then(() => {
+                  soundObject.current.playAsync();
+                });
+              });
+            }
           });
-  
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-  
-          const data = await response.json();
-          uri = `data:audio/wav;base64,${data.audio}`;
         }
-  
-        await soundObject.current.unloadAsync();
-        const { sound } = await Audio.Sound.createAsync(
-          { uri },
-          { shouldPlay: true }
-        );
-  
-        soundObject.current = sound;
+
         setIsAudioLoading(false);
-  
-        soundObject.current.setOnPlaybackStatusUpdate((status) => {
-          if (status.isLoaded && !status.isPlaying && status.didJustFinish) {
-            setPlayingAudioId(null);
-          }
-        });
-  
-        await soundObject.current.playAsync();
       } catch (error) {
         console.error('Error playing audio:', error);
         if (retryCount < maxRetries) {
