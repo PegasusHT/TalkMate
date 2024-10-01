@@ -27,12 +27,6 @@ const WelcomeFlow: React.FC = () => {
         { useNativeDriver: false, listener: onScroll }
     );
 
-    const opacity = scrollX.interpolate({
-        inputRange: boardingData.map((_, i) => i * width),
-        outputRange: boardingData.map(() => 1),
-        extrapolate: 'clamp',
-    });
-
     return (
         <View style={{ flex: 1, backgroundColor: bgColor }}>
             <StatusBar barStyle="dark-content" />
@@ -46,77 +40,90 @@ const WelcomeFlow: React.FC = () => {
                     scrollEventThrottle={16}
                     bounces={false}
                     style={{ flex: 1 }}
-                    className='pt-[54]'
+                    contentContainerStyle={{ paddingTop: 54 }}
                 >
                     {boardingData.map((screen, index) => (
                         <View key={index} style={{ width, height: height - 80 }}>
-                            <Animated.View style={{ flex: 1, opacity }}>
-                                <View style={{zIndex:-1}}
-                                 className={`items-center `}>
-
-                                    <Image 
-                                        source={screen.image}
-                                        style={{ width: 260, height: 360 }}
-                                        resizeMode='contain'
-                                    />
+                            <View style={{ alignItems: 'center' }}>
+                                <Image 
+                                    source={screen.image}
+                                    style={{ width: 270, height: 360 }}
+                                    resizeMode='contain'
+                                />
+                            </View>
+                            <View style={{ 
+                                position: 'absolute', 
+                                top: 360,
+                                left: 0,
+                                right: 0,
+                                backgroundColor: 'white', 
+                                padding: 20,
+                                paddingBottom: 80,
+                            }}>
+                                <Text className='text-3xl mt-10 font-NunitoSemiBold text-center'>
+                                    {screen.title}
+                                </Text>
+                                <Text className='mx-4 mt-6 text-[16px] opacity-60 text-center'>
+                                    {screen.description}
+                                </Text>
+                                <View style={{
+                                    position: 'absolute',
+                                    bottom: 10,
+                                    left: 0,
+                                    right: 0,
+                                    alignItems: 'center'
+                                }}>
+                                    <View className="flex-row mb-6">
+                                        {boardingData.map((_, i) => (
+                                            <View
+                                                key={i}
+                                                className={`h-3 w-3 rounded-full mx-1 ${
+                                                    i === currentPage ? 'bg-blue-500' : 'bg-gray-300'
+                                                }`}
+                                            />
+                                        ))}
+                                    </View>
                                 </View>
-                            </Animated.View>
+                            </View>
                         </View>
                     ))}
                 </Animated.ScrollView>
-                
+
                 <View style={{ 
                     position: 'absolute', 
-                    top:385,
-                    bottom: 0, 
+                    top: 385,
                     left: 0, 
                     right: 0, 
+                    height: 46,
                     backgroundColor: 'white', 
                     borderTopLeftRadius: 30, 
                     borderTopRightRadius: 30, 
                     padding: 20,
-                    paddingBottom: 80,
-                }}>
-                    <Animated.View style={{  opacity }}>
-                        <Text className='text-3xl mt-14 font-NunitoSemiBold text-center'>
-                            {boardingData[currentPage].title}
-                        </Text>
-                        <Text className='mx-4 mt-6 text-[16px] opacity-60 text-center'>
-                            {boardingData[currentPage].description}
-                        </Text>
-                        <View className='mt-6 items-center'>
-                            <View className="flex-row mb-6">
-                                {boardingData.map((_, i) => (
-                                    <View
-                                        key={i}
-                                        className={`h-2 w-2 rounded-full mx-1 ${
-                                            i === currentPage ? 'bg-blue-500' : 'bg-gray-300'
-                                        }`}
-                                    />
-                                ))}
-                            </View>
-                        </View>
-                    </Animated.View>
-                </View>
+                    paddingBottom: 20,
+                }}/>
             </View>
             
-            <View style={{ position: 'absolute', top: height / 2 - 130, left: width / 2 - 43, zIndex: 10 }}>
+            <View style={{ position: 'absolute', top: height / 2 - 130, left: width / 2 - 43, zIndex: 20 }}>
                 <View style={{ backgroundColor: bgColor }} className="rounded-full p-5">
                     <Ionicons name="logo-octocat" size={60} color={primaryStrong} />
                 </View>
             </View>
 
-            <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0 }}>
+            <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 30, backgroundColor: 'white' }} className='pt-6'>
                 <BoardingButtons />
             </View>
 
             <View
               style={{
                 backgroundColor: bgColor,
-                position:'absolute'
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                zIndex: 40
               }} 
-              className="flex-row justify-between items-center w-full ">
-                <View style={{ backgroundColor: bgColor, position: 'absolute', top: 60, left:6, zIndex: 20 }}
+              className="flex-row justify-between items-center w-full">
+                <View style={{ backgroundColor: bgColor, position: 'absolute', top: 60, left: 6 }}
                  className='rounded-full px-3 py-1'>
                   <Text style={{ color: primaryStrong }} className='text-[17px]'>
                     <Text className='font-NunitoBold'>TalkMate </Text>
@@ -124,7 +131,7 @@ const WelcomeFlow: React.FC = () => {
                   </Text>
                 </View>
 
-                <TouchableOpacity style={{position: 'absolute', top: 60, right:11, zIndex: 20  }}
+                <TouchableOpacity style={{position: 'absolute', top: 60, right: 11 }}
                 className="flex-row items-center bg-white px-3 py-1 rounded-full">
                     <Globe size={16} color={primaryStrong} />
                     <Text style={{ color: primaryStrong }}

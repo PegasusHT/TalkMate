@@ -19,10 +19,10 @@ const BoardingButtons: React.FC = () => {
     };
 
     return (
-        <View className='bg-white rounded-3xl px-6 pb-10 pt-2'>
+        <View className='bg-white px-6 pb-10'>
             <TouchableOpacity
                 style={{ backgroundColor: primaryStrong }} 
-                className='w-full mt-2 rounded-3xl h-14 items-center justify-center'
+                className='w-full rounded-3xl h-14 items-center justify-center'
                 onPress={handleGetStarted}
             >
                 <Text className='text-white text-lg font-NunitoSemiBold'>
