@@ -66,29 +66,31 @@ const WelcomeFlow: React.FC = () => {
                                 <Text className='mx-4 mt-6 text-[16px] opacity-60 text-center'>
                                     {screen.description}
                                 </Text>
-                                <View style={{
-                                    position: 'absolute',
-                                    bottom: 10,
-                                    left: 0,
-                                    right: 0,
-                                    alignItems: 'center'
-                                }}>
-                                    <View className="flex-row mb-6">
-                                        {boardingData.map((_, i) => (
-                                            <View
-                                                key={i}
-                                                className={`h-3 w-3 rounded-full mx-1 ${
-                                                    i === currentPage ? 'bg-blue-500' : 'bg-gray-300'
-                                                }`}
-                                            />
-                                        ))}
-                                    </View>
-                                </View>
+                                
                             </View>
                         </View>
                     ))}
                 </Animated.ScrollView>
-
+                
+                <View style={{
+                    position: 'absolute',
+                    bottom: 10,
+                    left: 0,
+                    right: 0,
+                    alignItems: 'center',
+                    zIndex:10
+                }}>
+                    <View className="flex-row mb-60">
+                        {boardingData.map((_, i) => (
+                            <View
+                                key={i}
+                                className={`h-3 w-3 rounded-full mx-1 ${
+                                    i === currentPage ? 'bg-blue-500' : 'bg-gray-300'
+                                }`}
+                            />
+                        ))}
+                    </View>
+                </View>
                 <View style={{ 
                     position: 'absolute', 
                     top: 385,
