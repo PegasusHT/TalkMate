@@ -64,9 +64,9 @@ export const useChatSession = (isSophiaChat = false, scenarioId?: ObjectId, scen
     playAudio
   );
 
-  useEffect(() => {
-    initializeChat();
-  }, [initializeChat]);
+  const wrappedInitializeChat = useCallback((initScenarioId?: ObjectId) => {
+    initializeChat(initScenarioId || scenarioId);
+  }, [initializeChat, scenarioId]);
 
   const handleStartNewChat = useCallback(async () => {
     await stopAllAudio();
@@ -114,6 +114,6 @@ export const useChatSession = (isSophiaChat = false, scenarioId?: ObjectId, scen
     startNewChat: handleStartNewChat,
     popupMessage,
     showPopup,
-    initializeChat
+    initializeChat: wrappedInitializeChat
   };
 };

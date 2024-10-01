@@ -116,7 +116,7 @@ const WelcomeFlow: React.FC = () => {
                 position:'absolute'
               }} 
               className="flex-row justify-between items-center w-full ">
-                <View style={{ backgroundColor: bgColor, position: 'absolute', top: 60, left:15, zIndex: 20 }}
+                <View style={{ backgroundColor: bgColor, position: 'absolute', top: 60, left:6, zIndex: 20 }}
                  className='rounded-full px-3 py-1'>
                   <Text style={{ color: primaryStrong }} className='text-[17px]'>
                     <Text className='font-NunitoBold'>TalkMate </Text>
@@ -124,7 +124,7 @@ const WelcomeFlow: React.FC = () => {
                   </Text>
                 </View>
 
-                <TouchableOpacity style={{position: 'absolute', top: 60, right:15, zIndex: 20  }}
+                <TouchableOpacity style={{position: 'absolute', top: 60, right:11, zIndex: 20  }}
                 className="flex-row items-center bg-white px-3 py-1 rounded-full">
                     <Globe size={16} color={primaryStrong} />
                     <Text style={{ color: primaryStrong }}
