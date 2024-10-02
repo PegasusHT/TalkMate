@@ -1,4 +1,6 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
+import { AppState } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Audio } from 'expo-av';
 import { useAudioMode } from '../Audio/useAudioMode';
 import ENV from '@/utils/envConfig';
@@ -6,7 +8,12 @@ import { ChatMessage, Feedback, FeedbackType } from '@/types/chat';
 
 const { AI_BACKEND_URL, BACKEND_URL } = ENV;
 
-const MAX_TOKENS = 4000; 
+const MAX_TOKENS = 4000;
+const MAX_CACHE_SIZE = 50; 
+
+type AudioCache = {
+  [key: number]: string[]; // messageId : array of base64 audio chunks
+};
 
 export const useAudioHandling = (
   setChatHistory: React.Dispatch<React.SetStateAction<ChatMessage[]>>,
@@ -22,6 +29,7 @@ export const useAudioHandling = (
   const recordingObject = useRef<Audio.Recording | null>(null);
   const soundObject = useRef(new Audio.Sound());
   const { setPlaybackMode, setRecordingMode } = useAudioMode();
+  const [audioCache, setAudioCache] = useState<AudioCache>({});
 
   const stopAudio = useCallback(async () => {
     try {
@@ -49,61 +57,120 @@ export const useAudioHandling = (
     }
   }, [playingAudioId, stopAudio]);
 
+  // Load cache from AsyncStorage on component mount
+  useEffect(() => {
+    const loadCache = async () => {
+      try {
+        const savedCache = await AsyncStorage.getItem('audioCache');
+        if (savedCache) {
+          setAudioCache(JSON.parse(savedCache));
+        }
+      } catch (error) {
+        console.error('Error loading audio cache:', error);
+      }
+    };
+    loadCache();
+  }, []);
+
+  // Save cache to AsyncStorage when it changes
+  useEffect(() => {
+    const saveCache = async () => {
+      try {
+        await AsyncStorage.setItem('audioCache', JSON.stringify(audioCache));
+      } catch (error) {
+        console.error('Error saving audio cache:', error);
+      }
+    };
+    saveCache();
+  }, [audioCache]);
+
+  // Clear cache when app goes to background
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', nextAppState => {
+      if (nextAppState === 'background') {
+        setAudioCache({});
+      }
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, []);
+
+  const updateCache = useCallback((messageId: number, audioData: string[]) => {
+    setAudioCache(prevCache => {
+      const newCache = { ...prevCache, [messageId]: audioData };
+      const cacheSize = Object.keys(newCache).length;
+      if (cacheSize > MAX_CACHE_SIZE) {
+        const oldestKey = Object.keys(newCache)[0];
+        delete newCache[parseInt(oldestKey)];
+      }
+      return newCache;
+    });
+  }, []);
+
   const playAudio = useCallback(async (messageId: number, text: string, audioUri?: string) => {
     let retryCount = 0;
     const maxRetries = 3;
   
     const attemptPlayback = async () => {
       try {
+        if (playingAudioId === messageId) {
+          await stopAudio();
+          return;
+        }
+  
         await stopAudio();
         await setPlaybackMode();
         setIsAudioLoading(true);
         setPlayingAudioId(messageId);
   
+        let audioData: string[];
         if (audioUri) {
-          // Play user's recorded audio
-          await soundObject.current.unloadAsync();
-          await soundObject.current.loadAsync({ uri: audioUri });
-          await soundObject.current.playAsync();
+          audioData = [audioUri];
+        } else if (audioCache[messageId]) {
+          audioData = audioCache[messageId];
         } else {
-          // Process TTS for AI response
           const formData = new FormData();
           formData.append('text', text);
-          formData.append('speaker', 'p240');
-
-          // Send both quick and full TTS requests simultaneously
-          const [quickResponse, fullResponse] = await Promise.all([
-            fetch(`${AI_BACKEND_URL}/tts/quick`, { method: 'POST', body: formData }),
-            fetch(`${AI_BACKEND_URL}/tts/full`, { method: 'POST', body: formData })
-          ]);
-
-          if (!quickResponse.ok || !fullResponse.ok) {
-            throw new Error(`HTTP error! status: ${quickResponse.status} ${fullResponse.status}`);
+  
+          const response = await fetch(`${AI_BACKEND_URL}/tts/`, {
+            method: 'POST',
+            body: formData,
+          });
+  
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
           }
-
-          const quickData = await quickResponse.json();
-          const fullData = await fullResponse.json();
-
-          // Play quick audio
-          const quickUri = `data:audio/wav;base64,${quickData.audio}`;
+  
+          const data = await response.json();
+          audioData = data.audio.split(',');
+          
+          updateCache(messageId, audioData);
+        }
+  
+        setIsAudioLoading(false);
+  
+        for (const audioSegment of audioData) {
+          const uri = `data:audio/wav;base64,${audioSegment}`;
           await soundObject.current.unloadAsync();
-          await soundObject.current.loadAsync({ uri: quickUri });
-          await soundObject.current.playAsync();
-
-          // Set up listener to play full audio after quick audio finishes
-          soundObject.current.setOnPlaybackStatusUpdate((status) => {
-            if (status.isLoaded && !status.isPlaying && status.didJustFinish) {
-              const fullUri = `data:audio/wav;base64,${fullData.audio}`;
-              soundObject.current.unloadAsync().then(() => {
-                soundObject.current.loadAsync({ uri: fullUri }).then(() => {
-                  soundObject.current.playAsync();
-                });
-              });
-            }
+          const { sound } = await Audio.Sound.createAsync(
+            { uri },
+            { shouldPlay: true }
+          );
+  
+          soundObject.current = sound;
+  
+          await new Promise<void>((resolve) => {
+            soundObject.current.setOnPlaybackStatusUpdate((status) => {
+              if (status.isLoaded && !status.isPlaying && status.didJustFinish) {
+                resolve();
+              }
+            });
           });
         }
-
-        setIsAudioLoading(false);
+  
+        setPlayingAudioId(null);
       } catch (error) {
         console.error('Error playing audio:', error);
         if (retryCount < maxRetries) {
@@ -118,7 +185,7 @@ export const useAudioHandling = (
     };
   
     await attemptPlayback();
-  }, [playingAudioId, setPlaybackMode, stopAudio]);
+  }, [playingAudioId, setPlaybackMode, stopAudio, audioCache, updateCache]);
 
   const handleMicPress = useCallback(async () => {
     await setRecordingMode();
@@ -271,7 +338,7 @@ export const useAudioHandling = (
                 correctedVersion: '', 
                 explanation: 'Error occurred',
                 feedbackType: 'NONE',
-                isCorrect:false,
+                isCorrect: false,
               } 
             },
           ]);
