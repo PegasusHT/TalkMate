@@ -57,7 +57,6 @@ export const useAudioHandling = (
     }
   }, [playingAudioId, stopAudio]);
 
-  // Load cache from AsyncStorage on component mount
   useEffect(() => {
     const loadCache = async () => {
       try {
@@ -111,7 +110,7 @@ export const useAudioHandling = (
 
   const playAudio = useCallback(async (messageId: number, text: string, audioUri?: string) => {
     let retryCount = 0;
-    const maxRetries = 3;
+    const maxRetries = 1;
   
     const attemptPlayback = async () => {
       try {
@@ -125,52 +124,53 @@ export const useAudioHandling = (
         setIsAudioLoading(true);
         setPlayingAudioId(messageId);
   
-        let audioData: string[];
         if (audioUri) {
-          audioData = [audioUri];
-        } else if (audioCache[messageId]) {
-          audioData = audioCache[messageId];
+          await soundObject.current.unloadAsync();
+          await soundObject.current.loadAsync({ uri: audioUri });
+          await soundObject.current.playAsync();
         } else {
-          const formData = new FormData();
-          formData.append('text', text);
+          let audioData: string[];
+          if (audioCache[messageId]) {
+            audioData = audioCache[messageId];
+          } else {
+            const formData = new FormData();
+            formData.append('text', text);
   
-          const response = await fetch(`${AI_BACKEND_URL}/tts/`, {
-            method: 'POST',
-            body: formData,
-          });
+            const response = await fetch(`${AI_BACKEND_URL}/tts/`, {
+              method: 'POST',
+              body: formData,
+            });
   
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+  
+            const data = await response.json();
+            audioData = data.audio.split(',');
+            updateCache(messageId, audioData);
           }
   
-          const data = await response.json();
-          audioData = data.audio.split(',');
-          
-          updateCache(messageId, audioData);
-        }
-  
-        setIsAudioLoading(false);
-  
-        for (const audioSegment of audioData) {
-          const uri = `data:audio/wav;base64,${audioSegment}`;
-          await soundObject.current.unloadAsync();
-          const { sound } = await Audio.Sound.createAsync(
-            { uri },
-            { shouldPlay: true }
-          );
-  
-          soundObject.current = sound;
-  
-          await new Promise<void>((resolve) => {
-            soundObject.current.setOnPlaybackStatusUpdate((status) => {
-              if (status.isLoaded && !status.isPlaying && status.didJustFinish) {
-                resolve();
-              }
+          for (const audioSegment of audioData) {
+            const uri = `data:audio/wav;base64,${audioSegment}`;
+            await soundObject.current.unloadAsync();
+            await soundObject.current.loadAsync({ uri });
+            await soundObject.current.playAsync();
+
+            setIsAudioLoading(false);
+
+            await new Promise<void>((resolve) => {
+              soundObject.current.setOnPlaybackStatusUpdate((status) => {
+                if (status.isLoaded && !status.isPlaying && status.didJustFinish) {
+                  resolve();
+                }
+              });
             });
-          });
+          }
         }
   
-        setPlayingAudioId(null);
+        soundObject.current.setOnPlaybackStatusUpdate((status) => {
+          setPlayingAudioId(null);
+        });
       } catch (error) {
         console.error('Error playing audio:', error);
         if (retryCount < maxRetries) {
