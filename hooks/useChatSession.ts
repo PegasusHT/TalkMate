@@ -41,7 +41,7 @@ export const useChatSession = (isSophiaChat = false, scenarioId?: ObjectId, scen
     sendMessage,
     handleSend,
     handleTopicSelect,
-  } = useMessageHandling(isSophiaChat, scenarioDetails, playAudio);
+  } = useMessageHandling(isSophiaChat, setShowTopics, scenarioDetails, playAudio );
 
   const {
     showFeedbackModal,

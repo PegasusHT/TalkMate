@@ -8,6 +8,7 @@ const MAX_TOKENS = 4000;
 
 export const useMessageHandling = (
   isSophiaChat: boolean,
+  setShowTopics: React.Dispatch<React.SetStateAction<boolean>>,
   scenarioDetails?: {
     aiName: string;
     aiRole: string;
@@ -15,11 +16,10 @@ export const useMessageHandling = (
     userRole: string;
     objectives: string[];
   },
-  playAudio?: (messageId: number, text: string) => Promise<void>
+  playAudio?: (messageId: number, text: string) => Promise<void>,
 ) => {
   const [message, setMessage] = useState('');
   const [isTyping, setIsTyping] = useState<boolean>(false);
-  const [showTopics, setShowTopics] = useState(false);
 
   const estimateTokens = (text: string) => {
     return text.split(/\s+/).length;
@@ -129,7 +129,6 @@ export const useMessageHandling = (
     setMessage,
     isTyping,
     setIsTyping,
-    showTopics,
     setShowTopics,
     sendMessage,
     handleSend,

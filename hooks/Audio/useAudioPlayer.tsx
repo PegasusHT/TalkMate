@@ -16,7 +16,7 @@ export const useAudioPlayer = () => {
       await stopAudio();
       return;
     }
-
+    
     try {
       await setPlaybackMode();
       setIsAudioLoading(true);
