@@ -125,12 +125,25 @@ export const useAudioHandling = (
         setIsAudioLoading(true);
         setPlayingAudioId(messageId);
   
+        const playAndWaitForFinish = async (uri: string) => {
+          await soundObject.current.unloadAsync();
+          await soundObject.current.loadAsync({ uri });
+          await soundObject.current.playAsync();
+
+          setIsAudioLoading(false);
+
+          return new Promise<void>((resolve) => {
+            soundObject.current.setOnPlaybackStatusUpdate((status) => {
+              if (status.isLoaded && !status.isPlaying && status.didJustFinish) {
+                resolve();
+              }
+            });
+          });
+        };
+  
         if (audioUri) {
           // user-recorded audio
-          await soundObject.current.unloadAsync();
-          await soundObject.current.loadAsync({ uri: audioUri });
-          await soundObject.current.playAsync();
-          setIsAudioLoading(false);
+          await playAndWaitForFinish(audioUri);
         } else {
           // AI-generated audio
           let audioData: string[];
@@ -156,27 +169,12 @@ export const useAudioHandling = (
   
           for (const audioSegment of audioData) {
             const uri = `data:audio/wav;base64,${audioSegment}`;
-            await soundObject.current.unloadAsync();
-            await soundObject.current.loadAsync({ uri });
-            await soundObject.current.playAsync();
-
-            setIsAudioLoading(false);
-
-            await new Promise<void>((resolve) => {
-              soundObject.current.setOnPlaybackStatusUpdate((status) => {
-                if (status.isLoaded && !status.isPlaying && status.didJustFinish) {
-                  resolve();
-                }
-              });
-            });
+            await playAndWaitForFinish(uri);
           }
         }
   
-        soundObject.current.setOnPlaybackStatusUpdate((status) => {
-          if (status.isLoaded && !status.isPlaying && status.didJustFinish) {
-            setPlayingAudioId(null);
-          }
-        });
+        setIsAudioLoading(false);
+        setPlayingAudioId(null);
       } catch (error) {
         console.error('Error playing audio:', error);
         if (retryCount < maxRetries) {
