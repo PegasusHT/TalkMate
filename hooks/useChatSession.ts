@@ -18,6 +18,7 @@ export const useChatSession = (isSophiaChat = false, scenarioId?: ObjectId, scen
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
 
   const { popupMessage, showPopup } = usePopupMessage();
+  const [showTopics, setShowTopics] = useState(false);
 
   const {
     isRecording,
@@ -30,15 +31,13 @@ export const useChatSession = (isSophiaChat = false, scenarioId?: ObjectId, scen
     handleMicPress,
     stopRecording,
     sendAudio,
-  } = useAudioHandling(setChatHistory, chatHistory, isSophiaChat, scenarioDetails);
+  } = useAudioHandling(setChatHistory, chatHistory, isSophiaChat, setShowTopics, scenarioDetails);
 
   const {
     message,
     setMessage,
     isTyping,
     setIsTyping,
-    showTopics,
-    setShowTopics,
     sendMessage,
     handleSend,
     handleTopicSelect,

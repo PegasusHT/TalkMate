@@ -19,7 +19,8 @@ export const useAudioHandling = (
   setChatHistory: React.Dispatch<React.SetStateAction<ChatMessage[]>>,
   chatHistory: ChatMessage[],
   isSophiaChat: boolean,
-  scenarioDetails?: any
+  setShowTopics: React.Dispatch<React.SetStateAction<boolean>>,
+  scenarioDetails?: any,
 ) => {
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessingAudio, setIsProcessingAudio] = useState(false);
@@ -125,10 +126,13 @@ export const useAudioHandling = (
         setPlayingAudioId(messageId);
   
         if (audioUri) {
+          // user-recorded audio
           await soundObject.current.unloadAsync();
           await soundObject.current.loadAsync({ uri: audioUri });
           await soundObject.current.playAsync();
+          setIsAudioLoading(false);
         } else {
+          // AI-generated audio
           let audioData: string[];
           if (audioCache[messageId]) {
             audioData = audioCache[messageId];
@@ -169,7 +173,9 @@ export const useAudioHandling = (
         }
   
         soundObject.current.setOnPlaybackStatusUpdate((status) => {
-          setPlayingAudioId(null);
+          if (status.isLoaded && !status.isPlaying && status.didJustFinish) {
+            setPlayingAudioId(null);
+          }
         });
       } catch (error) {
         console.error('Error playing audio:', error);
@@ -265,7 +271,8 @@ export const useAudioHandling = (
       }
   
       const result = await response.json();
-  
+      setShowTopics(false);
+
       if (result.results && result.results.length > 0) {
         const transcribedText = result.results[0].transcript;
         
@@ -283,7 +290,10 @@ export const useAudioHandling = (
         };
         
         setChatHistory(prev => [...prev, userMessage]);
-        
+
+        setIsProcessingAudio(false);
+        setIsRecording(false);
+
         try {
           const conversationHistory = trimConversationHistory([...chatHistory, userMessage]);
           
@@ -349,9 +359,6 @@ export const useAudioHandling = (
     } catch (error) {
       console.error('Failed to send audio', error);
       showPopup("An error occurred while processing your audio. Please try again.");
-    } finally {
-      setIsProcessingAudio(false);
-      setIsRecording(false);
     }
   }, [chatHistory, playAudio, setChatHistory, showPopup, setPlaybackMode, isSophiaChat, scenarioDetails, trimConversationHistory]);
 
