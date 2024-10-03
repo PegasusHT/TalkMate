@@ -88,6 +88,7 @@ const ChatSession: React.FC = () => {
     }, [stopAllAudio])
   );
 
+  //popup msg
   useEffect(() => {
     if (popupMessage) {
       Animated.sequence([
