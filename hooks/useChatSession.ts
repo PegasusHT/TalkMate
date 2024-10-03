@@ -1,3 +1,4 @@
+//hooks/useChatSession.ts
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { ChatMessage } from '@/types/chat';
 import { ObjectId } from 'mongodb';
@@ -16,7 +17,7 @@ export const useChatSession = (isSophiaChat = false, scenarioId?: ObjectId, scen
   objectives: string[];
 }) => {
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
-
+  const [isTyping, setIsTyping] = useState(false);
   const { popupMessage, showPopup } = usePopupMessage();
   const [showTopics, setShowTopics] = useState(false);
   const scrollToEndTrigger = useRef(0);
@@ -36,17 +37,15 @@ export const useChatSession = (isSophiaChat = false, scenarioId?: ObjectId, scen
     handleMicPress,
     stopRecording,
     sendAudio,
-  } = useAudioHandling(setChatHistory, chatHistory, isSophiaChat, setShowTopics, scenarioDetails);
+  } = useAudioHandling(setChatHistory, chatHistory, isSophiaChat, setShowTopics, isTyping,showPopup, scenarioDetails, );
 
   const {
     message,
     setMessage,
-    isTyping,
-    setIsTyping,
     sendMessage,
     handleSend,
     handleTopicSelect,
-  } = useMessageHandling(isSophiaChat, setShowTopics, scenarioDetails, playAudio );
+  } = useMessageHandling(isSophiaChat,setIsTyping, setShowTopics, scenarioDetails, playAudio);
 
   const {
     showFeedbackModal,

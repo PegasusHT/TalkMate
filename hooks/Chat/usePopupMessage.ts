@@ -6,7 +6,7 @@ export const usePopupMessage = () => {
 
   const showPopup = useCallback((message: string) => {
     setPopupMessage(message);
-    setTimeout(() => setPopupMessage(null), 2000);
+    setTimeout(() => setPopupMessage(null), 3000);
   }, []);
 
   return {

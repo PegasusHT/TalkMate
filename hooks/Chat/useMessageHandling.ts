@@ -1,3 +1,4 @@
+//hooks/Chat/useMessageHandling.ts
 import { useState, useCallback } from 'react';
 import { ChatMessage, Feedback, FeedbackType } from '@/types/chat';
 import ENV from '@/utils/envConfig';
@@ -8,6 +9,7 @@ const MAX_TOKENS = 4000;
 
 export const useMessageHandling = (
   isSophiaChat: boolean,
+  setIsTyping: React.Dispatch<React.SetStateAction<boolean>>,
   setShowTopics: React.Dispatch<React.SetStateAction<boolean>>,
   scenarioDetails?: {
     aiName: string;
@@ -16,10 +18,9 @@ export const useMessageHandling = (
     userRole: string;
     objectives: string[];
   },
-  playAudio?: (messageId: number, text: string) => Promise<void>,
+  playAudio?: (messageId: number, text: string, audioUri?: string) => Promise<void>,
 ) => {
   const [message, setMessage] = useState('');
-  const [isTyping, setIsTyping] = useState<boolean>(false);
 
   const estimateTokens = (text: string) => {
     return text.split(/\s+/).length;
@@ -86,6 +87,8 @@ export const useMessageHandling = (
           assistantMessage
         ]);
 
+        setIsTyping(false);
+
         if (playAudio) {
           await playAudio(assistantMessage.id, assistantMessage.content);
         }
@@ -104,7 +107,6 @@ export const useMessageHandling = (
             } 
           },
         ]);
-      } finally {
         setIsTyping(false);
       }
     }
@@ -127,8 +129,6 @@ export const useMessageHandling = (
   return {
     message,
     setMessage,
-    isTyping,
-    setIsTyping,
     setShowTopics,
     sendMessage,
     handleSend,

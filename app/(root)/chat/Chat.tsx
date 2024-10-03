@@ -1,3 +1,4 @@
+//app/(root)/chat/Chat.tsx
 import React, { useEffect, useRef, useCallback, useState } from 'react';
 import { View, FlatList, KeyboardAvoidingView, Platform, Animated } from 'react-native';
 import Text from '@/components/customText';
@@ -40,9 +41,10 @@ const ChatSession: React.FC = () => {
     isAudioLoading,
     stopAllAudio,
     startNewChat,
-    popupMessage,
     triggerScrollToEnd,
     scrollToEndTrigger,
+    popupMessage,
+    showPopup,
   } = useChatSession(true);
 
   const flatListRef = useRef<FlatList<ChatMessageType>>(null);
@@ -88,7 +90,6 @@ const ChatSession: React.FC = () => {
     }, [stopAllAudio])
   );
 
-  //popup msg
   useEffect(() => {
     if (popupMessage) {
       Animated.sequence([
@@ -97,7 +98,7 @@ const ChatSession: React.FC = () => {
           duration: 300,
           useNativeDriver: true,
         }),
-        Animated.delay(1400),
+        Animated.delay(2700), 
         Animated.timing(fadeAnim, {
           toValue: 0,
           duration: 300,
@@ -176,7 +177,7 @@ const ChatSession: React.FC = () => {
         />
 
         {popupMessage && (
-          <Animated.View 
+          <Animated.View className='rounded-2xl'
             style={{
               opacity: fadeAnim,
               position: 'absolute',
@@ -185,7 +186,6 @@ const ChatSession: React.FC = () => {
               right: 20,
               backgroundColor: 'rgba(0, 0, 0, 0.7)',
               padding: 10,
-              borderRadius: 5,
               alignItems: 'center',
             }}
           >

@@ -1,3 +1,4 @@
+//hooks/Chat/useAudioHandling.ts
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { AppState } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -5,6 +6,7 @@ import { Audio } from 'expo-av';
 import ENV from '@/utils/envConfig';
 import { ChatMessage, Feedback, FeedbackType } from '@/types/chat';
 import { useRecordingManager } from '../Audio/useRecordingManger';
+import { usePopupMessage } from './usePopupMessage';
 
 const { AI_BACKEND_URL, BACKEND_URL } = ENV;
 
@@ -20,13 +22,14 @@ export const useAudioHandling = (
   chatHistory: ChatMessage[],
   isSophiaChat: boolean,
   setShowTopics: React.Dispatch<React.SetStateAction<boolean>>,
+  isTyping: boolean,
+  showPopup: (message: string) => void,
   scenarioDetails?: any,
 ) => {
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessingAudio, setIsProcessingAudio] = useState(false);
   const [playingAudioId, setPlayingAudioId] = useState<number | null>(null);
   const [isAudioLoading, setIsAudioLoading] = useState(false);
-  const [popupMessage, setPopupMessage] = useState<string | null>(null);
   const soundObject = useRef(new Audio.Sound());
   const [audioCache, setAudioCache] = useState<AudioCache>({});
 
@@ -107,94 +110,112 @@ export const useAudioHandling = (
     });
   }, []);
 
-  const playAudio = useCallback(async (messageId: number, text: string, audioUri?: string) => {
-    let retryCount = 0;
-    const maxRetries = 1;
+  const playAudio = useCallback(
+    async (messageId: number, text: string, audioUri?: string) => {
+      if (isRecording) {
+        showPopup("Currently recording, skipping audio playback");
+        return;
+      }
   
-    const attemptPlayback = async () => {
-      try {
-        if (playingAudioId === messageId) {
+      let retryCount = 0;
+      const maxRetries = 1;
+  
+      const attemptPlayback = async () => {
+        try {
+          if (playingAudioId === messageId) {
+            await stopAudio();
+            return;
+          }
+  
           await stopAudio();
-          return;
-        }
+          setIsAudioLoading(true);
+          setPlayingAudioId(messageId);
   
-        await stopAudio();
-        setIsAudioLoading(true);
-        setPlayingAudioId(messageId);
+          const playAndWaitForFinish = async (uri: string) => {
+            await soundObject.current.unloadAsync();
+            await soundObject.current.loadAsync({ uri });
+            await soundObject.current.playAsync();
   
-        const playAndWaitForFinish = async (uri: string) => {
-          await soundObject.current.unloadAsync();
-          await soundObject.current.loadAsync({ uri });
-          await soundObject.current.playAsync();
-
-          setIsAudioLoading(false);
-
-          return new Promise<void>((resolve) => {
-            soundObject.current.setOnPlaybackStatusUpdate((status) => {
-              if (status.isLoaded && !status.isPlaying && status.didJustFinish) {
-                resolve();
-              }
+            setIsAudioLoading(false);
+  
+            return new Promise<void>((resolve) => {
+              soundObject.current.setOnPlaybackStatusUpdate((status) => {
+                if (status.isLoaded && !status.isPlaying && status.didJustFinish) {
+                  resolve();
+                }
+              });
             });
-          });
-        };
+          };
   
-        if (audioUri) {
-          await playAndWaitForFinish(audioUri);
-        } else {
-          let audioData: string[];
-          if (audioCache[messageId]) {
-            audioData = audioCache[messageId];
+          if (audioUri) {
+            await playAndWaitForFinish(audioUri);
           } else {
-            const formData = new FormData();
-            formData.append('text', text);
+            let audioData: string[];
+            if (audioCache[messageId]) {
+              audioData = audioCache[messageId];
+            } else {
+              const formData = new FormData();
+              formData.append('text', text);
   
-            const response = await fetch(`${AI_BACKEND_URL}/tts/`, {
-              method: 'POST',
-              body: formData,
-            });
+              const response = await fetch(`${AI_BACKEND_URL}/tts/`, {
+                method: 'POST',
+                body: formData,
+              });
   
-            if (!response.ok) {
-              throw new Error(`HTTP error! status: ${response.status}`);
+              if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+              }
+  
+              const data = await response.json();
+              audioData = data.audio.split(',');
+              updateCache(messageId, audioData);
             }
   
-            const data = await response.json();
-            audioData = data.audio.split(',');
-            updateCache(messageId, audioData);
+            for (const audioSegment of audioData) {
+              const uri = `data:audio/wav;base64,${audioSegment}`;
+              await playAndWaitForFinish(uri);
+            }
           }
   
-          for (const audioSegment of audioData) {
-            const uri = `data:audio/wav;base64,${audioSegment}`;
-            await playAndWaitForFinish(uri);
-          }
-        }
-  
-        setIsAudioLoading(false);
-        setPlayingAudioId(null);
-      } catch (error) {
-        console.error('Error playing audio:', error);
-        if (retryCount < maxRetries) {
-          retryCount++;
-          console.log(`Retrying playback (attempt ${retryCount}/${maxRetries})`);
-          await attemptPlayback();
-        } else {
-          setPlayingAudioId(null);
           setIsAudioLoading(false);
+          setPlayingAudioId(null);
+        } catch (error) {
+          console.error('Error playing audio:', error);
+          if (retryCount < maxRetries) {
+            retryCount++;
+            console.log(`Retrying playback (attempt ${retryCount}/${maxRetries})`);
+            await attemptPlayback();
+          } else {
+            setPlayingAudioId(null);
+            setIsAudioLoading(false);
+          }
         }
-      }
-    };
+      };
   
-    await attemptPlayback();
-  }, [playingAudioId, stopAudio, audioCache, updateCache]);
+      await attemptPlayback();
+    },
+    [isRecording, playingAudioId, stopAudio, audioCache, updateCache, showPopup]
+  );  
 
   const handleMicPress = useCallback(async () => {
     try {
+      if (isAudioLoading) {
+        showPopup("Audio is currently playing. Please wait for it to finish before recording.");
+        return;
+      }
+      if (isTyping) {
+        showPopup("A message is being processed. Please wait before starting a new recording.");
+        return;
+      }
+  
       await stopAllAudio();
       await startRecording();
       setIsRecording(true);
     } catch (error) {
       console.error('Failed to start recording', error);
+      showPopup("There was an error starting the recording. Please try again.");
     }
-  }, [stopAllAudio, startRecording]);
+  }, [stopAllAudio, startRecording, isAudioLoading, isTyping, showPopup]);
 
   const stopRecordingHandler = useCallback(async () => {
     try {
@@ -204,11 +225,6 @@ export const useAudioHandling = (
       console.error('Failed to stop recording', error);
     }
   }, [stopRecording]);
-
-  const showPopup = useCallback((message: string) => {
-    setPopupMessage(message);
-    setTimeout(() => setPopupMessage(null), 2000);
-  }, []);
 
   const trimConversationHistory = useCallback((history: ChatMessage[]): ChatMessage[] => {
     let totalTokens = 0;
@@ -341,7 +357,6 @@ export const useAudioHandling = (
     isProcessingAudio,
     playingAudioId,
     isAudioLoading,
-    popupMessage,
     playAudio,
     stopAudio,
     stopAllAudio,
