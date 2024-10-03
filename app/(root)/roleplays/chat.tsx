@@ -12,10 +12,8 @@ import FeedbackModal from '@/components/chat/FeedbackModal';
 import { useChatSession } from '@/hooks/useChatSession';
 import TypingIndicator from '@/components/chat/animation/TypingIndicator';
 import { ChatMessage as ChatMessageType } from '@/types/chat';
-import ENV from '@/utils/envConfig';
 import { ObjectId } from 'mongodb';
 
-const { BACKEND_URL } = ENV;
 type RootStackParamList = {
   chat: { 
     aiName: string;
@@ -60,6 +58,8 @@ const Chat: React.FC = () => {
     initializeChat,
     triggerScrollToEnd,
     scrollToEndTrigger,
+    popupMessage,
+    showPopup,
 } = useChatSession(false, scenarioId, {
     aiName,
     aiRole,
@@ -113,6 +113,24 @@ const Chat: React.FC = () => {
       };
     }, [stopAllAudio])
   );
+
+  useEffect(() => {
+    if (popupMessage) {
+      Animated.sequence([
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+        Animated.delay(2700), 
+        Animated.timing(fadeAnim, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
+  }, [popupMessage, fadeAnim]);
 
   const handleAudioPress = (messageId: number, text: string, audioUri?: string) => {
     playAudio(messageId, text, audioUri);
@@ -179,6 +197,23 @@ const Chat: React.FC = () => {
           isProcessingAudio={isProcessingAudio}
           stopAllAudio={stopAllAudio}
         />
+
+        {popupMessage && (
+          <Animated.View className='rounded-2xl'
+            style={{
+              opacity: fadeAnim,
+              position: 'absolute',
+              bottom: 100,
+              left: 20,
+              right: 20,
+              backgroundColor: 'rgba(0, 0, 0, 0.7)',
+              padding: 10,
+              alignItems: 'center',
+            }}
+          >
+            <Text style={{ color: 'white', textAlign: 'center' }}>{popupMessage}</Text>
+          </Animated.View>
+        )}
       </KeyboardAvoidingView>
 
       <FeedbackModal
