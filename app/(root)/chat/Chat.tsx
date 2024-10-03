@@ -1,5 +1,4 @@
-//path: app/(root)/chat/Chat.tsx
-import React, { useEffect, useRef, useCallback } from 'react';
+import React, { useEffect, useRef, useCallback, useState } from 'react';
 import { View, FlatList, KeyboardAvoidingView, Platform, Animated } from 'react-native';
 import Text from '@/components/customText';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -42,20 +41,38 @@ const ChatSession: React.FC = () => {
     stopAllAudio,
     startNewChat,
     popupMessage,
+    triggerScrollToEnd,
+    scrollToEndTrigger,
   } = useChatSession(true);
 
   const flatListRef = useRef<FlatList<ChatMessageType>>(null);
   const fadeAnim = useRef(new Animated.Value(0)).current;
+  const [contentHeight, setContentHeight] = useState(0);
+  const [scrollViewHeight, setScrollViewHeight] = useState(0);
 
   useEffect(() => {
     initializeChat();
   }, []);
 
-  useEffect(() => {
+  const scrollToEnd = useCallback((animated = true) => {
     if (flatListRef.current) {
-      flatListRef.current.scrollToEnd({ animated: true });
+      setTimeout(() => {
+        flatListRef.current?.scrollToEnd({ animated });
+      }, 100);
     }
-  }, [chatHistory]);
+  }, []);
+
+  useEffect(() => {
+    if (chatHistory.length > 0 && contentHeight > scrollViewHeight) {
+      scrollToEnd();
+    }
+  }, [chatHistory, contentHeight, scrollViewHeight, scrollToEnd]);
+
+  useEffect(() => {
+    if (scrollToEndTrigger) {
+      scrollToEnd();
+    }
+  }, [scrollToEndTrigger, scrollToEnd]);
 
   useEffect(() => {
     return () => {
@@ -132,6 +149,15 @@ const ChatSession: React.FC = () => {
           keyExtractor={item => item.id.toString()}
           className="flex-1"
           ListFooterComponent={renderFooter}
+          onContentSizeChange={(width, height) => {
+            setContentHeight(height);
+            if (height > scrollViewHeight) {
+              scrollToEnd();
+            }
+          }}
+          onLayout={(event) => {
+            setScrollViewHeight(event.nativeEvent.layout.height);
+          }}
         />
 
         {showTopics && <TopicSelector onTopicSelect={handleTopicSelect} />}

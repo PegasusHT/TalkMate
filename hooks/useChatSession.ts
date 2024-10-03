@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { ChatMessage } from '@/types/chat';
 import { ObjectId } from 'mongodb';
 import { useChatInitialization } from './Chat/useChatInitialization';
@@ -19,6 +19,11 @@ export const useChatSession = (isSophiaChat = false, scenarioId?: ObjectId, scen
 
   const { popupMessage, showPopup } = usePopupMessage();
   const [showTopics, setShowTopics] = useState(false);
+  const scrollToEndTrigger = useRef(0);
+
+  const triggerScrollToEnd = useCallback(() => {
+    scrollToEndTrigger.current += 1;
+  }, []);
 
   const {
     isRecording,
@@ -72,9 +77,10 @@ export const useChatSession = (isSophiaChat = false, scenarioId?: ObjectId, scen
     startNewChat();
   }, [stopAllAudio, startNewChat]);
 
-  const wrappedSendMessage = useCallback((text: string, isInitialGreeting = false) => {
-    sendMessage(text, chatHistory, setChatHistory, isInitialGreeting);
-  }, [sendMessage, chatHistory]);
+  const wrappedSendMessage = useCallback(async (text: string, isInitialGreeting = false) => {
+    await sendMessage(text, chatHistory, setChatHistory, isInitialGreeting);
+    triggerScrollToEnd();
+  }, [sendMessage, chatHistory, triggerScrollToEnd]);
 
   const wrappedHandleSend = useCallback(() => {
     handleSend(chatHistory, setChatHistory);
@@ -114,6 +120,8 @@ export const useChatSession = (isSophiaChat = false, scenarioId?: ObjectId, scen
     startNewChat: handleStartNewChat,
     popupMessage,
     showPopup,
-    initializeChat: wrappedInitializeChat
+    initializeChat: wrappedInitializeChat,
+    triggerScrollToEnd,
+    scrollToEndTrigger: scrollToEndTrigger.current,
   };
 };
