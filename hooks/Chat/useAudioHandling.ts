@@ -1,19 +1,18 @@
-//hooks/Chat/useAudioHandling.ts
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { AppState } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Audio } from 'expo-av';
-import { useAudioMode } from '../Audio/useAudioMode';
 import ENV from '@/utils/envConfig';
 import { ChatMessage, Feedback, FeedbackType } from '@/types/chat';
+import { useRecordingManager } from '../Audio/useRecordingManger';
 
 const { AI_BACKEND_URL, BACKEND_URL } = ENV;
 
 const MAX_TOKENS = 4000;
-const MAX_CACHE_SIZE = 50; 
+const MAX_CACHE_SIZE = 50;
 
 type AudioCache = {
-  [key: number]: string[]; // messageId : array of base64 audio chunks
+  [key: number]: string[];
 };
 
 export const useAudioHandling = (
@@ -28,10 +27,10 @@ export const useAudioHandling = (
   const [playingAudioId, setPlayingAudioId] = useState<number | null>(null);
   const [isAudioLoading, setIsAudioLoading] = useState(false);
   const [popupMessage, setPopupMessage] = useState<string | null>(null);
-  const recordingObject = useRef<Audio.Recording | null>(null);
   const soundObject = useRef(new Audio.Sound());
-  const { setPlaybackMode, setRecordingMode } = useAudioMode();
   const [audioCache, setAudioCache] = useState<AudioCache>({});
+
+  const { startRecording, stopRecording, isAudioSessionPrepared } = useRecordingManager();
 
   const stopAudio = useCallback(async () => {
     try {
@@ -73,7 +72,6 @@ export const useAudioHandling = (
     loadCache();
   }, []);
 
-  // Save cache to AsyncStorage when it changes
   useEffect(() => {
     const saveCache = async () => {
       try {
@@ -85,7 +83,6 @@ export const useAudioHandling = (
     saveCache();
   }, [audioCache]);
 
-  // Clear cache when app goes to background
   useEffect(() => {
     const subscription = AppState.addEventListener('change', nextAppState => {
       if (nextAppState === 'background') {
@@ -122,7 +119,6 @@ export const useAudioHandling = (
         }
   
         await stopAudio();
-        await setPlaybackMode();
         setIsAudioLoading(true);
         setPlayingAudioId(messageId);
   
@@ -143,10 +139,8 @@ export const useAudioHandling = (
         };
   
         if (audioUri) {
-          // user-recorded audio
           await playAndWaitForFinish(audioUri);
         } else {
-          // AI-generated audio
           let audioData: string[];
           if (audioCache[messageId]) {
             audioData = audioCache[messageId];
@@ -190,47 +184,30 @@ export const useAudioHandling = (
     };
   
     await attemptPlayback();
-  }, [playingAudioId, setPlaybackMode, stopAudio, audioCache, updateCache]);
+  }, [playingAudioId, stopAudio, audioCache, updateCache]);
 
   const handleMicPress = useCallback(async () => {
-    await setRecordingMode();
     try {
-      const { status } = await Audio.requestPermissionsAsync();
-      if (status !== 'granted') {
-        console.error('Permission to access microphone was denied');
-        return;
-      }
-
       await stopAllAudio();
-
-      const { recording } = await Audio.Recording.createAsync(
-        Audio.RecordingOptionsPresets.HIGH_QUALITY
-      );
-
-      recordingObject.current = recording;
+      await startRecording();
       setIsRecording(true);
     } catch (error) {
       console.error('Failed to start recording', error);
     }
-  }, [setRecordingMode, stopAllAudio]);
+  }, [stopAllAudio, startRecording]);
 
-  const stopRecording = useCallback(async () => {
-    if (!recordingObject.current) return;
-
+  const stopRecordingHandler = useCallback(async () => {
     try {
-      await recordingObject.current.stopAndUnloadAsync();
-      await setPlaybackMode();
+      await stopRecording();
+      setIsRecording(false);
     } catch (error) {
       console.error('Failed to stop recording', error);
-    } finally {
-      setIsRecording(false);
-      recordingObject.current = null;
     }
-  }, [setPlaybackMode]);
+  }, [stopRecording]);
 
   const showPopup = useCallback((message: string) => {
     setPopupMessage(message);
-    setTimeout(() => setPopupMessage(null), 2000); 
+    setTimeout(() => setPopupMessage(null), 2000);
   }, []);
 
   const trimConversationHistory = useCallback((history: ChatMessage[]): ChatMessage[] => {
@@ -242,12 +219,9 @@ export const useAudioHandling = (
   }, []);
 
   const sendAudio = useCallback(async () => {
-    if (!recordingObject.current) return;
-  
     try {
       setIsProcessingAudio(true);
-      await recordingObject.current.stopAndUnloadAsync();
-      const uri = recordingObject.current.getURI();
+      const uri = await stopRecording();
       if (!uri) throw new Error('No recording URI found');
   
       const formData = new FormData();
@@ -334,7 +308,6 @@ export const useAudioHandling = (
             assistantMessage
           ]);
           
-          await setPlaybackMode();
           await playAudio(assistantMessage.id, assistantMessage.content);
         } catch (error) {
           console.error('Error sending message:', error);
@@ -358,8 +331,10 @@ export const useAudioHandling = (
     } catch (error) {
       console.error('Failed to send audio', error);
       showPopup("An error occurred while processing your audio. Please try again.");
+    } finally {
+      setIsProcessingAudio(false);
     }
-  }, [chatHistory, playAudio, setChatHistory, showPopup, setPlaybackMode, isSophiaChat, scenarioDetails, trimConversationHistory]);
+  }, [chatHistory, playAudio, setChatHistory, showPopup, stopRecording, isSophiaChat, scenarioDetails, trimConversationHistory]);
 
   return {
     isRecording,
@@ -371,7 +346,8 @@ export const useAudioHandling = (
     stopAudio,
     stopAllAudio,
     handleMicPress,
-    stopRecording,
+    stopRecording: stopRecordingHandler,
     sendAudio,
+    isAudioSessionPrepared,
   };
 };

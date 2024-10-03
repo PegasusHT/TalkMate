@@ -1,9 +1,9 @@
 //hooks/Audio/useAudioMode.tsx
-import { useState, useCallback } from 'react';
+import { useEffect } from 'react';
 import { Audio, InterruptionModeAndroid, InterruptionModeIOS } from 'expo-av';
 
-const playbackMode = {
-  allowsRecordingIOS: false,
+const audioMode = {
+  allowsRecordingIOS: true,
   playsInSilentModeIOS: true,
   staysActiveInBackground: false,
   interruptionModeIOS: InterruptionModeIOS.DoNotMix,
@@ -12,35 +12,18 @@ const playbackMode = {
   playThroughEarpieceAndroid: false,
 };
 
-const recordingMode = {
-  ...playbackMode,
-  allowsRecordingIOS: true,
-};
-
 export const useAudioMode = () => {
-  const [mode, setMode] = useState<'playback' | 'recording'>('playback');
+  useEffect(() => {
+    const initializeAudioMode = async () => {
+      try {
+        await Audio.setAudioModeAsync(audioMode);
+      } catch (error) {
+        console.error('Failed to set audio mode:', error);
+      }
+    };
 
-  const setPlaybackMode = useCallback(async () => {
-    await Audio.setAudioModeAsync(playbackMode);
-    setMode('playback');
+    initializeAudioMode();
   }, []);
 
-  const setRecordingMode = useCallback(async () => {
-    await Audio.setAudioModeAsync(recordingMode);
-    setMode('recording');
-  }, []);
-
-  const resetAudioMode = useCallback(async () => {
-    await Audio.setAudioModeAsync(playbackMode);
-    await new Promise(resolve => setTimeout(resolve, 200));
-    await Audio.setAudioModeAsync(recordingMode);
-    setMode('recording');
-  }, []);
-
-  return {
-    mode,
-    setPlaybackMode,
-    setRecordingMode,
-    resetAudioMode,
-  };
+  return {};
 };
