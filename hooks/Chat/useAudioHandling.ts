@@ -1,3 +1,4 @@
+//hooks/Chat/useAudioHandling.ts
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { AppState } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
