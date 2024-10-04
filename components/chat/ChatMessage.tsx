@@ -26,7 +26,6 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
   };
 
   const renderAudioButton = () => {
-    console.log('isAudioLoading: ',isAudioLoading)
     if (isAudioLoading) {
       return <ActivityIndicator size="small" color={primaryColor} />;
     } else if (isPlaying) {

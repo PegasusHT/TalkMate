@@ -1,3 +1,4 @@
+//hooks/Chat/useTopicHandling.ts
 import { useState, useCallback } from 'react';
 import { ChatMessage } from '@/types/chat';
 
