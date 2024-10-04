@@ -1,3 +1,4 @@
+//components/chat/ChatMessage.tsx
 import React from 'react';
 import { View, TouchableOpacity, ActivityIndicator } from 'react-native';
 import Text from '@/components/customText';
@@ -25,6 +26,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
   };
 
   const renderAudioButton = () => {
+    console.log('isAudioLoading: ',isAudioLoading)
     if (isAudioLoading) {
       return <ActivityIndicator size="small" color={primaryColor} />;
     } else if (isPlaying) {

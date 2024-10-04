@@ -170,6 +170,9 @@ const ChatSession: React.FC = () => {
           handleSend={handleSend}
           handleMicPress={handleMicPress}
           isRecording={isRecording}
+          isAudioLoading={isAudioLoading}
+          isTyping={isTyping}
+          showPopup={showPopup}
           stopRecording={stopRecording}
           sendAudio={sendAudio}
           isProcessingAudio={isProcessingAudio}

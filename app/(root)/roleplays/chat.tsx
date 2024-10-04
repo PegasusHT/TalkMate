@@ -191,6 +191,9 @@ const Chat: React.FC = () => {
           setMessage={setMessage}
           handleSend={handleSend}
           handleMicPress={handleMicPress}
+          isAudioLoading={isAudioLoading}
+          isTyping={isTyping}
+          showPopup={showPopup}
           isRecording={isRecording}
           stopRecording={stopRecording}
           sendAudio={sendAudio}

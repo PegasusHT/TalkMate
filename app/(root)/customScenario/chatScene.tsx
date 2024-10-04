@@ -66,6 +66,7 @@ const ChatScene: React.FC = () => {
     popupMessage,
     triggerScrollToEnd,
     scrollToEndTrigger,
+    showPopup,
   } = useChatSession(false, scenarioId, {
     aiName,
     aiRole,
@@ -249,6 +250,9 @@ const ChatScene: React.FC = () => {
           setMessage={setMessage}
           handleSend={handleSend}
           handleMicPress={handleMicPress}
+          isAudioLoading={isAudioLoading}
+          isTyping={isTyping}
+          showPopup={showPopup}
           isRecording={isRecording}
           stopRecording={stopRecording}
           sendAudio={sendAudio}

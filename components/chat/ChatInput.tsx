@@ -1,5 +1,5 @@
 //components/chat/ChatInput.tsx
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { View, TextInput, TouchableOpacity, ActivityIndicator, LayoutChangeEvent } from 'react-native';
 import { Send, Mic, Trash2 } from 'lucide-react-native';
 import RecordingAnimation from '@/components/chat/animation/recordingAnimation';
@@ -15,6 +15,9 @@ type ChatInputProps = {
   sendAudio: () => void;
   isProcessingAudio: boolean;
   stopAllAudio: () => Promise<void>;
+  isAudioLoading: boolean;
+  isTyping: boolean;
+  showPopup: (message: string) => void;
 };
 
 const ChatInput: React.FC<ChatInputProps> = ({
@@ -26,7 +29,10 @@ const ChatInput: React.FC<ChatInputProps> = ({
   stopRecording,
   sendAudio,
   isProcessingAudio,
-  stopAllAudio, 
+  stopAllAudio,
+  isAudioLoading,
+  isTyping,
+  showPopup,
 }) => {
   const [isMultiline, setIsMultiline] = useState(false);
   const inputRef = useRef<TextInput>(null);
@@ -47,6 +53,19 @@ const ChatInput: React.FC<ChatInputProps> = ({
     const newIsMultiline = height > inputHeight/4;
     setIsMultiline(newIsMultiline);
   };
+
+  const handleMicPressWithAudioStop = useCallback(async () => {
+    if (isAudioLoading) {
+      showPopup("Audio is currently loading. Please wait for it to finish before recording.");
+      return;
+    }
+    if (isTyping) {
+      showPopup("A message is being processed. Please wait before starting a new recording.");
+      return;
+    }
+    await stopAllAudio();
+    handleMicPress();
+  }, [stopAllAudio, isAudioLoading, isTyping, showPopup, handleMicPress]);
 
   if (isProcessingAudio) {
     return (
@@ -71,11 +90,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
       </View>
     );
   }
-
-  const handleMicPressWithAudioStop = async () => {
-    await stopAllAudio();
-    handleMicPress();
-  };
 
   return (
     <View 

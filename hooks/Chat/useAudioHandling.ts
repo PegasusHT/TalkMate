@@ -204,7 +204,7 @@ export const useAudioHandling = (
   const handleMicPress = useCallback(async () => {
     try {
       if (isAudioLoading) {
-        showPopup("Audio is currently playing. Please wait for it to finish before recording.");
+        showPopup("Audio is currently loading. Please wait for it to finish before recording.");
         return;
       }
       if (isTyping) {
