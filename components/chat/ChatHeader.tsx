@@ -12,9 +12,10 @@ interface ChatHeaderProps {
   chatType: 'roleplay' | 'main';
   onNewChat?: () => void;
   onInfoPress?: () => void;
+  stopRecording: () => Promise<void>; 
 }
 
-const ChatHeader: React.FC<ChatHeaderProps> = ({ aiName, chatType, onNewChat, onInfoPress }) => {
+const ChatHeader: React.FC<ChatHeaderProps> = ({ aiName, chatType, onNewChat, onInfoPress, stopRecording }) => {
   const navigation = useNavigation();
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -22,12 +23,16 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({ aiName, chatType, onNewChat, on
     setModalVisible(false);
     onNewChat && onNewChat();
   };
+  const handleBackPress = async () => {
+    await stopRecording(); 
+    navigation.goBack();
+  };
 
   return (
     <>
       <View className="flex-row items-center justify-between pb-1 px-4 border-b mb-2 border-gray-200">
         <View className="flex-row items-center">
-          <TouchableOpacity onPress={() => navigation.goBack()}>
+          <TouchableOpacity onPress={handleBackPress}>
             <ArrowLeft size={24} color="#000" />
           </TouchableOpacity>
           <Image

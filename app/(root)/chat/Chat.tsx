@@ -142,6 +142,7 @@ const ChatSession: React.FC = () => {
           aiName="Sophia"
           chatType="main"
           onNewChat={startNewChat}
+          stopRecording={stopRecording}
         />
 
         <FlatList
