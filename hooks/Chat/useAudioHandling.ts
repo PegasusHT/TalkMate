@@ -26,14 +26,18 @@ export const useAudioHandling = (
   showPopup: (message: string) => void,
   scenarioDetails?: any,
 ) => {
-  const [isRecording, setIsRecording] = useState(false);
   const [isProcessingAudio, setIsProcessingAudio] = useState(false);
   const [playingAudioId, setPlayingAudioId] = useState<number | null>(null);
   const [isAudioLoading, setIsAudioLoading] = useState(false);
   const soundObject = useRef(new Audio.Sound());
   const [audioCache, setAudioCache] = useState<AudioCache>({});
-
+  const [isRecording, setIsRecording] = useState(false);
+  const isRecordingRef = useRef(isRecording);
   const { startRecording, stopRecording, isAudioSessionPrepared } = useRecordingManager();
+
+  useEffect(() => {
+    isRecordingRef.current = isRecording;
+  }, [isRecording]);
 
   const stopAudio = useCallback(async () => {
     try {
@@ -112,11 +116,11 @@ export const useAudioHandling = (
 
   const playAudio = useCallback(
     async (messageId: number, text: string, audioUri?: string) => {
-      if (isRecording) {
+      if (isRecordingRef.current) {
         showPopup("Currently recording, skipping audio playback");
         return;
       }
-  
+    
       let retryCount = 0;
       const maxRetries = 1;
   
@@ -194,7 +198,7 @@ export const useAudioHandling = (
   
       await attemptPlayback();
     },
-    [isRecording, playingAudioId, stopAudio, audioCache, updateCache, showPopup]
+    [playingAudioId, stopAudio, audioCache, updateCache, showPopup]
   );  
 
   const handleMicPress = useCallback(async () => {

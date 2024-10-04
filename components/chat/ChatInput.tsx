@@ -1,3 +1,4 @@
+//components/chat/ChatInput.tsx
 import React, { useState, useRef, useEffect } from 'react';
 import { View, TextInput, TouchableOpacity, ActivityIndicator, LayoutChangeEvent } from 'react-native';
 import { Send, Mic, Trash2 } from 'lucide-react-native';
