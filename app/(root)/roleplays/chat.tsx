@@ -166,6 +166,7 @@ const Chat: React.FC = () => {
           aiName={aiName}
           chatType="roleplay"
           onNewChat={startNewChat}
+          stopRecording={stopRecording}
         />
 
         <FlatList
