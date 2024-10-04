@@ -45,6 +45,7 @@ const ChatSession: React.FC = () => {
     scrollToEndTrigger,
     popupMessage,
     showPopup,
+    isScreenActive
   } = useChatSession(true);
 
   const flatListRef = useRef<FlatList<ChatMessageType>>(null);
@@ -143,6 +144,7 @@ const ChatSession: React.FC = () => {
           chatType="main"
           onNewChat={startNewChat}
           stopRecording={stopRecording}
+          isScreenActive={isScreenActive}
         />
 
         <FlatList

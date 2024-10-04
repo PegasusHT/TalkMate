@@ -6,7 +6,6 @@ import { useChatInitialization } from './Chat/useChatInitialization';
 import { useAudioHandling } from './Chat/useAudioHandling';
 import { useMessageHandling } from './Chat/useMessageHandling';
 import { usePopupMessage } from './Chat/usePopupMessage';
-import { useTopicHandling } from './Chat/useTopicHandling';
 import { useFeedbackHandling } from './Chat/useFeedbackHandling';
 
 export const useChatSession = (isSophiaChat = false, scenarioId?: ObjectId, scenarioDetails?: {
@@ -21,6 +20,7 @@ export const useChatSession = (isSophiaChat = false, scenarioId?: ObjectId, scen
   const { popupMessage, showPopup } = usePopupMessage();
   const [showTopics, setShowTopics] = useState(false);
   const scrollToEndTrigger = useRef(0);
+  const isScreenActive = useRef(true);
 
   const triggerScrollToEnd = useCallback(() => {
     scrollToEndTrigger.current += 1;
@@ -37,7 +37,8 @@ export const useChatSession = (isSophiaChat = false, scenarioId?: ObjectId, scen
     handleMicPress,
     stopRecording,
     sendAudio,
-  } = useAudioHandling(setChatHistory, chatHistory, isSophiaChat, setShowTopics, isTyping,showPopup, scenarioDetails, );
+  } = useAudioHandling(
+    setChatHistory, chatHistory, isSophiaChat, setShowTopics, isTyping,showPopup, isScreenActive, scenarioDetails);
 
   const {
     message,
@@ -122,5 +123,6 @@ export const useChatSession = (isSophiaChat = false, scenarioId?: ObjectId, scen
     initializeChat: wrappedInitializeChat,
     triggerScrollToEnd,
     scrollToEndTrigger: scrollToEndTrigger.current,
+    isScreenActive,
   };
 };

@@ -24,6 +24,7 @@ export const useAudioHandling = (
   setShowTopics: React.Dispatch<React.SetStateAction<boolean>>,
   isTyping: boolean,
   showPopup: (message: string) => void,
+  isScreenActive: React.MutableRefObject<boolean | null>,
   scenarioDetails?: any,
 ) => {
   const [isProcessingAudio, setIsProcessingAudio] = useState(false);
@@ -114,6 +115,12 @@ export const useAudioHandling = (
     });
   }, []);
 
+  useEffect(() => {
+    return () => {
+      isScreenActive.current = false;
+    };
+  }, []);
+
   const playAudio = useCallback(
     async (messageId: number, text: string, audioUri?: string) => {
       if (isRecordingRef.current) {
@@ -134,14 +141,14 @@ export const useAudioHandling = (
           await stopAudio();
           setIsAudioLoading(true);
           setPlayingAudioId(messageId);
-  
+
           const playAndWaitForFinish = async (uri: string) => {
             await soundObject.current.unloadAsync();
             await soundObject.current.loadAsync({ uri });
             await soundObject.current.playAsync();
   
             setIsAudioLoading(false);
-  
+
             return new Promise<void>((resolve) => {
               soundObject.current.setOnPlaybackStatusUpdate((status) => {
                 if (status.isLoaded && !status.isPlaying && status.didJustFinish) {
@@ -177,6 +184,9 @@ export const useAudioHandling = (
   
             for (const audioSegment of audioData) {
               const uri = `data:audio/wav;base64,${audioSegment}`;
+              
+              //handle the case: navigate to prev screen while loading audio
+              if(!isScreenActive.current) return
               await playAndWaitForFinish(uri);
             }
           }

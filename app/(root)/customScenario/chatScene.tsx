@@ -67,6 +67,7 @@ const ChatScene: React.FC = () => {
     triggerScrollToEnd,
     scrollToEndTrigger,
     showPopup,
+    isScreenActive
   } = useChatSession(false, scenarioId, {
     aiName,
     aiRole,
@@ -226,6 +227,7 @@ const ChatScene: React.FC = () => {
           chatType="roleplay"
           onNewChat={startNewCustomChat}
           stopRecording={stopRecording}
+          isScreenActive={isScreenActive}
         />
 
         <FlatList

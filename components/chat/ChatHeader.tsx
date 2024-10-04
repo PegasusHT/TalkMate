@@ -1,3 +1,4 @@
+//components/chat/ChatHeader.tsx
 import React, { useState } from 'react';
 import { View, TouchableOpacity, Image, Modal } from 'react-native';
 import Text from '@/components/customText';
@@ -10,12 +11,13 @@ const secondaryColor = "#FFC132";
 interface ChatHeaderProps {
   aiName: string;
   chatType: 'roleplay' | 'main';
+  isScreenActive: React.MutableRefObject<boolean | null>;
   onNewChat?: () => void;
   onInfoPress?: () => void;
   stopRecording: () => Promise<void>; 
 }
 
-const ChatHeader: React.FC<ChatHeaderProps> = ({ aiName, chatType, onNewChat, onInfoPress, stopRecording }) => {
+const ChatHeader: React.FC<ChatHeaderProps> = ({ aiName, chatType, isScreenActive, onNewChat, onInfoPress, stopRecording }) => {
   const navigation = useNavigation();
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -25,6 +27,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({ aiName, chatType, onNewChat, on
   };
   const handleBackPress = async () => {
     await stopRecording(); 
+    isScreenActive.current = false;
     navigation.goBack();
   };
 
