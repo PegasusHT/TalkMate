@@ -32,9 +32,9 @@ const getTabBarIcon = (routeName: keyof RootTabParamList) => {
       case 'Home':
         iconName = focused ? 'home' : 'home-outline';
         break;
-      case 'Learn':
-        iconName = focused ? 'book' : 'book-outline';
-        break;
+      // case 'Learn':
+      //   iconName = focused ? 'book' : 'book-outline';
+      //   break;
       case 'Dictionary':
         iconName = focused ? 'list' : 'list-outline';
         break;
@@ -99,11 +99,11 @@ const Home = () => {
         component={HomeScreen}
         options={{ tabBarLabel: getTabBarLabel('Home') }}
       />
-      <Tab.Screen 
+      {/* <Tab.Screen 
         name="Learn" 
         component={LearnScreen}
         options={{ tabBarLabel: getTabBarLabel('Learn') }}
-      />
+      /> */}
       <Tab.Screen 
         name="Dictionary" 
         component={DictionaryScreen}
