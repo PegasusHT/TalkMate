@@ -1,3 +1,4 @@
+//app/(root)/roleplays/scenarioDetail.tsx
 import React from 'react';
 import { View, Image, ScrollView, TouchableOpacity, ImageBackground } from 'react-native';
 import Text from '@/components/customText';
@@ -55,7 +56,6 @@ const ScenarioDetail: React.FC = () => {
     }
   };
 
-  // The traits are already an array based on our updated type definition
   const traitsArray = scenarioDetails.aiMate?.traits || [];
 
   return (

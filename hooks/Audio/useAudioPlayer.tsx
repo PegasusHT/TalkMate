@@ -17,9 +17,9 @@ export const useAudioPlayer = () => {
     }
     
     try {
+      await stopAudio();
       setIsAudioLoading(true);
       setPlayingAudioId(messageId);
-      await stopAudio();
 
       if (audioUri) {
         // Play user's recorded audio
