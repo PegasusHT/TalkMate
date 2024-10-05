@@ -7,15 +7,15 @@ import { useEffect } from 'react';
 
 const PronunciationPracticeScreen: React.FC = () => {
   const params = useLocalSearchParams<{ sentence: string }>();
-  const { mode, setPlaybackMode, setRecordingMode } = useAudioMode();
+  // const { mode, setPlaybackMode, setRecordingMode } = useAudioMode();
   const sentence = params.sentence;
   if (!sentence) {
     return null; 
   }
 
-  useEffect(() => {
-    setPlaybackMode();
-  }, [setPlaybackMode]);
+  // useEffect(() => {
+  //   setPlaybackMode();
+  // }, [setPlaybackMode]);
 
   return <PronunciationPractice sentence={sentence} />;
 };
