@@ -368,6 +368,7 @@ export const useAudioHandling = (
 
   return {
     isRecording,
+    setIsRecording,
     isProcessingAudio,
     playingAudioId,
     isAudioLoading,

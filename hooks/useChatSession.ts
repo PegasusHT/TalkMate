@@ -28,6 +28,7 @@ export const useChatSession = (isSophiaChat = false, scenarioId?: ObjectId, scen
 
   const {
     isRecording,
+    setIsRecording,
     isProcessingAudio,
     playingAudioId,
     isAudioLoading,
@@ -73,9 +74,27 @@ export const useChatSession = (isSophiaChat = false, scenarioId?: ObjectId, scen
   }, [initializeChat, scenarioId]);
 
   const handleStartNewChat = useCallback(async () => {
+    const canStartNewChat = await checkAndPrepareForNewChat();
+    if (canStartNewChat) {
+      await cleanupCurrentSession();
+      startNewChat();
+    }
+  }, [isAudioLoading, isTyping, stopRecording, stopAllAudio, startNewChat, showPopup]);
+  
+  const checkAndPrepareForNewChat = async () => {
+    if (isAudioLoading || isTyping) {
+      const message = isAudioLoading
+        ? "Please wait for the audio to finish loading before starting a new session."
+        : "Please wait for the current message to be completed before starting a new session.";
+      showPopup(message);
+      return false;
+    }
+    return true;
+  };
+  const cleanupCurrentSession = async () => {
+    await stopRecording();
     await stopAllAudio();
-    startNewChat();
-  }, [stopAllAudio, startNewChat]);
+  };
 
   const wrappedSendMessage = useCallback(async (text: string, isInitialGreeting = false) => {
     await sendMessage(text, chatHistory, setChatHistory, isInitialGreeting);
