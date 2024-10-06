@@ -131,14 +131,14 @@ const DictionaryScreen: React.FC<Props> = () => {
           </View>
 
           {inputText.length > SHOW_COUNT_THRESHOLD && (
-            <Text className="text-right text-gray-500 mb-2">
+            <Text className="text-right text-gray-500 mb-1">
               {inputText.length}/{MAX_CHARACTERS}
             </Text>
           )}
 
           {inputText ? (
             <TouchableOpacity 
-              className="bg-primary-500 rounded-full py-4 mb-6"
+              className={`bg-primary-500 rounded-full py-4 mb-6 ${isMultiline ? 'mt-0': 'mt-2'}`}
               onPress={handleCheck}
             >
               <Text className="text-white text-center font-NunitoBold text-lg">Check</Text>
