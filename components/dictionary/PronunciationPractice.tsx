@@ -353,6 +353,7 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
   const handleTryAgain = async () => {
     await setShowPerformanceModal(false);
     await setPerformanceResult(null);
+    await resetColors();
     handleMicPress()
   };
 
