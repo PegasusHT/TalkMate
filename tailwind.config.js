@@ -12,7 +12,6 @@ module.exports = {
             'gilroy-extrabold': ['Gilroy-ExtraBold', 'sans-serif'],
             'gilroy-light': ['Gilroy-Light', 'sans-serif'],
             Nunito: ["Nunito", "sans-serif"],
-            Nunito: ["Nunito", "sans-serif"],
             NunitoBold: ["Nunito-Bold", "sans-serif"],
             NunitoExtraBold: ["Nunito-ExtraBold", "sans-serif"],
             NunitoExtraLight: ["Nunito-ExtraLight", "sans-serif"],

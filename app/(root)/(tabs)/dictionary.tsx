@@ -1,4 +1,3 @@
-//app/(root)/dictionary/Dictionary.tsx
 import React, { useState, useRef, useEffect } from 'react';
 import { View, TextInput, TouchableOpacity, ScrollView, TouchableWithoutFeedback, Keyboard, Platform } from 'react-native';
 import Text from '@/components/customText';
@@ -13,17 +12,31 @@ type RootStackParamList = {
 };
 type Props = NativeStackScreenProps<RootTabParamList, 'Dictionary'>;
 
+const MAX_CHARACTERS = 300;
+const SHOW_COUNT_THRESHOLD = 45;
+
 const DictionaryScreen: React.FC<Props> = () => {
   const [inputText, setInputText] = useState('');
   const [isEmphasized, setIsEmphasized] = useState(false);
   const inputRef = useRef<TextInput>(null);
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+  const [isMultiline, setIsMultiline] = useState(false);
+  const [inputWidth, setInputWidth] = useState(0);
+  const [inputHeight, setInputHeight] = useState(0);
 
   const handleInputChange = (text: string) => {
-    setInputText(text);
-    if (text.length > 0 && !isEmphasized) {
-      setIsEmphasized(true);
+    if (text.length <= MAX_CHARACTERS) {
+      setInputText(text);
+      if (text.length > 0 && !isEmphasized) {
+        setIsEmphasized(true);
+      }
     }
+  };
+  
+  const handleContentSizeChange = (event: {nativeEvent: {contentSize: {height: number}}}) => {
+    const { height } = event.nativeEvent.contentSize;
+    const newIsMultiline = height > inputHeight / 4;
+    setIsMultiline(newIsMultiline);
   };
 
   const handleInputFocus = () => {
@@ -38,9 +51,8 @@ const DictionaryScreen: React.FC<Props> = () => {
 
   const handleOutsidePress = () => {
     Keyboard.dismiss();
-    if (inputText.length === 0) {
-      setIsEmphasized(false);
-    }
+    setIsEmphasized(false);
+    setInputText('')
   };
 
   const handleCheck = () => {
@@ -88,13 +100,15 @@ const DictionaryScreen: React.FC<Props> = () => {
     <TouchableWithoutFeedback onPress={handleOutsidePress}>
       <View className={`flex-1 pt-6 ${isEmphasized ? 'bg-gray-900' : 'bg-slate-100'}`}>
         <View className="p-4">
-          <Text className="text-primary-500 text-2xl font-NunitoBold mb-4">What do you want to say?</Text>
+          <Text className="text-primary-500 text-2xl font-NunitoBold mb-4">
+            What do you want to say?
+          </Text>
           
-          <View className="bg-white rounded-full flex-row items-center px-4 py-4 mb-4">
+          <View className={`bg-white flex-row px-4 py-4 mb-2 ${isMultiline ? 'rounded-3xl items-start': 'rounded-full items-center'}`}>
             <Ionicons name="search" size={24} color="gray" />
             <TextInput
               ref={inputRef}
-              className="flex-1 ml-2 text-gray-700"
+              className="flex-1 ml-2 mt-[-1px] text-gray-700 font-NunitoRegular"
               placeholder="Type the phrase you want to speak"
               placeholderTextColor="gray"
               value={inputText}
@@ -102,6 +116,9 @@ const DictionaryScreen: React.FC<Props> = () => {
               onFocus={handleInputFocus}
               onBlur={handleInputBlur}
               onSubmitEditing={handleInputBlur}
+              maxLength={MAX_CHARACTERS}
+              multiline={true}
+              onContentSizeChange={handleContentSizeChange}
             />
             {inputText && (
               <TouchableOpacity onPress={() => {
@@ -113,6 +130,12 @@ const DictionaryScreen: React.FC<Props> = () => {
             )}
           </View>
 
+          {inputText.length > SHOW_COUNT_THRESHOLD && (
+            <Text className="text-right text-gray-500 mb-2">
+              {inputText.length}/{MAX_CHARACTERS}
+            </Text>
+          )}
+
           {inputText ? (
             <TouchableOpacity 
               className="bg-primary-500 rounded-full py-4 mb-6"
@@ -120,29 +143,7 @@ const DictionaryScreen: React.FC<Props> = () => {
             >
               <Text className="text-white text-center font-NunitoBold text-lg">Check</Text>
             </TouchableOpacity>
-          ) : (<></>)}
-
-          {/* <View className={`flex-row justify-between mb-6 ${isEmphasized ? 'opacity-50' : ''}`}>
-            <TouchableOpacity className="bg-cyan-600 rounded-xl p-4 w-[48%]" disabled={isEmphasized}>
-              <View className="items-center">
-                <Ionicons name="mic" size={24} color="white" />
-                <Text className="text-white font-NunitoBold mt-2">Speak</Text>
-                <Text className="text-white text-xs text-center mt-1">
-                  Speak your phrase to check the score
-                </Text>
-              </View>
-            </TouchableOpacity>
-
-            <TouchableOpacity className="bg-pink-500 rounded-xl p-4 w-[48%]" disabled={isEmphasized}>
-              <View className="items-center">
-                <Ionicons name="camera" size={24} color="white" />
-                <Text className="text-white font-NunitoBold mt-2">Scan Image</Text>
-                <Text className="text-white text-xs text-center mt-1">
-                  Convert image to text and speak the phrases
-                </Text>
-              </View>
-            </TouchableOpacity>
-          </View> */}
+          ) : null}
         </View>
       </View>
     </TouchableWithoutFeedback>
