@@ -1,0 +1,33 @@
+<Text className="text-lg font-NunitoSemiBold mb-2">Word Accuracies:</Text>
+            {
+              performanceData.real_and_transcribed_words && performanceData.real_and_transcribed_words.length > 0 ? (
+                performanceData.real_and_transcribed_words.map((word, index) => (
+                  <View key={index} className="mb-4">
+                    <Text>
+                      <Text className="font-NunitoBold">{word[0]}</Text> 
+                      {performanceData.real_words_phonetic[index] && `(/${performanceData.real_words_phonetic[index]}/)`}:{' '}
+                      <Text className={getColorForAccuracy(performanceData.current_words_pronunciation_accuracy[index])}>
+                        {performanceData.current_words_pronunciation_accuracy[index] !== undefined
+                          ? `${performanceData.current_words_pronunciation_accuracy[index].toFixed(2)}%`
+                          : 'N/A'}
+                      </Text>
+                    </Text>
+                    <Text>
+                      Transcribed as: <Text className="font-NunitoBold">{word[1] || 'Not detected'}</Text> 
+                      {word[1] !== '-' && performanceData.recorded_words_phonetic[index] && 
+                        ` (/${performanceData.recorded_words_phonetic[index]}/)`}
+                    </Text>
+                    {performanceData.current_words_pronunciation_accuracy[index] !== undefined &&
+                     performanceData.current_words_pronunciation_accuracy[index] < 80 && (
+                      <Text className="text-red-500">
+                        Mispronounced: Expected /{performanceData.real_words_phonetic[index] || 'N/A'}/, 
+                        heard /{performanceData.recorded_words_phonetic[index] || 'N/A'}/
+                      </Text>
+                    )}
+                  </View>
+                ))
+              ) : (
+                <Text>No transcription available</Text>
+              )}
+            <Text className="text-lg font-NunitoSemiBold mt-4 mb-2">Your Transcription:</Text>
+            <Text>{performanceData.recording_transcript || 'No transcription available'}</Text>

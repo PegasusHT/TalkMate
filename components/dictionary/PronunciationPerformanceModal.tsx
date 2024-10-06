@@ -33,6 +33,14 @@ const PronunciationPerformanceModal: React.FC<PronunciationPerformanceModalProps
   const [sound, setSound] = useState<Audio.Sound | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const { mode, setPlaybackMode, setRecordingMode } = useAudioMode();
+  
+  const getPerformanceDetails = useCallback((score: number) => {
+    if (score >= 80) return { emoji: '😄', text: 'Excellent!' };
+    if (score >= 60) return { emoji: '🙂', text: 'Almost Correct' };
+    return { emoji: '😕', text: 'Keep Practicing' };
+  }, []);
+
+  const { emoji, text } = getPerformanceDetails(performanceData.pronunciation_accuracy);
 
   useEffect(() => {
     return () => {
@@ -115,6 +123,10 @@ const PronunciationPerformanceModal: React.FC<PronunciationPerformanceModalProps
     onTryAgain();
   }, [sound, onTryAgain]);
 
+  const handleTryNewWord = useCallback(() => {
+    console.log('pressed')
+  }, [sound, onTryAgain]);
+
   return (
     <Modal
       animationType="slide"
@@ -124,61 +136,44 @@ const PronunciationPerformanceModal: React.FC<PronunciationPerformanceModalProps
     >
       <View className="flex-1 justify-end">
         <Pressable className="flex-1" onPress={handleCloseModal} />
-        <View className="bg-slate-200 rounded-t-3xl p-6" style={{ height: '60%' }}>
+        <View className="bg-white border-[1px] rounded-t-3xl p-6" style={{ height: '48%' }}>
+          <View className="flex-row items-center">
+              <Text className="text-4xl mr-2">{emoji}</Text>
+              <Text className="text-xl font-NunitoBold">{text}</Text>
+            </View>
           <TouchableOpacity 
             onPress={playRecordedAudio} 
             className={`absolute right-4 top-4 rounded-full p-2 z-10 ${isPlaying ? 'bg-red-300' : 'bg-primary-500'}`}
           >
             <Ear color={isPlaying ? "black" : "white"} size={24} />
           </TouchableOpacity>
-          <ScrollView className="flex-1 mb-4">
-            <Text className="text-lg mb-2">
-              Overall Accuracy:{' '}
-              <Text className={getColorForAccuracy(performanceData.pronunciation_accuracy)}>
-                {performanceData.pronunciation_accuracy !== undefined 
-                  ? `${performanceData.pronunciation_accuracy.toFixed(2)}%`
-                  : 'N/A'}
+
+          <View className="mb-6 ">
+            <View className="w-full h-16 rounded-full mt-12 bg-primary-100 items-start justify-center">
+              <Text className='text-lg'>
+                <Text className=''>You sound </Text>
+                <Text className="text-lg font-NunitoSemiBold ">
+                  {performanceData.pronunciation_accuracy !== undefined 
+                    ? `${performanceData.pronunciation_accuracy.toFixed(0)}%`
+                    : 'N/A'}
+                </Text>
+                <Text className=''> like a native speaker</Text>
               </Text>
-            </Text>
-            <Text className="text-lg font-NunitoSemiBold mb-2">Word Accuracies:</Text>
-            {
-              performanceData.real_and_transcribed_words && performanceData.real_and_transcribed_words.length > 0 ? (
-                performanceData.real_and_transcribed_words.map((word, index) => (
-                  <View key={index} className="mb-4">
-                    <Text>
-                      <Text className="font-NunitoBold">{word[0]}</Text> 
-                      {performanceData.real_words_phonetic[index] && `(/${performanceData.real_words_phonetic[index]}/)`}:{' '}
-                      <Text className={getColorForAccuracy(performanceData.current_words_pronunciation_accuracy[index])}>
-                        {performanceData.current_words_pronunciation_accuracy[index] !== undefined
-                          ? `${performanceData.current_words_pronunciation_accuracy[index].toFixed(2)}%`
-                          : 'N/A'}
-                      </Text>
-                    </Text>
-                    <Text>
-                      Transcribed as: <Text className="font-NunitoBold">{word[1] || 'Not detected'}</Text> 
-                      {word[1] !== '-' && performanceData.recorded_words_phonetic[index] && 
-                        ` (/${performanceData.recorded_words_phonetic[index]}/)`}
-                    </Text>
-                    {performanceData.current_words_pronunciation_accuracy[index] !== undefined &&
-                     performanceData.current_words_pronunciation_accuracy[index] < 80 && (
-                      <Text className="text-red-500">
-                        Mispronounced: Expected /{performanceData.real_words_phonetic[index] || 'N/A'}/, 
-                        heard /{performanceData.recorded_words_phonetic[index] || 'N/A'}/
-                      </Text>
-                    )}
-                  </View>
-                ))
-              ) : (
-                <Text>No transcription available</Text>
-              )}
-            <Text className="text-lg font-NunitoSemiBold mt-4 mb-2">Your Transcription:</Text>
-            <Text>{performanceData.recording_transcript || 'No transcription available'}</Text>
-          </ScrollView>
+             
+            </View>
+          </View>
+            
           <TouchableOpacity
             onPress={handleTryAgain}
-            className="bg-primary-500 p-4 rounded-full mt-4 mb-8"
+            className="bg-orange-400 p-4 rounded-full mt-4"
           >
-            <Text className="text-white text-center font-NunitoBold">Try Again</Text>
+            <Text className="text-white text-lg text-center font-NunitoSemiBold">Try Again</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={handleTryNewWord}
+            className="bg-white border-[1px] p-4 rounded-full mt-4 mb-32"
+          >
+            <Text className=" text-center text-lg font-NunitoSemiBold">Try new word</Text>
           </TouchableOpacity>
         </View>
       </View>
