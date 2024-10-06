@@ -353,10 +353,6 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
   const handleTryAgain = async () => {
     await setShowPerformanceModal(false);
     await setPerformanceResult(null);
-    await setPhoneticWords(prevWords => prevWords.map(word => ({ 
-      word: word.word, 
-      phonetic: word.phonetic 
-  })));
     handleMicPress()
   };
 
@@ -364,6 +360,13 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
     // TODO: Implement modal opening logic here
     console.log(`Word pressed: ${word.word}, Phonetic: ${word.phonetic}, Accuracy: ${word.accuracy}`);
   };
+
+  const resetColors = useCallback(() => {
+    setPhoneticWords(prevWords => prevWords.map(word => ({ 
+      ...word, 
+      accuracy: undefined 
+    })));
+  }, []);
 
   return (
     <SafeAreaView className="flex-1 bg-white px-4">
@@ -451,7 +454,10 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
       {performanceResult && (
         <PronunciationPerformanceModal
           isVisible={showPerformanceModal}
-          onClose={() => setShowPerformanceModal(false)}
+          onClose={() => {
+            setShowPerformanceModal(false);
+            resetColors();
+          }}
           performanceData={performanceResult}
           onTryAgain={handleTryAgain}
         />
