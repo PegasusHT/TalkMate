@@ -104,5 +104,5 @@ export const usePronunciationRecording = (
     }
   }, [isScreenActive, isRecording, sentence, startRecording, stopRecording, setRecordingMode, updatePhoneticAccuracy, setPerformanceResult, setShowPerformanceModal]);
 
-  return { isRecording, isProcessing, handleMicPress };
+  return { isRecording, isProcessing, handleMicPress, stopRecording, setIsProcessing };
 };
