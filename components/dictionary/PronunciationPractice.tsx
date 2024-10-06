@@ -23,7 +23,7 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
   const [showPerformanceModal, setShowPerformanceModal] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoadingAudio, setIsLoadingAudio] = useState(false);
-  const [phoneticWords, setPhoneticWords] = useState<PhoneticWord[]>([]);
+  const [phoneticWords, setPhoneticWords] = useState<Array<{ word: string, phonetic: string, accuracy?: number }>>([]);
   const [permissionStatus, setPermissionStatus] = useState<Audio.PermissionStatus | null>(null);
   const recordingObject = useRef<Audio.Recording | null>(null);
   const soundObject = useRef<Audio.Sound | null>(null);
@@ -129,8 +129,12 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
   
       const result = await response.json();
       if (result && result.phonetic) {
-        const words = result.phonetic.split(' ');
-        setPhoneticWords(words.map((word: string) => ({ word })));
+        const words = sentence.split(' ');
+        const phonetics = result.phonetic.split(' ');
+        setPhoneticWords(words.map((word, index) => ({ 
+          word, 
+          phonetic: phonetics[index] || '' 
+        })));
       } else {
         throw new Error('Invalid response format');
       }
@@ -339,8 +343,8 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
 
   const updatePhoneticAccuracy = (accuracies: number[]) => {
     setPhoneticWords(prevWords => 
-      prevWords.map((word, index) => ({
-        ...word,
+      prevWords.map((item, index) => ({
+        ...item,
         accuracy: accuracies[index]
       }))
     );
@@ -349,8 +353,16 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
   const handleTryAgain = async () => {
     await setShowPerformanceModal(false);
     await setPerformanceResult(null);
-    await setPhoneticWords(prevWords => prevWords.map(word => ({ word: word.word })));
+    await setPhoneticWords(prevWords => prevWords.map(word => ({ 
+      word: word.word, 
+      phonetic: word.phonetic 
+  })));
     handleMicPress()
+  };
+
+  const handleWordPress = (word: { word: string, phonetic: string, accuracy?: number }) => {
+    // TODO: Implement modal opening logic here
+    console.log(`Word pressed: ${word.word}, Phonetic: ${word.phonetic}, Accuracy: ${word.accuracy}`);
   };
 
   return (
@@ -361,7 +373,17 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
         </TouchableOpacity>
       </View>
       <View className="flex-1 justify-start px-4 pt-4">
-        <Text className="text-2xl font-NunitoBold mb-1 mt-4">{sentence}</Text>
+        <View className="flex-row flex-wrap mb-1 mt-4">
+          {phoneticWords.map((item, index) => (
+            <TouchableOpacity key={index} onPress={() => handleWordPress(item)}>
+              <Text
+                className={`text-2xl font-NunitoBold mr-2 ${getColorForAccuracy(item.accuracy)}`}
+              >
+                {item.word}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
         <View className="flex-row flex-wrap mb-2">
           <Text className="text-lg mr-1">/</Text>
           {phoneticWords.map((phoneticWord, index) => (
@@ -378,7 +400,7 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
           <TouchableOpacity onPress={() => playSound()} disabled={isPlaying || isLoadingAudio}>
             <Volume2 color={isPlaying || isLoadingAudio ? "gray" : "black"} size={24} />
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => playSound(0.5)} disabled={isPlaying || isLoadingAudio}>
+          <TouchableOpacity onPress={() => playSound(0.75)} disabled={isPlaying || isLoadingAudio}>
             <Snail color={isPlaying || isLoadingAudio ? "gray" : "black"} size={24} />
           </TouchableOpacity>
           {isPlaying && (
