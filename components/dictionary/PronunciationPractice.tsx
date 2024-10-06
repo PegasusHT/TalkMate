@@ -346,10 +346,11 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
     );
   };
 
-  const handleTryAgain = () => {
-    setShowPerformanceModal(false);
-    setPerformanceResult(null);
-    setPhoneticWords(prevWords => prevWords.map(word => ({ word: word.word })));
+  const handleTryAgain = async () => {
+    await setShowPerformanceModal(false);
+    await setPerformanceResult(null);
+    await setPhoneticWords(prevWords => prevWords.map(word => ({ word: word.word })));
+    handleMicPress()
   };
 
   return (
