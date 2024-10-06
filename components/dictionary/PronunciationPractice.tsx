@@ -10,6 +10,8 @@ import { PerformanceData, PhoneticWord, DictionaryDefinition } from '@/types/dic
 import { useNavigation } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAudioMode } from '@/hooks/Audio/useAudioMode';
+import PerformanceSound from './PerformanceSound';
+import { primaryColor, secondaryColor } from '@/constant/color';
 
 type PronunciationPracticeProp = {
   sentence: string;
@@ -32,6 +34,7 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
   const [isLoadingDefinition, setIsLoadingDefinition] = useState(false);
   const navigation = useNavigation();
   const { mode, setPlaybackMode, setRecordingMode } = useAudioMode();
+  const [performanceScore, setPerformanceScore] = useState<number | null>(null);
 
   const handleBackPress = useCallback(async () => {
     setIsScreenActive(false);
@@ -302,6 +305,7 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
             setPerformanceResult({ ...result, audio_uri: uri });
             setShowPerformanceModal(true);
             updatePhoneticAccuracy(result.current_words_pronunciation_accuracy);
+            setPerformanceScore(result.pronunciation_accuracy);
           }
         } else {
           throw new Error('Unexpected response format from the server');
@@ -401,15 +405,17 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
           <Text className="text-lg mr-1">/</Text>
         </View>
         <View className="flex-row justify-start space-x-4 mb-4">
-          <TouchableOpacity onPress={() => playSound()} disabled={isPlaying || isLoadingAudio}>
-            <Volume2 color={isPlaying || isLoadingAudio ? "gray" : "black"} size={24} />
+          <TouchableOpacity className='rounded-full border-[0.4px] p-2'
+           onPress={() => playSound()} disabled={isPlaying || isLoadingAudio}>
+            <Volume2 color={isPlaying || isLoadingAudio ? "gray" : "black"} size={20} />
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => playSound(0.75)} disabled={isPlaying || isLoadingAudio}>
-            <Snail color={isPlaying || isLoadingAudio ? "gray" : "black"} size={24} />
+          <TouchableOpacity className='rounded-full border-[0.4px] p-2'
+           onPress={() => playSound(0.75)} disabled={isPlaying || isLoadingAudio}>
+            <Snail color={isPlaying || isLoadingAudio ? "gray" : "black"} size={20} />
           </TouchableOpacity>
           {isPlaying && (
-            <TouchableOpacity onPress={stopSound}>
-              <VolumeX color="black" size={24} />
+            <TouchableOpacity  className='rounded-full border-[0.4px] p-2' onPress={stopSound}>
+              <VolumeX color="black" size={20} />
             </TouchableOpacity>
           )}
         </View>
@@ -452,6 +458,7 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
           <Mic color="white" size={32} />
         )}
       </TouchableOpacity>
+      <PerformanceSound score={performanceScore} isVisible={showPerformanceModal} />
       {performanceResult && (
         <PronunciationPerformanceModal
           isVisible={showPerformanceModal}
