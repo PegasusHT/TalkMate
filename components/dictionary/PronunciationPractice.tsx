@@ -40,6 +40,13 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
     } else {
       setDictionaryDefinition(null);
     }
+
+    const autoPlayAudio = async () => {
+      await fetchAudio();
+      playSound();
+    };
+
+    autoPlayAudio();
     return () => {
       if (soundObject.current) {
         soundObject.current.unloadAsync();
@@ -155,11 +162,6 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
       await fetchAudio();
     }
 
-    if (!audioBase64Ref.current) {
-      Alert.alert('Error', 'Failed to load audio. Please try again.');
-      return;
-    }
-
     try {
       const { sound: newSound } = await Audio.Sound.createAsync(
         { uri: `data:audio/mp3;base64,${audioBase64Ref.current}` },
@@ -196,6 +198,11 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
         Alert.alert('Permission Required', 'Microphone permission is required to record audio. Please enable it in your device settings.');
         return;
       }
+    }
+
+    if (isPlaying) {
+      Alert.alert('Audio Playing', 'Please wait for the audio to finish before recording.');
+      return;
     }
 
     if (isRecording) {
@@ -365,9 +372,9 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
       </View>
       <TouchableOpacity
         onPress={handleMicPress}
-        disabled={isProcessing}
+        disabled={isProcessing || isPlaying}
         className={`self-center p-6 rounded-full ${
-          isRecording ? 'bg-red-500' : isProcessing ? 'bg-gray-500' : 'bg-primary-500'
+          isRecording ? 'bg-red-500' : isProcessing || isPlaying ? 'bg-gray-500' : 'bg-primary-500'
         }`}
       >
         {isProcessing ? (
