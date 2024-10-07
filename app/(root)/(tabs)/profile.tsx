@@ -18,7 +18,7 @@ interface InputFieldProps {
 }
 
 const ProfileScreen: React.FC<Props> = () => {
-  const { isGuest, email, firstName, lastName, setFirstName, setLastName } = useUser();
+  const { isGuest, email, firstname, lastName, setFirstname, setLastName } = useUser();
 
   const InputField: React.FC<InputFieldProps> = ({ label, value, onChangeText, placeholder, editable }) => (
     <View className="mb-4">
@@ -58,8 +58,8 @@ const ProfileScreen: React.FC<Props> = () => {
 
         <InputField
           label="First name"
-          value={firstName}
-          onChangeText={setFirstName}
+          value={firstname}
+          onChangeText={setFirstname}
           placeholder="Enter your first name"
           editable={!isGuest}
         />

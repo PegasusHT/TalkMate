@@ -56,7 +56,7 @@ const getTabBarLabel = (label: string) => {
 };
 
 const Home = () => {
-  const { isGuest, username } = useUser();
+  const { isGuest, firstname } = useUser();
     
   return (
     <Tab.Navigator
@@ -75,7 +75,7 @@ const Home = () => {
         tabBarLabelStyle: {
           fontSize: 12,
         },
-        header: () => <CustomHeader isGuest={isGuest} username={username} />,
+        header: () => <CustomHeader isGuest={isGuest} firstname={firstname} />,
       })}
     >
       <Tab.Screen 

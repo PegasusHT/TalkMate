@@ -2,14 +2,12 @@ import React, { createContext, useState, useContext, ReactNode } from 'react';
 
 interface UserContextType {
   isGuest: boolean;
-  username: string;
   email: string;
-  firstName: string;
+  firstname: string;
   lastName: string;
   setIsGuest: (value: boolean) => void;
-  setUsername: (value: string) => void;
   setEmail: (value: string) => void;
-  setFirstName: (value: string) => void;
+  setFirstname: (value: string) => void;
   setLastName: (value: string) => void;
 }
 
@@ -17,23 +15,20 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [isGuest, setIsGuest] = useState(true);
-  const [username, setUsername] = useState('');
+  const [firstname, setFirstname] = useState('');
   const [email, setEmail] = useState('');
-  const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
 
   return (
     <UserContext.Provider
       value={{
         isGuest,
-        username,
+        firstname,
         email,
-        firstName,
         lastName,
         setIsGuest,
-        setUsername,
+        setFirstname,
         setEmail,
-        setFirstName,
         setLastName,
       }}
     >

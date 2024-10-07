@@ -24,7 +24,7 @@ const SignIn: React.FC = () => {
     iosClientId: GOOGLE_IOS_CLIENT_ID,
     scopes: ['profile', 'email'],
   });
-  const { setIsGuest, setUsername, setEmail, setFirstName, setLastName } = useUser();
+  const { setIsGuest, setEmail, setFirstname, setLastName } = useUser();
 
   useEffect(() => {
     if (response?.type === 'success') {
@@ -56,9 +56,9 @@ const SignIn: React.FC = () => {
         const userName = decodedToken.given_name || 'User';
         
         setIsGuest(false);
-        setUsername(userName);
+        setFirstname(userName);
         setEmail(userEmail);
-        setFirstName(decodedToken.given_name || '');
+        setFirstname(decodedToken.given_name || '');
         setLastName(decodedToken.family_name || '');
 
         router.replace('/(root)');
