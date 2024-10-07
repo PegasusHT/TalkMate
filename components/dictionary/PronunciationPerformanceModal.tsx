@@ -115,8 +115,8 @@ const PronunciationPerformanceModal: React.FC<PronunciationPerformanceModalProps
       });
     }
     setIsPlaying(false);
+    setShowUnderline(false);
     onClose();
-    setShowUnderline(true);
   }, [sound, onClose]);
 
   const handleTryAgain = useCallback(() => {
@@ -127,6 +127,7 @@ const PronunciationPerformanceModal: React.FC<PronunciationPerformanceModalProps
       });
     }
     setIsPlaying(false);
+    setShowUnderline(false);
     onTryAgain();
   }, [sound, onTryAgain]);
 
