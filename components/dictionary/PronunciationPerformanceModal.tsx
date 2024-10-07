@@ -1,9 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Modal, TouchableOpacity, ScrollView, Pressable, Alert } from 'react-native';
 import Text from '@/components/customText';
-import { Ear } from 'lucide-react-native';
+import { Ear, LightbulbIcon } from 'lucide-react-native';
 import { Audio, AVPlaybackStatus } from 'expo-av';
 import { useAudioMode } from '@/hooks/Audio/useAudioMode';
+import { primaryColor } from '@/constant/color';
+import Svg, { Circle } from 'react-native-svg';
+import CircularProgress from './utils/CircularProgress'
 
 type PerformanceData = {
   recording_transcript: string;
@@ -33,14 +36,15 @@ const PronunciationPerformanceModal: React.FC<PronunciationPerformanceModalProps
   const [sound, setSound] = useState<Audio.Sound | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const { mode, setPlaybackMode, setRecordingMode } = useAudioMode();
-  
+  const pronunciation_accuracy = performanceData.pronunciation_accuracy.toFixed(0);
+
   const getPerformanceDetails = useCallback((score: number) => {
-    if (score >= 80) return { emoji: '😄', text: 'Excellent!' };
-    if (score >= 60) return { emoji: '🙂', text: 'Almost Correct' };
-    return { emoji: '😕', text: 'Keep Practicing' };
+    if (score >= 80) return { emoji: '😄', text: 'Excellent!', color: '#22c55e' };
+    if (score >= 60) return { emoji: '🙂', text: 'Almost Correct', color: '#eab308' };
+    return { emoji: '😕', text: 'Keep Practicing', color: '#ef4444' };
   }, []);
 
-  const { emoji, text } = getPerformanceDetails(performanceData.pronunciation_accuracy);
+  const { emoji, text, color } = getPerformanceDetails(performanceData.pronunciation_accuracy);
 
   useEffect(() => {
     return () => {
@@ -52,7 +56,7 @@ const PronunciationPerformanceModal: React.FC<PronunciationPerformanceModalProps
 
   const getColorForAccuracy = (accuracy: number | undefined) => {
     if (accuracy === undefined) return 'text-gray-500';
-    if (accuracy >= 80) return 'text-green-500';
+    if (accuracy >= 80) return 'text-green-600';
     if (accuracy >= 60) return 'text-yellow-500';
     return 'text-red-500';
   };
@@ -129,55 +133,70 @@ const PronunciationPerformanceModal: React.FC<PronunciationPerformanceModalProps
 
   return (
     <Modal
-      animationType="slide"
-      transparent={true}
-      visible={isVisible}
-      onRequestClose={handleCloseModal}
-    >
-      <View className="flex-1 justify-end">
-        <Pressable className="flex-1" onPress={handleCloseModal} />
-        <View className="bg-white border-[1px] rounded-t-3xl p-6" style={{ height: '48%' }}>
+    animationType="slide"
+    transparent={true}
+    visible={isVisible}
+    onRequestClose={handleCloseModal}
+  >
+    <View className="flex-1 justify-end">
+      <Pressable className="flex-1" onPress={handleCloseModal} />
+      <View className="bg-white border-[1px] rounded-t-3xl p-4 pt-6" style={{ height: '52%' }}>
+        <View className="flex-row border-b-[0.17px] pb-4 items-center justify-between">
           <View className="flex-row items-center">
-              <Text className="text-4xl mr-2">{emoji}</Text>
-              <Text className="text-xl font-NunitoBold">{text}</Text>
-            </View>
+            <Text className="text-5xl pt-2 mr-2">{emoji}</Text>
+            <Text style={{ color }} className="text-2xl ml-2 font-NunitoBold">{text}</Text>
+          </View>
           <TouchableOpacity 
             onPress={playRecordedAudio} 
-            className={`absolute right-4 top-4 rounded-full p-2 z-10 ${isPlaying ? 'bg-red-300' : 'bg-primary-500'}`}
+            className="rounded-full p-2 z-10"
           >
-            <Ear color={isPlaying ? "black" : "white"} size={24} />
+            <Ear color={isPlaying ? 'red' : primaryColor} size={28} />
           </TouchableOpacity>
+        </View>
 
-          <View className="mb-6 ">
-            <View className="w-full h-16 rounded-full mt-12 bg-primary-100 items-start justify-center">
-              <Text className='text-lg'>
-                <Text className=''>You sound </Text>
-                <Text className="text-lg font-NunitoSemiBold ">
+        <View className="mb-6 flex-1">
+          <View className="w-full rounded-2xl mt-4 bg-primary-100 py-4 px-2">
+            <View className='flex flex-row w-full items-center justify-between'>
+              <Text className='text-lg flex-1 mr-4'>
+                <Text className=''>Sound </Text>
+                <Text className="font-NunitoBold" style={{ color }}>
                   {performanceData.pronunciation_accuracy !== undefined 
                     ? `${performanceData.pronunciation_accuracy.toFixed(0)}%`
                     : 'N/A'}
                 </Text>
-                <Text className=''> like a native speaker</Text>
+                <Text className=''> like a native speaker.</Text>
               </Text>
-             
+              <CircularProgress 
+                size={60} 
+                strokeWidth={6} 
+                progress={parseInt(performanceData.pronunciation_accuracy.toFixed(0))} 
+              />
+            </View>
+
+            <View className='bg-slate-200 w-full rounded-xl p-3 mt-6 flex flex-row items-center'>
+              <LightbulbIcon className='mr-2' color="#666" />
+              <Text className='text-lg flex-1'>
+                Tap on each word for detailed feedback
+              </Text>
             </View>
           </View>
-            
-          <TouchableOpacity
-            onPress={handleTryAgain}
-            className="bg-orange-400 p-4 rounded-full mt-4"
-          >
-            <Text className="text-white text-lg text-center font-NunitoSemiBold">Try Again</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={handleTryNewWord}
-            className="bg-white border-[1px] p-4 rounded-full mt-4 mb-32"
-          >
-            <Text className=" text-center text-lg font-NunitoSemiBold">Try new word</Text>
-          </TouchableOpacity>
         </View>
+          
+        <TouchableOpacity
+          onPress={handleTryAgain}
+          className="bg-primary-500 p-4 rounded-full mt-4"
+        >
+          <Text className="text-white text-xl text-center font-NunitoSemiBold">Try again!</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={handleTryNewWord}
+          className="bg-white border-[1px] p-4 rounded-full mt-4 mb-8"
+        >
+          <Text className="text-center text-xl font-NunitoSemiBold">Try new word</Text>
+        </TouchableOpacity>
       </View>
-    </Modal>
+    </View>
+  </Modal>
   );
 };
 

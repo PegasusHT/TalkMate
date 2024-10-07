@@ -10,7 +10,7 @@ import { PerformanceData, PhoneticWord, DictionaryDefinition } from '@/types/dic
 import { useNavigation } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAudioMode } from '@/hooks/Audio/useAudioMode';
-import PerformanceSound from './PerformanceSound';
+import PerformanceSound from './utils/PerformanceSound';
 import { primaryColor, secondaryColor } from '@/constant/color';
 
 type PronunciationPracticeProp = {
