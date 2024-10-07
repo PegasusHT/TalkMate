@@ -69,11 +69,11 @@ const SignUp = () => {
     };
 
     const handleAppleSignUp = () => {
-    console.log('Apple Sign-Up');
+        Alert.alert('Sorry, only Google Sign Up is available at the moment.')
     };
 
     const handleFacebookSignUp = () => {
-    console.log('Facebook Sign-Up');
+        Alert.alert('Sorry, only Google Sign Up is available at the moment.')
     };
 
     const googleSvg = `
