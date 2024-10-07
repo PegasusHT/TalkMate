@@ -36,6 +36,7 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
   const navigation = useNavigation();
   const { mode, setPlaybackMode, setRecordingMode } = useAudioMode();
   const [performanceScore, setPerformanceScore] = useState<number | null>(null);
+  const [showUnderline, setShowUnderline] = useState(false);
 
   const handleBackPress = useCallback(async () => {
     setIsScreenActive(false);
@@ -346,6 +347,7 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
         accuracy: accuracies[index]
       }))
     );
+    setShowUnderline(true);
   };
 
   const handleTryAgain = async () => {
@@ -365,6 +367,7 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
       ...word, 
       accuracy: undefined 
     })));
+    setShowUnderline(false);
   }, []);
 
   return (
@@ -379,7 +382,9 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
           {phoneticWords.map((item, index) => (
             <TouchableOpacity key={index} onPress={() => handleWordPress(item)}>
               <Text
-                className={`text-4xl font-NunitoBold mr-2 ${getColorForAccuracy(item.accuracy)}`}
+                className={`text-4xl font-NunitoBold mr-2 ${getColorForAccuracy(item.accuracy)} ${
+                  showUnderline ? 'underline' : ''
+                }`}
               >
                 {item.word}
               </Text>
@@ -462,6 +467,7 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
           }}
           performanceData={performanceResult}
           onTryAgain={handleTryAgain}
+          setShowUnderline={setShowUnderline}
         />
       )}
     </SafeAreaView>

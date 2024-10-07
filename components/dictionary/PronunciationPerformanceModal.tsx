@@ -25,10 +25,11 @@ interface PronunciationPerformanceModalProps {
   onClose: () => void;
   performanceData: PerformanceData;
   onTryAgain: () => void;
+  setShowUnderline: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const getColorForAccuracy = (accuracy: number | undefined) => {
-  if (accuracy === undefined) return 'text-gray-500';
+  if (accuracy === undefined) return 'text-black';
   if (accuracy >= 80) return 'text-green-600';
   if (accuracy >= 60) return 'text-orange-400';
   return 'text-red-500';
@@ -39,6 +40,7 @@ const PronunciationPerformanceModal: React.FC<PronunciationPerformanceModalProps
   onClose,
   performanceData,
   onTryAgain,
+  setShowUnderline
 }) => {
   const [sound, setSound] = useState<Audio.Sound | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -114,6 +116,7 @@ const PronunciationPerformanceModal: React.FC<PronunciationPerformanceModalProps
     }
     setIsPlaying(false);
     onClose();
+    setShowUnderline(true);
   }, [sound, onClose]);
 
   const handleTryAgain = useCallback(() => {
