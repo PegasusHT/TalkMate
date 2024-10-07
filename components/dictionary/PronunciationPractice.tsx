@@ -13,6 +13,7 @@ import { useAudioMode } from '@/hooks/Audio/useAudioMode';
 import PerformanceSound from './utils/PerformanceSound';
 import { primaryColor, secondaryColor } from '@/constant/color';
 import { getColorForAccuracy } from '@/components/dictionary/PronunciationPerformanceModal';
+import WordPerformanceModal from './WordPerformanceModal';
 
 type PronunciationPracticeProp = {
   sentence: string;
@@ -37,6 +38,8 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
   const { mode, setPlaybackMode, setRecordingMode } = useAudioMode();
   const [performanceScore, setPerformanceScore] = useState<number | null>(null);
   const [showUnderline, setShowUnderline] = useState(false);
+  const [selectedWord, setSelectedWord] = useState<PhoneticWord | null>(null);
+  const [showWordModal, setShowWordModal] = useState(false);
 
   const handleBackPress = useCallback(async () => {
     setIsScreenActive(false);
@@ -363,9 +366,9 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
     navigation.goBack();
   }, [navigation, stopAllActivities]);
 
-  const handleWordPress = (word: { word: string, phonetic: string, accuracy?: number }) => {
-    // TODO: Implement modal opening logic here
-    console.log(`Word pressed: ${word.word}, Phonetic: ${word.phonetic}, Accuracy: ${word.accuracy}`);
+  const handleWordPress = (word: PhoneticWord) => {
+    setSelectedWord(word);
+    setShowWordModal(true);
   };
 
   const resetColors = useCallback(() => {
@@ -384,19 +387,21 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
         </TouchableOpacity>
       </View>
       <View className="flex-1 justify-start px-4 pt-4">
-        <View className="flex-row flex-wrap mb-1 mt-4">
-          {phoneticWords.map((item, index) => (
-            <TouchableOpacity key={index} onPress={() => handleWordPress(item)}>
-              <Text
-                className={`text-4xl font-NunitoBold mr-2 ${getColorForAccuracy(item.accuracy)} ${
-                  showUnderline ? 'underline' : ''
-                }`}
-              >
-                {item.word}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
+
+      <View className="flex-row flex-wrap mb-1 mt-4">
+        {phoneticWords.map((item, index) => (
+          <TouchableOpacity key={index} onPress={() => handleWordPress(item)}>
+            <Text
+              className={`text-4xl font-NunitoBold mr-2 ${getColorForAccuracy(item.accuracy)} ${
+                showUnderline ? 'underline' : ''
+              }`}
+            >
+              {item.word}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+      
         <View className="flex-row flex-wrap mb-2">
           <Text className="text-lg mr-1">/</Text>
           {phoneticWords.map((phoneticWord, index) => (
@@ -469,12 +474,24 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
           isVisible={showPerformanceModal}
           onClose={() => {
             setShowPerformanceModal(false);
-            resetColors();
           }}
           performanceData={performanceResult}
           onTryAgain={handleTryAgain}
           setShowUnderline={setShowUnderline}
           onTryNewWord={handleTryNewWord} 
+        />
+      )}
+      {selectedWord && (
+        <WordPerformanceModal
+          isVisible={showWordModal}
+          onClose={() => setShowWordModal(false)}
+          word={selectedWord.word}
+          phonetic={selectedWord.phonetic}
+          score={selectedWord.accuracy || 0}
+          phoneticDetails={[
+            // This is a placeholder. You'll need to implement the logic to get the detailed phonetic breakdown
+            { phonetic: selectedWord.phonetic, score: selectedWord.accuracy || 0 }
+          ]}
         />
       )}
     </SafeAreaView>

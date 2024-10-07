@@ -13,6 +13,7 @@ export type PerformanceData = {
 export type PhoneticWord = {
   word: string;
   accuracy?: number;
+  phonetic: string;
 };
 
 export type DictionaryDefinition = {

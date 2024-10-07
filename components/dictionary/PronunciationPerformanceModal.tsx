@@ -119,7 +119,6 @@ const PronunciationPerformanceModal: React.FC<PronunciationPerformanceModalProps
       });
     }
     setIsPlaying(false);
-    setShowUnderline(false);
     onClose();
   }, [sound, onClose]);
 
