@@ -14,6 +14,7 @@ export type PhoneticWord = {
   word: string;
   accuracy?: number;
   phonetic: string;
+  userSaid?: string;
 };
 
 export type DictionaryDefinition = {
@@ -28,3 +29,5 @@ export type DictionaryDefinition = {
   }[];
   audio_url: string | null;
 } | null;
+
+export type RecordedWordsPhoneticsMap = { [key: string]: string };

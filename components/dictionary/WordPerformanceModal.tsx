@@ -1,9 +1,12 @@
-import React from 'react';
-import { View, Modal, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { View, Modal, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 import Text from '@/components/customText';
 import { X, Volume2, Mic, Snail } from 'lucide-react-native';
 import { primaryColor } from '@/constant/color';
 import HalfCircularProgress from './utils/HalfCircularProgress';
+import { Audio } from 'expo-av';
+import axios from 'axios';
+import ENV from '@/utils/envConfig';
 
 interface WordPerformanceModalProps {
   isVisible: boolean;
@@ -26,6 +29,9 @@ const WordPerformanceModal: React.FC<WordPerformanceModalProps> = ({
   score,
   phoneticDetails,
 }) => {
+  const [isPlayingWord, setIsPlayingWord] = useState(false);
+  const [isPlayingSlowWord, setIsPlayingSlowWord] = useState(false);
+  const [playingPhoneticIndex, setPlayingPhoneticIndex] = useState<number | null>(null);
   const intScore = parseInt(score.toFixed(0));
 
   const getPerformanceText = (score: number) => {
@@ -46,6 +52,48 @@ const WordPerformanceModal: React.FC<WordPerformanceModalProps> = ({
     if (accuracy >= 60) return '#fb923c'; // Tailwind's orange-400
     return '#ef4444'; // Tailwind's red-500
   };
+
+  const playAudio = useCallback(async (text: string, rate: number = 1) => {
+    try {
+      const response = await axios.post(
+        `${ENV.AI_BACKEND_URL}/tts/`,
+        { text, speaker: 'p240' },
+        { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+      );
+
+      const { audio } = response.data;
+      const audioUri = `data:audio/mp3;base64,${audio}`;
+      const soundObject = new Audio.Sound();
+      await soundObject.loadAsync({ uri: audioUri });
+      await soundObject.setRateAsync(rate, true);
+      await soundObject.playAsync();
+
+      soundObject.setOnPlaybackStatusUpdate((status) => {
+        if (status.isLoaded && !status.isPlaying) {
+          setIsPlayingWord(false);
+          setIsPlayingSlowWord(false);
+          setPlayingPhoneticIndex(null);
+        }
+      });
+    } catch (error) {
+      console.error('Error playing audio:', error);
+    }
+  }, []);
+
+  const handlePlayWord = useCallback(() => {
+    setIsPlayingWord(true);
+    playAudio(word);
+  }, [word, playAudio]);
+
+  const handlePlaySlowWord = useCallback(() => {
+    setIsPlayingSlowWord(true);
+    playAudio(word, 0.75);
+  }, [word, playAudio]);
+
+  const handlePlayPhonetic = useCallback((phoneticText: string, index: number) => {
+    setPlayingPhoneticIndex(index);
+    playAudio(phoneticText);
+  }, [playAudio]);
 
   return (
     <Modal
@@ -72,29 +120,57 @@ const WordPerformanceModal: React.FC<WordPerformanceModalProps> = ({
           </View>
           
           <View className="flex-row justify-center space-x-4 mb-4">
-            <TouchableOpacity className="border-[0.4px] p-3 rounded-full">
-              <Volume2 color="black" size={24} />
+            <TouchableOpacity 
+              className="border-[0.4px] p-3 rounded-full" 
+              onPress={handlePlayWord}
+              disabled={isPlayingWord || isPlayingSlowWord}
+            >
+              {isPlayingWord ? (
+                <ActivityIndicator color="black" size="small" />
+              ) : (
+                <Volume2 color="black" size={24} />
+              )}
             </TouchableOpacity>
-            <TouchableOpacity className="border-[0.4px] p-3 rounded-full">
-              <Snail color="black" size={24} />
+            <TouchableOpacity 
+              className="border-[0.4px] p-3 rounded-full"
+              onPress={handlePlaySlowWord}
+              disabled={isPlayingWord || isPlayingSlowWord}
+            >
+              {isPlayingSlowWord ? (
+                <ActivityIndicator color="black" size="small" />
+              ) : (
+                <Snail color="black" size={24} />
+              )}
             </TouchableOpacity>
           </View>
           
           <ScrollView className='h-full'>
             {phoneticDetails.map((detail, index) => (
               <View key={index} className="flex-row justify-between items-center mb-4 mt-4">
-                <View className="flex-row items-center  border-r-[0.4px] w-2/5">
-                  <TouchableOpacity className="bg-gray-200 p-2 rounded-full mr-2">
-                    <Volume2 color="#000" size={20} />
+                <View className="flex-row items-center border-r-[0.4px] w-2/6">
+                  <TouchableOpacity 
+                    className="bg-gray-200 p-2 rounded-full mr-2"
+                    onPress={() => handlePlayPhonetic(detail.phonetic, index)}
+                    disabled={playingPhoneticIndex !== null}
+                  >
+                    {playingPhoneticIndex === index ? (
+                      <ActivityIndicator color="black" size="small" />
+                    ) : (
+                      <Volume2 color="#000" size={20} />
+                    )}
                   </TouchableOpacity>
                   <Text className="text-xl">{detail.phonetic}</Text>
                 </View>
-                <View className='w-full px-4'>
-                  <Text className={`text-lg ${getColorForAccuracy(detail.score)}`}>
-                    {detail.score}% {getPerformanceText(detail.score)}
+                <Text className='w-full text-lg flex flex-row px-4'>
+                  <Text className={`${getColorForAccuracy(intScore)}`}>
+                    {intScore}% {getPerformanceText(intScore)}
                   </Text>
-                  {detail.userSaid && <Text className="text-sm text-gray-500">You said: {detail.userSaid}</Text>}
-                </View>
+                {intScore < 80 && detail.userSaid && (
+                    <Text className="text-sm text-gray-500 font-NunitoSemiBold">
+                    /{detail.userSaid}/
+                    </Text>
+                )}
+                </Text>
               </View>
             ))}
           </ScrollView>

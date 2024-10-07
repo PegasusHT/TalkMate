@@ -6,7 +6,7 @@ import { Audio } from 'expo-av';
 import * as FileSystem from 'expo-file-system';
 import PronunciationPerformanceModal from '@/components/dictionary/PronunciationPerformanceModal';
 import ENV from '@/utils/envConfig';
-import { PerformanceData, PhoneticWord, DictionaryDefinition } from '@/types/dictionary';
+import { PerformanceData, PhoneticWord, DictionaryDefinition, RecordedWordsPhoneticsMap } from '@/types/dictionary';
 import { useNavigation } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAudioMode } from '@/hooks/Audio/useAudioMode';
@@ -40,6 +40,7 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
   const [showUnderline, setShowUnderline] = useState(false);
   const [selectedWord, setSelectedWord] = useState<PhoneticWord | null>(null);
   const [showWordModal, setShowWordModal] = useState(false);
+  const [recordedWordsPhoneticsMap, setRecordedWordsPhoneticsMap] = useState<RecordedWordsPhoneticsMap>({});
 
   const handleBackPress = useCallback(async () => {
     setIsScreenActive(false);
@@ -304,6 +305,17 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
             setShowPerformanceModal(true);
             updatePhoneticAccuracy(result.current_words_pronunciation_accuracy);
             setPerformanceScore(result.pronunciation_accuracy);
+
+            // Create a map of words to their recorded phonetics
+            const recordedMap: RecordedWordsPhoneticsMap = {};
+            if (Array.isArray(result.real_and_transcribed_words) && Array.isArray(result.recorded_words_phonetic)) {
+              result.real_and_transcribed_words.forEach((pair: [string, string], index: number) => {
+                if (typeof pair[0] === 'string') {
+                  recordedMap[pair[0]] = result.recorded_words_phonetic[index] || '';
+                }
+              });
+            }
+            setRecordedWordsPhoneticsMap(recordedMap);
           }
         } else {
           throw new Error('Unexpected response format from the server');
@@ -367,7 +379,10 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
   }, [navigation, stopAllActivities]);
 
   const handleWordPress = (word: PhoneticWord) => {
-    setSelectedWord(word);
+    setSelectedWord({
+      ...word,
+      userSaid: recordedWordsPhoneticsMap[word.word] || ''
+    });
     setShowWordModal(true);
   };
 
@@ -489,8 +504,11 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
           phonetic={selectedWord.phonetic}
           score={selectedWord.accuracy || 0}
           phoneticDetails={[
-            // This is a placeholder. You'll need to implement the logic to get the detailed phonetic breakdown
-            { phonetic: selectedWord.phonetic, score: selectedWord.accuracy || 0 }
+            {
+              phonetic: selectedWord.phonetic,
+              score: selectedWord.accuracy || 0,
+              userSaid: selectedWord.userSaid
+            }
           ]}
         />
       )}
