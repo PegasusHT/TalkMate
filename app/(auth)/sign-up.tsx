@@ -45,10 +45,11 @@ const SignUp = () => {
       if (id_token) {
         const decodedToken = decodeJwt(id_token);
         const userEmail = decodedToken.email;
-        
+        const userName = decodedToken.given_name || 'User';
+
         router.replace('/(root)');
         setTimeout(() => {
-          Alert.alert('Sign In Successful', `Welcome back, ${userEmail}!`);
+          Alert.alert('Sign In Successful', `Welcome back, ${userName}!`);
         }, 700);
       } else {
         Alert.alert('Sign In Error', 'Unable to retrieve user information.');
