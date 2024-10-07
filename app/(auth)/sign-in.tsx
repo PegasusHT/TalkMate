@@ -85,12 +85,12 @@ const SignIn: React.FC = () => {
 
   const handleAppleSignIn = () => {
     // Implement Apple Sign-In
-    console.log('Apple Sign-In');
+    Alert.alert('Sorry, only Google Sign In is available at the moment.')
   };
 
   const handleFacebookSignIn = () => {
     // Implement Facebook Sign-In
-    console.log('Facebook Sign-In');
+    Alert.alert('Sorry, only Google Sign In is available at the moment.')
   };
 
   const googleSvg = `
