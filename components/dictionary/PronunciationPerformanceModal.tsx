@@ -7,6 +7,7 @@ import { useAudioMode } from '@/hooks/Audio/useAudioMode';
 import { primaryColor } from '@/constant/color';
 import Svg, { Circle } from 'react-native-svg';
 import CircularProgress from './utils/CircularProgress'
+import { useNavigation } from 'expo-router';
 
 type PerformanceData = {
   recording_transcript: string;
@@ -26,6 +27,7 @@ interface PronunciationPerformanceModalProps {
   performanceData: PerformanceData;
   onTryAgain: () => void;
   setShowUnderline: React.Dispatch<React.SetStateAction<boolean>>;
+  onTryNewWord: () => void;
 }
 
 export const getColorForAccuracy = (accuracy: number | undefined) => {
@@ -40,12 +42,14 @@ const PronunciationPerformanceModal: React.FC<PronunciationPerformanceModalProps
   onClose,
   performanceData,
   onTryAgain,
-  setShowUnderline
+  setShowUnderline,
+  onTryNewWord
 }) => {
   const [sound, setSound] = useState<Audio.Sound | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const { mode, setPlaybackMode, setRecordingMode } = useAudioMode();
   const pronunciation_accuracy = performanceData.pronunciation_accuracy.toFixed(0);
+  const navigation = useNavigation();
 
   const getPerformanceDetails = useCallback((score: number) => {
     if (score >= 80) return { emoji: '😄', text: 'Excellent!', color: '#20ae59' };
@@ -132,8 +136,16 @@ const PronunciationPerformanceModal: React.FC<PronunciationPerformanceModalProps
   }, [sound, onTryAgain]);
 
   const handleTryNewWord = useCallback(() => {
-    console.log('pressed')
-  }, [sound, onTryAgain]);
+    if (sound) {
+      sound.stopAsync().then(() => {
+        sound.unloadAsync();
+        setSound(null);
+      });
+    }
+    setIsPlaying(false);
+    setShowUnderline(false);
+    onTryNewWord();  
+  }, [sound, setShowUnderline, onTryNewWord]);
 
   return (
     <Modal

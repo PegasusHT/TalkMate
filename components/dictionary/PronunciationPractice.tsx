@@ -357,6 +357,12 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
     handleMicPress()
   };
 
+  const handleTryNewWord = useCallback(async () => {
+    await stopAllActivities();
+    setIsScreenActive(false);
+    navigation.goBack();
+  }, [navigation, stopAllActivities]);
+
   const handleWordPress = (word: { word: string, phonetic: string, accuracy?: number }) => {
     // TODO: Implement modal opening logic here
     console.log(`Word pressed: ${word.word}, Phonetic: ${word.phonetic}, Accuracy: ${word.accuracy}`);
@@ -468,6 +474,7 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
           performanceData={performanceResult}
           onTryAgain={handleTryAgain}
           setShowUnderline={setShowUnderline}
+          onTryNewWord={handleTryNewWord} 
         />
       )}
     </SafeAreaView>
