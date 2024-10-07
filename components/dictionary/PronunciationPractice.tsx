@@ -42,13 +42,14 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
   const [showWordModal, setShowWordModal] = useState(false);
   const [recordedWordsPhoneticsMap, setRecordedWordsPhoneticsMap] = useState<RecordedWordsPhoneticsMap>({});
   const [recording, setRecording] = useState<Audio.Recording | null>(null);
+  const isLongSentence = sentence.length > 100;
 
   const handleBackPress = useCallback(async () => {
     isScreenActiveRef.current = false;
     await stopAllActivities();
     navigation.goBack();
   }, [navigation]);
-  
+
   useEffect(() => {
     return () => {
       isScreenActiveRef.current = false;
@@ -249,7 +250,6 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
     setIsPlaying(false);
   };
 
-
   const updatePhoneticAccuracy = (accuracies: number[]) => {
     setPhoneticWords(prevWords => 
       prevWords.map((item, index) => ({
@@ -419,34 +419,35 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
           <ArrowLeft size={28} color="#000" />
         </TouchableOpacity>
       </View>
-      <View className="flex-1 justify-start px-4 pt-4">
 
-      <View className="flex-row flex-wrap mb-1 mt-4">
-        {phoneticWords.map((item, index) => (
-          <TouchableOpacity key={index} onPress={() => handleWordPress(item)}>
-            <Text
-              className={`text-4xl font-NunitoBold mr-2 ${getColorForAccuracy(item.accuracy)} ${
-                showUnderline ? 'underline' : ''
-              }`}
-            >
-              {item.word}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-      
+      <View className="flex-1 justify-start px-4 pt-4">
+        <View className="flex-row flex-wrap mb-1 mt-4">
+          {phoneticWords.map((item, index) => (
+            <TouchableOpacity key={index} onPress={() => handleWordPress(item)}>
+              <Text
+                className={`${isLongSentence ? 'text-2xl' : 'text-4xl'} font-NunitoBold mr-2 ${getColorForAccuracy(item.accuracy)} ${
+                  showUnderline ? 'underline' : ''
+                }`}
+              >
+                {item.word}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+        
         <View className="flex-row flex-wrap mb-2">
-          <Text className="text-lg mr-1">/</Text>
+          <Text className={`${isLongSentence ? 'text-base' : 'text-lg'} mr-1`}>/</Text>
           {phoneticWords.map((phoneticWord, index) => (
             <Text 
               key={index} 
-              className={`text-lg mr-1 ${getColorForAccuracy(phoneticWord.accuracy)}`}
+              className={`${isLongSentence ? 'text-base' : 'text-lg'} mr-1 ${getColorForAccuracy(phoneticWord.accuracy)}`}
             >
               {phoneticWord.phonetic}
             </Text>
           ))}
-          <Text className="text-lg mr-1">/</Text>
+          <Text className={`${isLongSentence ? 'text-base' : 'text-lg'} mr-1`}>/</Text>
         </View>
+
         <View className="flex-row justify-start space-x-4 my-4">
           <TouchableOpacity className='rounded-full border-[0.4px] p-2'
            onPress={() => playSound()} disabled={isPlaying || isLoadingAudio || isRecording}>
