@@ -68,6 +68,7 @@ const Home = () => {
     // Implement streak modal logic here
     console.log('Streak pressed');
   };
+  
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
