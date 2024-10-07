@@ -155,7 +155,7 @@ const PronunciationPerformanceModal: React.FC<PronunciationPerformanceModalProps
         </View>
 
         <View className="mb-6 flex-1">
-          <View className="w-full rounded-2xl mt-4 bg-primary-100 py-4 px-2">
+          <View className="w-full rounded-2xl mt-2 bg-primary-100 py-4 px-2">
             <View className='flex flex-row w-full items-center justify-between'>
               <Text className='text-lg flex-1 mr-4'>
                 <Text className=''>Sound </Text>
@@ -190,7 +190,7 @@ const PronunciationPerformanceModal: React.FC<PronunciationPerformanceModalProps
         </TouchableOpacity>
         <TouchableOpacity
           onPress={handleTryNewWord}
-          className="bg-white border-[1px] p-4 rounded-full mt-4 mb-8"
+          className="bg-white border-[1px] p-4 rounded-full mt-4 mb-10"
         >
           <Text className="text-center text-xl font-NunitoSemiBold">Try new word</Text>
         </TouchableOpacity>

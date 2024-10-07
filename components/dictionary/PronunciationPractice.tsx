@@ -393,17 +393,17 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
           ))}
         </View>
         <View className="flex-row flex-wrap mb-2">
-          <Text className="text-lg mr-1">/</Text>
-          {phoneticWords.map((phoneticWord, index) => (
-            <Text 
-              key={index} 
-              className={`text-lg mr-1 ${getColorForAccuracy(phoneticWord.accuracy)}`}
-            >
-              {phoneticWord.word}
-            </Text>
-          ))}
-          <Text className="text-lg mr-1">/</Text>
-        </View>
+  <Text className="text-lg mr-1">/</Text>
+  {phoneticWords.map((phoneticWord, index) => (
+    <Text 
+      key={index} 
+      className={`text-lg mr-1 ${getColorForAccuracy(phoneticWord.accuracy)}`}
+    >
+      {phoneticWord.phonetic}
+    </Text>
+  ))}
+  <Text className="text-lg mr-1">/</Text>
+</View>
         <View className="flex-row justify-start space-x-4 mb-4">
           <TouchableOpacity className='rounded-full border-[0.4px] p-2'
            onPress={() => playSound()} disabled={isPlaying || isLoadingAudio}>
