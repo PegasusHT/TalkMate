@@ -4,18 +4,18 @@ import { View, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 import Text from '@/components/customText';
 import { bgColor, primaryStrong } from '@/constant/color';
+
+interface BoardingButtonsProps {
+    onGuestSignIn: () => void;
+  }
   
-const BoardingButtons: React.FC = () => {
+const BoardingButtons: React.FC<BoardingButtonsProps> = ({ onGuestSignIn }) => {
     const handleGetStarted = () => {
         router.push('/(auth)/sign-up');
     };
 
     const handleLogIn = () => {
         router.push('/(auth)/sign-in');
-    };
-
-    const handleGuestMode = () => {
-        router.push('/(root)');
     };
 
     return (
@@ -43,7 +43,7 @@ const BoardingButtons: React.FC = () => {
             </TouchableOpacity>
             <TouchableOpacity 
                 className='mt-3 items-center'
-                onPress={handleGuestMode}
+                onPress={onGuestSignIn}
             >
                 <Text className='text-gray-800 opacity-80 text-lg'>
                     Guest mode

@@ -1,7 +1,5 @@
 import React, { useEffect } from 'react';
 import { Redirect } from 'expo-router';
-import { Platform } from 'react-native';
-import * as ScreenOrientation from 'expo-screen-orientation';
 
 const App = () => {
     useEffect(() => {
@@ -25,7 +23,7 @@ const App = () => {
         }
     }, []);
 
-    return <Redirect href='/(auth)/welcome' />;
+    return <Redirect href='/(auth)' />;
 };
 
 export default App;

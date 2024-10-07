@@ -8,6 +8,7 @@ import LearnScreen from '@/app/(root)/(tabs)/learn';
 import DictionaryScreen from './(tabs)/dictionary';
 import ProfileScreen from '@/app/(root)/(tabs)/profile';
 import CustomHeader from '@/components/customHeader';
+import { useUser } from '@/context/UserContext';
 
 export type RootTabParamList = {
   Home: undefined;
@@ -32,9 +33,6 @@ const getTabBarIcon = (routeName: keyof RootTabParamList) => {
       case 'Home':
         iconName = focused ? 'home' : 'home-outline';
         break;
-      // case 'Learn':
-      //   iconName = focused ? 'book' : 'book-outline';
-      //   break;
       case 'Dictionary':
         iconName = focused ? 'list' : 'list-outline';
         break;
@@ -58,17 +56,8 @@ const getTabBarLabel = (label: string) => {
 };
 
 const Home = () => {
-
-  const handleGoalPress = () => {
-    // Implement goal modal logic here
-    console.log('Goal pressed');
-  };
-
-  const handleStreakPress = () => {
-    // Implement streak modal logic here
-    console.log('Streak pressed');
-  };
-  
+  const { isGuest, username } = useUser();
+    
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -86,13 +75,7 @@ const Home = () => {
         tabBarLabelStyle: {
           fontSize: 12,
         },
-        header: () => (
-          <CustomHeader
-            username="Jimmy"
-            onGoalPress={handleGoalPress}
-            onStreakPress={handleStreakPress}
-          />
-        ),
+        header: () => <CustomHeader isGuest={isGuest} username={username} />,
       })}
     >
       <Tab.Screen 
@@ -100,11 +83,6 @@ const Home = () => {
         component={HomeScreen}
         options={{ tabBarLabel: getTabBarLabel('Home') }}
       />
-      {/* <Tab.Screen 
-        name="Learn" 
-        component={LearnScreen}
-        options={{ tabBarLabel: getTabBarLabel('Learn') }}
-      /> */}
       <Tab.Screen 
         name="Dictionary" 
         component={DictionaryScreen}

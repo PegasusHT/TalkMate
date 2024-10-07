@@ -1,15 +1,19 @@
+//app/(auth)/welcome.tsx
 import React, { useState, useRef, useCallback } from 'react';
 import { View, Image, Dimensions, Animated, ScrollView, NativeSyntheticEvent, NativeScrollEvent, StatusBar, TouchableOpacity } from 'react-native';
+import { router } from 'expo-router';
 import BoardingButtons from '@/components/boarding/boardingButtons';
 import Text from '@/components/customText';
 import { bgColor, primaryStrong } from '@/constant/color';
 import { Ionicons } from '@expo/vector-icons';
 import { boardingData } from '@/data/boardingData';
 import { Globe } from 'lucide-react-native';
+import { useUser } from '@/context/UserContext';
 
 const { width, height } = Dimensions.get('window');
 
 const WelcomeFlow: React.FC = () => {
+    const { setIsGuest, setUsername, setEmail, setFirstName, setLastName } = useUser();
     const [currentPage, setCurrentPage] = useState(0);
     const scrollViewRef = useRef<ScrollView>(null);
     const scrollX = useRef(new Animated.Value(0)).current;
@@ -26,7 +30,16 @@ const WelcomeFlow: React.FC = () => {
         [{ nativeEvent: { contentOffset: { x: scrollX } } }],
         { useNativeDriver: false, listener: onScroll }
     );
-
+    
+    const handleGuestSignIn = () => {
+        setIsGuest(true);
+        setUsername('');
+        setEmail('');
+        setFirstName('');
+        setLastName('');
+        router.replace('/(root)');
+    };
+    
     return (
         <View style={{ flex: 1, backgroundColor: bgColor }}>
             <StatusBar barStyle="dark-content" />
@@ -112,7 +125,7 @@ const WelcomeFlow: React.FC = () => {
             </View>
 
             <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 30, backgroundColor: 'white' }} className='pt-6'>
-                <BoardingButtons />
+                <BoardingButtons onGuestSignIn={handleGuestSignIn} />
             </View>
 
             <View

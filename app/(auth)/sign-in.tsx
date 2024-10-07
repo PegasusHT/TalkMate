@@ -1,3 +1,4 @@
+//app/(auth)/sign-in.tsx
 import React, { useEffect } from 'react';
 import { SafeAreaView, View, TouchableOpacity, ScrollView, Image, Alert } from 'react-native';
 import { router } from 'expo-router';
@@ -9,6 +10,7 @@ import Text from '@/components/customText';
 import BoardingHeader from '@/components/boarding/header/boardingHeader';
 import { SvgXml } from 'react-native-svg';
 import { AuthSessionResult } from 'expo-auth-session';
+import { useUser } from '@/context/UserContext';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -22,6 +24,7 @@ const SignIn: React.FC = () => {
     iosClientId: GOOGLE_IOS_CLIENT_ID,
     scopes: ['profile', 'email'],
   });
+  const { setIsGuest, setUsername, setEmail, setFirstName, setLastName } = useUser();
 
   useEffect(() => {
     if (response?.type === 'success') {
@@ -50,7 +53,14 @@ const SignIn: React.FC = () => {
       if (id_token) {
         const decodedToken = decodeJwt(id_token);
         const userEmail = decodedToken.email;
+        const userName = decodedToken.given_name || 'User';
         
+        setIsGuest(false);
+        setUsername(userName);
+        setEmail(userEmail);
+        setFirstName(decodedToken.given_name || '');
+        setLastName(decodedToken.family_name || '');
+
         router.replace('/(root)');
         setTimeout(() => {
           Alert.alert('Sign In Successful', `Welcome back, ${userEmail}!`);
