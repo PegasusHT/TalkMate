@@ -41,18 +41,31 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
   const [selectedWord, setSelectedWord] = useState<PhoneticWord | null>(null);
   const [showWordModal, setShowWordModal] = useState(false);
   const [recordedWordsPhoneticsMap, setRecordedWordsPhoneticsMap] = useState<RecordedWordsPhoneticsMap>({});
+  const [recording, setRecording] = useState<Audio.Recording | null>(null);
 
   const handleBackPress = useCallback(async () => {
     isScreenActiveRef.current = false;
     await stopAllActivities();
     navigation.goBack();
   }, [navigation]);
-
+  
+  useEffect(() => {
+    return () => {
+      isScreenActiveRef.current = false;
+      stopAllActivities();
+    };
+  }, []);
+  
   const stopAllActivities = async () => {
-    if (isRecording) {
-      await recordingObject.current?.stopAndUnloadAsync();
-      setIsRecording(false);
+    if (recordingObject.current) {
+      try {
+        await recordingObject.current.stopAndUnloadAsync();
+      } catch (error) {
+        console.error('Error stopping recording:', error);
+      }
+      recordingObject.current = null;
     }
+    setIsRecording(false);
     if (isPlaying) {
       await stopSound();
     }
@@ -159,6 +172,7 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
     if (audioBase64Ref.current || !isScreenActiveRef.current) return;
   
     setIsLoadingAudio(true);
+    setIsProcessing(true);
     try {
       const formData = new FormData();
       formData.append('text', sentence);
@@ -169,7 +183,7 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
       });
   
       if (!isScreenActiveRef.current) return;
-  
+      setIsProcessing(false);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -235,14 +249,25 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
     setIsPlaying(false);
   };
 
+
+  const updatePhoneticAccuracy = (accuracies: number[]) => {
+    setPhoneticWords(prevWords => 
+      prevWords.map((item, index) => ({
+        ...item,
+        accuracy: accuracies[index]
+      }))
+    );
+    setShowUnderline(true);
+  };
+
   const handleMicPress = useCallback(async () => {
     if (!isScreenActiveRef.current) return;
-
+  
     if (isPlaying) {
       Alert.alert('Audio Playing', 'Please wait for the audio to finish before recording.');
       return;
     }
-
+  
     if (permissionStatus !== 'granted') {
       const newStatus = await requestPermissions();
       if (newStatus !== 'granted') {
@@ -250,7 +275,7 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
         return;
       }
     }
-
+  
     if (isRecording) {
       setIsRecording(false);
       setIsProcessing(true);
@@ -284,7 +309,7 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
         clearTimeout(timeoutId);
   
         if (!isScreenActiveRef.current) return;
-
+  
         if (!response.ok) {
           const errorText = await response.text();
           console.log('Server response:', response.status, errorText);
@@ -309,8 +334,7 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
             setShowPerformanceModal(true);
             updatePhoneticAccuracy(result.current_words_pronunciation_accuracy);
             setPerformanceScore(result.pronunciation_accuracy);
-
-            // Create a map of words to their recorded phonetics
+  
             const recordedMap: RecordedWordsPhoneticsMap = {};
             if (Array.isArray(result.real_and_transcribed_words) && Array.isArray(result.recorded_words_phonetic)) {
               result.real_and_transcribed_words.forEach((pair: [string, string], index: number) => {
@@ -344,7 +368,7 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
         if (recordingObject.current) {
           await recordingObject.current.stopAndUnloadAsync();
         }
-
+  
         const { recording } = await Audio.Recording.createAsync(
           Audio.RecordingOptionsPresets.HIGH_QUALITY
         );
@@ -357,17 +381,7 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
         }
       }
     }
-  }, [isScreenActiveRef, isRecording, isPlaying, sentence, permissionStatus, setRecordingMode]);
-
-  const updatePhoneticAccuracy = (accuracies: number[]) => {
-    setPhoneticWords(prevWords => 
-      prevWords.map((item, index) => ({
-        ...item,
-        accuracy: accuracies[index]
-      }))
-    );
-    setShowUnderline(true);
-  };
+  }, [isScreenActiveRef, isRecording, isPlaying, sentence, permissionStatus, setRecordingMode, updatePhoneticAccuracy]);
 
   const handleTryAgain = async () => {
     await setShowPerformanceModal(false);
@@ -435,12 +449,12 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
         </View>
         <View className="flex-row justify-start space-x-4 my-4">
           <TouchableOpacity className='rounded-full border-[0.4px] p-2'
-           onPress={() => playSound()} disabled={isPlaying || isLoadingAudio}>
-            <Volume2 color={isPlaying || isLoadingAudio ? "gray" : "black"} size={20} />
+           onPress={() => playSound()} disabled={isPlaying || isLoadingAudio || isRecording}>
+            <Volume2 color={isPlaying || isLoadingAudio || isRecording ? "gray" : "black"} size={20} />
           </TouchableOpacity>
           <TouchableOpacity className='rounded-full border-[0.4px] p-2'
-           onPress={() => playSound(0.75)} disabled={isPlaying || isLoadingAudio}>
-            <Snail color={isPlaying || isLoadingAudio ? "gray" : "black"} size={20} />
+           onPress={() => playSound(0.75)} disabled={isPlaying || isLoadingAudio || isRecording}>
+            <Snail color={isPlaying || isLoadingAudio || isRecording ? "gray" : "black"} size={20} />
           </TouchableOpacity>
           {isPlaying && (
             <TouchableOpacity  className='rounded-full border-[0.4px] p-2' onPress={stopSound}>
