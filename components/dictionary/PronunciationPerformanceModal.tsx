@@ -27,6 +27,13 @@ interface PronunciationPerformanceModalProps {
   onTryAgain: () => void;
 }
 
+export const getColorForAccuracy = (accuracy: number | undefined) => {
+  if (accuracy === undefined) return 'text-gray-500';
+  if (accuracy >= 80) return 'text-green-600';
+  if (accuracy >= 60) return 'text-orange-400';
+  return 'text-red-500';
+};
+
 const PronunciationPerformanceModal: React.FC<PronunciationPerformanceModalProps> = ({
   isVisible,
   onClose,
@@ -39,8 +46,8 @@ const PronunciationPerformanceModal: React.FC<PronunciationPerformanceModalProps
   const pronunciation_accuracy = performanceData.pronunciation_accuracy.toFixed(0);
 
   const getPerformanceDetails = useCallback((score: number) => {
-    if (score >= 80) return { emoji: '😄', text: 'Excellent!', color: '#22c55e' };
-    if (score >= 60) return { emoji: '🙂', text: 'Almost Correct', color: '#eab308' };
+    if (score >= 80) return { emoji: '😄', text: 'Excellent!', color: '#20ae59' };
+    if (score >= 60) return { emoji: '🙂', text: 'Almost Correct', color: '#FB923C' };
     return { emoji: '😕', text: 'Keep Practicing', color: '#ef4444' };
   }, []);
 
@@ -53,13 +60,6 @@ const PronunciationPerformanceModal: React.FC<PronunciationPerformanceModalProps
       }
     };
   }, [sound]);
-
-  const getColorForAccuracy = (accuracy: number | undefined) => {
-    if (accuracy === undefined) return 'text-gray-500';
-    if (accuracy >= 80) return 'text-green-600';
-    if (accuracy >= 60) return 'text-yellow-500';
-    return 'text-red-500';
-  };
 
   const onPlaybackStatusUpdate = useCallback((status: AVPlaybackStatus) => {
     if (status.isLoaded) {
@@ -148,7 +148,7 @@ const PronunciationPerformanceModal: React.FC<PronunciationPerformanceModalProps
           </View>
           <TouchableOpacity 
             onPress={playRecordedAudio} 
-            className="rounded-full p-2 z-10"
+            className="rounded-full p-2 z-10 top-[-4]"
           >
             <Ear color={isPlaying ? 'red' : primaryColor} size={28} />
           </TouchableOpacity>
@@ -159,7 +159,7 @@ const PronunciationPerformanceModal: React.FC<PronunciationPerformanceModalProps
             <View className='flex flex-row w-full items-center justify-between'>
               <Text className='text-lg flex-1 mr-4'>
                 <Text className=''>Sound </Text>
-                <Text className="font-NunitoBold" style={{ color }}>
+                <Text className="font-NunitoBold" >
                   {performanceData.pronunciation_accuracy !== undefined 
                     ? `${performanceData.pronunciation_accuracy.toFixed(0)}%`
                     : 'N/A'}

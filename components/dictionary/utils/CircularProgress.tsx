@@ -8,17 +8,17 @@ interface CircularProgressProps {
   strokeWidth: number;
   progress: number;
 }
+const getColorForAccuracy = (accuracy: number | undefined) => {
+    if (accuracy === undefined) return '#6B7280';
+    if (accuracy >= 80) return '#20ae59';
+    if (accuracy >= 60) return '#FB923C';
+    return '#EF4444';
+  };
 
 const CircularProgress: React.FC<CircularProgressProps> = ({ size, strokeWidth, progress }) => {
   const radius = (size - strokeWidth) / 2;
   const circumference = radius * 2 * Math.PI;
   const strokeDashoffset = circumference - (progress / 100) * circumference;
-
-  const getColorForAccuracy = (accuracy: number) => {
-    if (accuracy >= 80) return '#22c55e'; 
-    if (accuracy >= 60) return '#eab308'; 
-    return '#ef4444'; 
-  };
 
   const progressColor = getColorForAccuracy(progress);
 

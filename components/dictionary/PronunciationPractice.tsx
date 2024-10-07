@@ -12,6 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAudioMode } from '@/hooks/Audio/useAudioMode';
 import PerformanceSound from './utils/PerformanceSound';
 import { primaryColor, secondaryColor } from '@/constant/color';
+import { getColorForAccuracy } from '@/components/dictionary/PronunciationPerformanceModal';
 
 type PronunciationPracticeProp = {
   sentence: string;
@@ -147,13 +148,6 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
         Alert.alert('Error', 'Failed to fetch phonetic transcription. Please try again.');
       }
     }
-  };
-
-  const getColorForAccuracy = (accuracy: number | undefined) => {
-    if (accuracy === undefined) return 'text-gray-600';
-    if (accuracy >= 80) return 'text-green-500';
-    if (accuracy >= 60) return 'text-yellow-500';
-    return 'text-red-500';
   };
 
   const fetchAudio = async () => {
