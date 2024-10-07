@@ -10,7 +10,7 @@ interface BoardingScreen {
 const boardingData: BoardingScreen[] = [
   {
     title: "Your Shortcut to Language Fluency",
-    description: "Learn languages with tailored, fun and engaging methods from your AI-powered language teachers.",
+    description: "Learn English with tailored, fun and engaging methods from your AI-powered language teachers.",
     image: require('@/assets/icons/boarding1.png') as ImageSourcePropType,
     paddingTop: 40,
   },

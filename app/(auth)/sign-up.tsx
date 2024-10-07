@@ -9,10 +9,11 @@ import ENV from '@/utils/envConfig';
 import BoardingHeader from '@/components/boarding/header/boardingHeader';
 import { SvgXml } from 'react-native-svg';
 import { AuthSessionResult } from 'expo-auth-session';
+import { useUser } from '@/context/UserContext';
 
 WebBrowser.maybeCompleteAuthSession();
 
-const { GOOGLE_IOS_CLIENT_ID, GOOGLE_WEB_CLIENT_ID } = ENV;
+const { GOOGLE_IOS_CLIENT_ID, GOOGLE_WEB_CLIENT_ID, BACKEND_URL } = ENV;
 
 const SignUp = () => {
     const [request, response, promptAsync] = Google.useAuthRequest({
@@ -20,6 +21,7 @@ const SignUp = () => {
         iosClientId: GOOGLE_IOS_CLIENT_ID,
         scopes: ['profile', 'email'],
     });
+    const { setIsGuest, setEmail, setFirstname, setLastName } = useUser();
 
     useEffect(() => {
         if (response?.type === 'success') {
@@ -39,25 +41,56 @@ const SignUp = () => {
         return JSON.parse(jsonPayload);
     };
 
-    const handleSignUpSuccess = (response: AuthSessionResult) => {
-    if (response.type === 'success') {
-      const { id_token } = response.params;
-      if (id_token) {
-        const decodedToken = decodeJwt(id_token);
-        const userEmail = decodedToken.email;
-        const userName = decodedToken.given_name || 'User';
-
-        router.replace('/(root)');
-        setTimeout(() => {
-          Alert.alert('Sign In Successful', `Welcome back, ${userName}!`);
-        }, 700);
-      } else {
-        Alert.alert('Sign In Error', 'Unable to retrieve user information.');
-      }
-    } else {
-      Alert.alert('Sign In Error', 'Authentication was not successful.');
-    }
-  };
+    const handleSignUpSuccess = async (response: AuthSessionResult) => {
+        if (response.type === 'success') {
+          const { id_token } = response.params;
+          if (id_token) {
+            const decodedToken = decodeJwt(id_token);
+            const userData = {
+              email: decodedToken.email,
+              firstName: decodedToken.given_name || '',
+              lastName: decodedToken.family_name || '',
+              providerId: decodedToken.sub,
+              provider: 'google'
+            };
+      
+            try {
+              const backendResponse = await fetch(`${BACKEND_URL}/auth/oauth`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(userData),
+              });
+      
+              if (!backendResponse.ok) {
+                throw new Error('Backend authentication failed');
+              }
+      
+              const authData = await backendResponse.json();
+              
+              // Save the token and user data in your app's state or secure storage
+              setIsGuest(false);
+              setEmail(authData.user.email);
+              setFirstname(authData.user.firstName);
+              setLastName(authData.user.lastName);
+      
+              // Navigate to the main app
+              router.replace('/(root)');
+              setTimeout(() => {
+                Alert.alert('Sign Up Successful', `Welcome, ${authData.user.firstName}!`);
+              }, 700);
+            } catch (error) {
+              console.error('Authentication error:', error);
+              Alert.alert('Authentication Error', 'Unable to authenticate with the server.');
+            }
+          } else {
+            Alert.alert('Authentication Error', 'Unable to retrieve user information from Google.');
+          }
+        } else {
+          Alert.alert('Authentication Error', 'Google authentication was not successful.');
+        }
+      };
 
     const handleSignUpError = () => {
     Alert.alert('Sign Up Failed', 'Please try again.', [

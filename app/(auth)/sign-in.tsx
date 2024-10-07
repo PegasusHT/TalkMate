@@ -46,30 +46,55 @@ const SignIn: React.FC = () => {
     }).join(''));
     return JSON.parse(jsonPayload);
   };
-
-  const handleSignInSuccess = (response: AuthSessionResult) => {
+  console.log(`${ENV.BACKEND_URL}/auth/oauth`)
+  const handleSignInSuccess =  async (response: AuthSessionResult) => {
     if (response.type === 'success') {
       const { id_token } = response.params;
       if (id_token) {
         const decodedToken = decodeJwt(id_token);
-        const userEmail = decodedToken.email;
-        const userName = decodedToken.given_name || 'User';
-        
-        setIsGuest(false);
-        setFirstname(userName);
-        setEmail(userEmail);
-        setFirstname(decodedToken.given_name || '');
-        setLastName(decodedToken.family_name || '');
-
-        router.replace('/(root)');
-        setTimeout(() => {
-          Alert.alert('Sign In Successful', `Welcome back, ${userName}!`);
-        }, 700);
+        const userData = {
+          email: decodedToken.email,
+          firstName: decodedToken.given_name || '',
+          lastName: decodedToken.family_name || '',
+          providerId: decodedToken.sub,
+          provider: 'google'
+        };
+  
+        try {
+          const backendResponse = await fetch(`${ENV.BACKEND_URL}/auth/oauth`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(userData),
+          });
+  
+          if (!backendResponse.ok) {
+            throw new Error('Backend authentication failed');
+          }
+  
+          const authData = await backendResponse.json();
+          
+          // Save the token and user data in your app's state or secure storage
+          setIsGuest(false);
+          setEmail(authData.user.email);
+          setFirstname(authData.user.firstName);
+          setLastName(authData.user.lastName);
+  
+          // Navigate to the main app
+          router.replace('/(root)');
+          setTimeout(() => {
+            Alert.alert('Sign In Successful', `Welcome, ${authData.user.firstName}!`);
+          }, 700);
+        } catch (error) {
+          console.error('Authentication error:', error);
+          Alert.alert('Authentication Error', 'Unable to authenticate with the server.');
+        }
       } else {
-        Alert.alert('Sign In Error', 'Unable to retrieve user information.');
+        Alert.alert('Authentication Error', 'Unable to retrieve user information from Google.');
       }
     } else {
-      Alert.alert('Sign In Error', 'Authentication was not successful.');
+      Alert.alert('Authentication Error', 'Google authentication was not successful.');
     }
   };
 

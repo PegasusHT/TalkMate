@@ -13,7 +13,7 @@ import { useUser } from '@/context/UserContext';
 const { width, height } = Dimensions.get('window');
 
 const WelcomeFlow: React.FC = () => {
-    const { setIsGuest, setUsername, setEmail, setFirstName, setLastName } = useUser();
+    const { setIsGuest, setEmail, setFirstname, setLastName } = useUser();
     const [currentPage, setCurrentPage] = useState(0);
     const scrollViewRef = useRef<ScrollView>(null);
     const scrollX = useRef(new Animated.Value(0)).current;
@@ -33,9 +33,8 @@ const WelcomeFlow: React.FC = () => {
     
     const handleGuestSignIn = () => {
         setIsGuest(true);
-        setUsername('');
         setEmail('');
-        setFirstName('');
+        setFirstname('');
         setLastName('');
         router.replace('/(root)');
     };
