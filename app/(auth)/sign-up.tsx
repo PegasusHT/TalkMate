@@ -79,7 +79,7 @@ const SignUp = () => {
               router.replace('/(root)');
               setTimeout(() => {
                 Alert.alert('Sign Up Successful', `Welcome, ${authData.user.firstName}!`);
-              }, 700);
+              }, 500);
             } catch (error) {
               console.error('Authentication error:', error);
               Alert.alert('Authentication Error', 'Unable to authenticate with the server.');
