@@ -379,7 +379,7 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
           {phoneticWords.map((item, index) => (
             <TouchableOpacity key={index} onPress={() => handleWordPress(item)}>
               <Text
-                className={`text-2xl font-NunitoBold mr-2 ${getColorForAccuracy(item.accuracy)}`}
+                className={`text-4xl font-NunitoBold mr-2 ${getColorForAccuracy(item.accuracy)}`}
               >
                 {item.word}
               </Text>
@@ -387,18 +387,18 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
           ))}
         </View>
         <View className="flex-row flex-wrap mb-2">
-  <Text className="text-lg mr-1">/</Text>
-  {phoneticWords.map((phoneticWord, index) => (
-    <Text 
-      key={index} 
-      className={`text-lg mr-1 ${getColorForAccuracy(phoneticWord.accuracy)}`}
-    >
-      {phoneticWord.phonetic}
-    </Text>
-  ))}
-  <Text className="text-lg mr-1">/</Text>
-</View>
-        <View className="flex-row justify-start space-x-4 mb-4">
+          <Text className="text-lg mr-1">/</Text>
+          {phoneticWords.map((phoneticWord, index) => (
+            <Text 
+              key={index} 
+              className={`text-lg mr-1 ${getColorForAccuracy(phoneticWord.accuracy)}`}
+            >
+              {phoneticWord.phonetic}
+            </Text>
+          ))}
+          <Text className="text-lg mr-1">/</Text>
+        </View>
+        <View className="flex-row justify-start space-x-4 my-4">
           <TouchableOpacity className='rounded-full border-[0.4px] p-2'
            onPress={() => playSound()} disabled={isPlaying || isLoadingAudio}>
             <Volume2 color={isPlaying || isLoadingAudio ? "gray" : "black"} size={20} />
