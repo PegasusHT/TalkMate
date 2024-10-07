@@ -24,8 +24,14 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ isVisible, onClose, feedb
 
   const handlePracticePronunciation = () => {
     onClose();
+    let practiceSentence = feedback.correctedVersion;
+    
+    if (practiceSentence.length > 300) {
+      practiceSentence = practiceSentence.substring(0, 297) + '...';
+    }
+
     navigation.navigate('pronunciation-practice', { 
-      sentence: feedback.correctedVersion 
+      sentence: practiceSentence 
     });
   };
 
