@@ -12,7 +12,7 @@ type RootStackParamList = {
 };
 type Props = NativeStackScreenProps<RootTabParamList, 'Dictionary'>;
 
-const MAX_CHARACTERS = 300;
+const MAX_CHARACTERS = 200;
 const SHOW_COUNT_THRESHOLD = 45;
 
 const DictionaryScreen: React.FC<Props> = () => {

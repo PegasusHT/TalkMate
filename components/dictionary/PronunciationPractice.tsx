@@ -157,25 +157,25 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
 
   const fetchAudio = async () => {
     if (audioBase64Ref.current || !isScreenActive) return;
-
+  
     setIsLoadingAudio(true);
     try {
       const formData = new FormData();
       formData.append('text', sentence);
-
+  
       const response = await fetch(`${ENV.AI_BACKEND_URL}/tts/`, {
         method: 'POST',
         body: formData,
       });
-
+  
       if (!isScreenActive) return;
-
+  
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-
+  
       const data = await response.json();
-      audioBase64Ref.current = data.audio;
+      audioBase64Ref.current = data.audio.split(',');
     } catch (error) {
       console.log('Error fetching audio:', error);
       if (isScreenActive) {
@@ -190,34 +190,38 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
     if (isPlaying || !isScreenActive) {
       await stopSound();
     }
-
+  
     if (!audioBase64Ref.current) {
       await fetchAudio();
     }
-
+  
     if (!audioBase64Ref.current || !isScreenActive) return;
-
+  
     try {
-      const { sound: newSound } = await Audio.Sound.createAsync(
-        { uri: `data:audio/mp3;base64,${audioBase64Ref.current}` },
-        { shouldPlay: true, rate }
-      );
-      soundObject.current = newSound;
       setIsPlaying(true);
-
-      newSound.setOnPlaybackStatusUpdate((status) => {
-        if (status.isLoaded && !status.isPlaying) {
-          setIsPlaying(false);
-          if (status.didJustFinish) {
-            newSound.unloadAsync();
-          }
-        }
-      });
+      for (const audioSegment of audioBase64Ref.current) {
+        if (!isScreenActive) break;
+        const { sound: newSound } = await Audio.Sound.createAsync(
+          { uri: `data:audio/wav;base64,${audioSegment}` },
+          { shouldPlay: true, rate }
+        );
+        soundObject.current = newSound;
+  
+        await new Promise<void>((resolve) => {
+          newSound.setOnPlaybackStatusUpdate((status) => {
+            if (status.isLoaded && !status.isPlaying && status.didJustFinish) {
+              newSound.unloadAsync();
+              resolve();
+            }
+          });
+        });
+      }
     } catch (error) {
       console.log('Error playing sound:', error);
       if (isScreenActive) {
         Alert.alert('Error', 'Failed to play the sentence. Please try again.');
       }
+    } finally {
       setIsPlaying(false);
     }
   };

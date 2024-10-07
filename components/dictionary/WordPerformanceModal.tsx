@@ -146,8 +146,8 @@ const WordPerformanceModal: React.FC<WordPerformanceModalProps> = ({
           
           <ScrollView className='h-full mt-4'>
             {phoneticDetails.map((detail, index) => (
-              <View key={index} className="flex-row border-b-[0.4px] justify-between items-center mb-4 pb-4 mt-4">
-                <View className="flex-row items-center w-3/7">
+              <View key={index} className="flex-row justify-between items-start mb-4 pb-4 mt-4">
+                <View className="flex-row items-center border-r-[0.4px] w-2/5">
                   <TouchableOpacity 
                     className="bg-gray-200 p-2 rounded-full mr-2"
                     onPress={() => handlePlayPhonetic(detail.phonetic, index)}
@@ -161,16 +161,16 @@ const WordPerformanceModal: React.FC<WordPerformanceModalProps> = ({
                   </TouchableOpacity>
                   <Text className="text-xl">{detail.phonetic}</Text>
                 </View>
-                <Text className='w-full text-lg flex flex-row px-4'>
-                  <Text className={`${getColorForAccuracy(intScore)}`}>
+                <View className='w-full px-4'>
+                  <Text className={`text-lg ${getColorForAccuracy(intScore)}`}>
                     {intScore}% {getPerformanceText(intScore)}
                   </Text>
-                {intScore < 80 && detail.userSaid && (
-                    <Text className="text-sm text-gray-500 font-NunitoSemiBold">
+                  {intScore < 80 && detail.userSaid && (
+                    <Text className="font-NunitoSemiBold text-lg">
                     /{detail.userSaid}/
                     </Text>
-                )}
-                </Text>
+                  )}
+                </View>
               </View>
             ))}
           </ScrollView>
