@@ -5,11 +5,16 @@ import { Mic, Pen } from 'lucide-react-native';
 const CustomIcon = require('@/assets/icons/customIcon.png');
 import { useNavigation } from '@react-navigation/native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import { useUser } from '@/context/UserContext';
 
 const CustomeScenarioFeature = () => {
   const navigation = useNavigation();
+  const { isPremium } = useUser();
+
   const handlePress = () => {
-    navigation.navigate('customScenario' as never);
+    if (isPremium) {
+      navigation.navigate('customScenario' as never);
+    }
   };
 
   return (

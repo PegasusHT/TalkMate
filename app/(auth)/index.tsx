@@ -26,7 +26,6 @@ const WelcomeFlow: React.FC = () => {
             setCurrentPage(pageIndex);
         }
     }, [currentPage]);
-
     const handleScroll = Animated.event(
         [{ nativeEvent: { contentOffset: { x: scrollX } } }],
         { useNativeDriver: false, listener: onScroll }

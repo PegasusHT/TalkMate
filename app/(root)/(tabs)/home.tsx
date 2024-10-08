@@ -15,19 +15,12 @@ type Props = NativeStackScreenProps<RootTabParamList, 'Home'>;
 
 const HomeScreen: React.FC<Props> = () => {
   const { isGuest, isPremium } = useUser();
-  
+
   const handleFeaturePress = (feature: string) => {
     if (feature === 'chat') {
       router.push('/chat');
     } else if (!isPremium) {
-      Alert.alert(
-        "Premium Feature",
-        "This feature is only available for premium users. Would you like to upgrade?",
-        [
-          { text: "No, thanks", style: "cancel" },
-          { text: "Yes, upgrade", onPress: () => router.push('/premium') }
-        ]
-      );
+       router.push('/premium') 
     } else {
       router.push(`/${feature.toLowerCase().replace(/\s+/g, '-')}`);
     }
