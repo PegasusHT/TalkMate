@@ -56,7 +56,7 @@ const ProfileScreen: React.FC<Props> = () => {
   const handleSignOut = async () => {
     if (isGuest) {
       // If the user is a guest, just redirect to the sign-in page
-      router.replace('/(auth)/sign-in');
+      router.replace('/(auth)/');
     } else {
       // For logged-in users, show a confirmation dialog
       Alert.alert(
@@ -81,7 +81,7 @@ const ProfileScreen: React.FC<Props> = () => {
                 await AsyncStorage.removeItem('authToken');
 
                 // Navigate to the sign-in screen
-                router.replace('/(auth)/sign-in');
+                router.replace('/(auth)');
               } catch (error) {
                 console.error('Error during sign out:', error);
                 Alert.alert('Error', 'An error occurred while signing out. Please try again.');
@@ -134,7 +134,7 @@ const ProfileScreen: React.FC<Props> = () => {
         onPress={handleSignOut}
       >
         <Text className="text-white text-lg font-NunitoSemiBold">
-          {isGuest ? 'Back to Sign In' : 'Sign Out'}
+          {isGuest ? 'Back to Main Page' : 'Sign Out'}
         </Text>
       </TouchableOpacity>
       {/* <TouchableOpacity 

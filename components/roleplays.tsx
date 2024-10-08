@@ -33,10 +33,10 @@ const RoleplayFeature = () => {
               </View>
             </View>
             <Text className="text-cl font-NunitoSemiBold mb-2 mr-36">
-              Practice through useful real-life scenarios.
+              Learn through practical, everyday situations.
             </Text>
             <Text className="text-sm text-gray-500 mr-36">
-              Various settings from daily conversations to creative dialogues.
+              Various settings from real-life scenarios to special dialogues.
             </Text>
           </View>
         </View>

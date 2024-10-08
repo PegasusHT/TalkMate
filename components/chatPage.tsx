@@ -33,10 +33,10 @@ const ChatFeature = () => {
               </View>
             </View>
             <Text className="text-cl font-NunitoSemiBold mb-2 mr-28">
-              Enhance your language skills by chatting with our AI teacher.
+              Develop your English skills by chatting with our AI teacher.
             </Text>
             <Text className="text-sm text-gray-500">
-              Pick a topic and get started.
+              Choose a topic and begin.
             </Text>
           </View>
         </View>
