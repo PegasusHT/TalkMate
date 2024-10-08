@@ -5,8 +5,8 @@ module.exports = () => {
 
   return {
     expo: {
-      name: "TalkMate",
-      slug: "TalkMate",
+      name: "TalkMate AI",
+      slug: "TalkMate-AI",
       version: "1.0.0",
       orientation: "portrait",
       scheme: "com.jimmydev.talkmate",
@@ -17,13 +17,21 @@ module.exports = () => {
       },
       icon: "./assets/images/phone-logo.png",
       ios: {
-        bundleIdentifier: "com.jimmydev.TalkMate"
+        supportsTablet: true,
+        bundleIdentifier: "com.jimmydev.TalkMate",
+        runtimeVersion: "1.0.0"
+      },
+      updates: {
+        url: "https://u.expo.dev/fb518968-0eef-4a1b-9e12-afa0ce8cb20c"
       },
       android: {
         package: "com.jimmydev.TalkMate",
         adaptiveIcon: {
           foregroundImage: "./assets/images/adaptive-icon.png",
           backgroundColor: "#ffffff"
+        },
+        runtimeVersion: {
+          policy: "appVersion"
         }
       },
       extra: {
@@ -39,6 +47,9 @@ module.exports = () => {
           dev: "http://localhost:8000",
           staging: "https://ai-backend-378206958409.us-east1.run.app",
           prod: "http://localhost:8000"
+        },
+        eas: {
+          projectId: "fb518968-0eef-4a1b-9e12-afa0ce8cb20c"
         }
       },
     },

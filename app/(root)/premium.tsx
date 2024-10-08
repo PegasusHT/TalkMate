@@ -40,11 +40,11 @@ const PremiumScreen = () => {
       >
         {plan.savings > 0 && (
           <View className="absolute top-2 right-2 bg-pink-500 rounded-lg px-2 py-1">
-            <Text className="text-white text-xs font-bold">SAVE {plan.savings}%*</Text>
+            <Text className="text-white text-xs font-NunitoSemiBold">SAVE {plan.savings}%*</Text>
           </View>
         )}
         <Text className="text-pink-500 mb-1">14 Day Free Trial **</Text>
-        <Text className="text-lg font-bold">Premium {plan.months} {plan.months === 1 ? 'Month' : 'Months'}</Text>
+        <Text className="text-lg font-NunitoSemiBold">Premium {plan.months} {plan.months === 1 ? 'Month' : 'Months'}</Text>
         <Text className="text-gray-600">${plan.price.toFixed(2)} / month</Text>
       </TouchableOpacity>
     );
@@ -78,7 +78,9 @@ const PremiumScreen = () => {
       </ScrollView>
       
       <View className="mt-4 items-center flex flex-row justify-center">
-        <Text className="text-gray-700 line-through" style={{ textDecorationColor: 'red' }}>${originalPrice} </Text>
+        {selectedPlan.months !== 1 && (
+          <Text className="text-gray-700 line-through" style={{ textDecorationColor: 'red' }}>${originalPrice} </Text>
+        )}
         <Text className="text-center text-[17px] font-NunitoSemiBold">
           ${yearlyPrice} (billed {billingPeriod})
         </Text>
