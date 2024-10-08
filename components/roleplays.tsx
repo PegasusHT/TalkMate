@@ -1,16 +1,22 @@
 import React from 'react';
-import { View, Image } from 'react-native';
+import { View, Image, Alert } from 'react-native';
 import Text from '@/components/customText';
 import { Pencil, BookA } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import { useUser } from '@/context/UserContext';
+import { router } from 'expo-router';
 
 const roleplayIcon = require('@/assets/icons/roleplayIcon.png');
 
 const RoleplayFeature = () => {
   const navigation = useNavigation();
+  const { isPremium } = useUser();
+
   const handlePress = () => {
-    navigation.navigate('roleplays' as never);
+    if (isPremium) {
+      navigation.navigate('roleplays' as never);
+    } 
   };
 
   return (

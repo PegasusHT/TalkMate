@@ -1,3 +1,4 @@
+//app/(root)/(tabs)/_layout.tsx
 import { Stack } from 'expo-router';
 
 const Layout = () => {

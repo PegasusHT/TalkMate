@@ -21,7 +21,7 @@ const SignUp = () => {
         iosClientId: GOOGLE_IOS_CLIENT_ID,
         scopes: ['profile', 'email'],
     });
-    const { setIsGuest, setEmail, setFirstname, setLastName } = useUser();
+    const { setIsGuest, setEmail, setFirstname, setLastName, setIsPremium } = useUser();
 
     useEffect(() => {
         if (response?.type === 'success') {
@@ -74,7 +74,8 @@ const SignUp = () => {
               setEmail(authData.user.email);
               setFirstname(authData.user.firstName);
               setLastName(authData.user.lastName);
-      
+              setIsPremium(authData.user.isPremium);
+
               // Navigate to the main app
               router.replace('/(root)');
               setTimeout(() => {
