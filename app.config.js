@@ -10,21 +10,21 @@ module.exports = () => {
       version: "1.0.0",
       orientation: "portrait",
       scheme: "com.jimmydev.talkmate",
-      'splash': {
-        "image": "./assets/images/splash.png",
-        "resizeMode": "contain",
-        "backgroundColor": "#FFFFFF"
+      splash: {
+        image: "./assets/images/splash.png",
+        resizeMode: "contain",
+        backgroundColor: "#FFFFFF"
       },
-      'icon':{
-        "image": "./assets/images/phone-logo.png",
-        "resizeMode": "contain",
-        "backgroundColor": "#FFFFFF"
-      },
+      icon: "./assets/images/phone-logo.png",
       ios: {
         bundleIdentifier: "com.jimmydev.TalkMate"
       },
       android: {
-        package: "com.jimmydev.TalkMate"
+        package: "com.jimmydev.TalkMate",
+        adaptiveIcon: {
+          foregroundImage: "./assets/images/adaptive-icon.png",
+          backgroundColor: "#ffffff"
+        }
       },
       extra: {
         ENV: environment,
