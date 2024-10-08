@@ -46,7 +46,7 @@ const SignIn: React.FC = () => {
     }).join(''));
     return JSON.parse(jsonPayload);
   };
-  console.log(`${ENV.BACKEND_URL}/auth/oauth`)
+
   const handleSignInSuccess =  async (response: AuthSessionResult) => {
     if (response.type === 'success') {
       const { id_token } = response.params;
@@ -81,7 +81,6 @@ const SignIn: React.FC = () => {
           setFirstname(authData.user.firstName);
           setLastName(authData.user.lastName);
   
-          // Navigate to the main app
           router.replace('/(root)');
           setTimeout(() => {
             Alert.alert('Sign In Successful', `Welcome, ${authData.user.firstName}!`);

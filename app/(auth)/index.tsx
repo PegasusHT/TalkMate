@@ -11,6 +11,7 @@ import { Globe } from 'lucide-react-native';
 import { useUser } from '@/context/UserContext';
 
 const { width, height } = Dimensions.get('window');
+const onboardingLogo = require('@/assets/images/onboarding-logo.png');
 
 const WelcomeFlow: React.FC = () => {
     const { setIsGuest, setEmail, setFirstname, setLastName } = useUser();
@@ -117,9 +118,13 @@ const WelcomeFlow: React.FC = () => {
                 }}/>
             </View>
             
-            <View style={{ position: 'absolute', top: height / 2 - 130, left: width / 2 - 43, zIndex: 20 }}>
-                <View style={{ backgroundColor: bgColor }} className="rounded-full p-5">
-                    <Ionicons name="logo-octocat" size={60} color={primaryStrong} />
+            <View style={{ position: 'absolute', top: height/3+28, left: width/2 -48, zIndex: 20 }}>
+                <View style={{ }} className="">
+                    <Image 
+                        source={onboardingLogo}
+                        style={{ width: 100, height: 100 }}
+                        resizeMode='contain'
+                    />
                 </View>
             </View>
 

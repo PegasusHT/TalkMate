@@ -10,10 +10,15 @@ module.exports = () => {
       version: "1.0.0",
       orientation: "portrait",
       scheme: "com.jimmydev.talkmate",
-      "splash": {
-      "image": "./assets/images/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#2463EB"
+      'splash': {
+        "image": "./assets/images/splash.png",
+        "resizeMode": "contain",
+        "backgroundColor": "#FFFFFF"
+      },
+      'icon':{
+        "image": "./assets/images/phone-logo.png",
+        "resizeMode": "contain",
+        "backgroundColor": "#FFFFFF"
       },
       ios: {
         bundleIdentifier: "com.jimmydev.TalkMate"
@@ -28,7 +33,7 @@ module.exports = () => {
         BACKEND_URL: {
           dev: "http://localhost:8080/api",
           staging: "https://speakease-backend.onrender.com/api",
-          prod: "http://localhost:8080/api"
+          prod: "https://speakease-backend.onrender.com/api"
         },
         AI_BACKEND_URL:{
           dev: "http://localhost:8000",
