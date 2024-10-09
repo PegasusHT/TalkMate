@@ -1,41 +1,73 @@
-import React, { useState } from 'react';
-import { View, SafeAreaView, ScrollView, TouchableOpacity } from 'react-native';
+//app/(root)/premium.tsx
+import React, { useState, useEffect } from 'react';
+import { View, SafeAreaView, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { router } from 'expo-router';
 import Text from '@/components/customText';
 import { useUser } from '@/context/UserContext';
 import { ArrowLeft, Check } from 'lucide-react-native';
+import { useIAP } from '@/hooks/Auth/useIAP';
 
 interface PlanOption {
+  productId: string;
   months: number;
-  price: number;
   savings: number;
 }
 
 const PremiumScreen = () => {
   const { setIsPremium } = useUser();
-  const planOptions: PlanOption[] = [
-    { months: 12, price: 8.24, savings: 50 },
-    { months: 3, price: 13.99, savings: 15 },
-    { months: 1, price: 16.49, savings: 0 },
-  ];
-  const [selectedPlan, setSelectedPlan] = useState<PlanOption>(planOptions[0]);
+  const { products, isLoading, purchaseItem, error } = useIAP();
+  const [selectedPlan, setSelectedPlan] = useState<PlanOption | null>(null);
 
-  const handleUpgrade = () => {
+  const planOptions: PlanOption[] = [
+    { productId: 'com.talkmate.premium.yearly', months: 12, savings: 50 },
+    { productId: 'com.talkmate.premium.quarterly', months: 3, savings: 15 },
+    { productId: 'com.talkmate.premium.monthly', months: 1, savings: 0 },
+  ];
+
+  useEffect(() => {
+    console.log('Products:', products);
+    if (products.length > 0 && !selectedPlan) {
+      setSelectedPlan(planOptions.find(plan => plan.productId === products[0].productId) || null);
+    }
+  }, [products]);
+
+  useEffect(() => {
+    console.log('PremiumScreen - Products:', products);
+    console.log('PremiumScreen - IsLoading:', isLoading);
+    console.log('PremiumScreen - Error:', error);
+
+    if (products.length > 0 && !selectedPlan) {
+      const firstAvailablePlan = planOptions.find(plan => products.some(p => p.productId === plan.productId));
+      console.log('PremiumScreen - First available plan:', firstAvailablePlan);
+      setSelectedPlan(firstAvailablePlan || null);
+    }
+  }, [products, isLoading, error]);
+
+  const handleUpgrade = async () => {
     if (selectedPlan) {
-      // Here you would normally integrate with a payment system
-      // For this example, we'll just simulate a successful upgrade
-      setIsPremium(true);
-      router.back();
+      const success = await purchaseItem(selectedPlan.productId);
+      if (success) {
+        setIsPremium(true);
+        router.back();
+      }
     }
   };
 
   const renderPlanOption = (plan: PlanOption) => {
-    const yearlyPrice = plan.price * plan.months;
+    const product = products.find(p => p.productId === plan.productId);
+    console.log(`Rendering plan option for ${plan.productId}:`, product);
+
+    if (!product) {
+      console.log(`No product found for ${plan.productId}`);
+      return null;
+    }
+
+    const monthlyPrice = Number(product.price) / Number(plan.months);
 
     return (
       <TouchableOpacity
-        key={plan.months}
-        className={`bg-white rounded-3xl p-5 mb-4 border-2 ${selectedPlan.months === plan.months ? 'border-primary-500' : 'border-gray-200'}`}
+        key={plan.productId}
+        className={`bg-white rounded-3xl p-5 mb-4 border-2 ${selectedPlan?.productId === plan.productId ? 'border-primary-500' : 'border-gray-200'}`}
         onPress={() => setSelectedPlan(plan)}
       >
         {plan.savings > 0 && (
@@ -45,14 +77,30 @@ const PremiumScreen = () => {
         )}
         <Text className="text-pink-500 mb-1">14 Day Free Trial **</Text>
         <Text className="text-lg font-NunitoSemiBold">Premium {plan.months} {plan.months === 1 ? 'Month' : 'Months'}</Text>
-        <Text className="text-gray-600">${plan.price.toFixed(2)} / month</Text>
+        <Text className="text-gray-600">${monthlyPrice.toFixed(2)} / month</Text>
       </TouchableOpacity>
     );
   };
+  
+  if (isLoading) {
+    return (
+      <SafeAreaView className="flex-1 bg-slate-200 justify-center items-center">
+        <ActivityIndicator size="large" color="#0000ff" />
+        <Text className="mt-4">Loading products...</Text>
+      </SafeAreaView>
+    );
+  }
 
-  const yearlyPrice = (selectedPlan.price * selectedPlan.months).toFixed(2);
-  const originalPrice = (16.49 * selectedPlan.months).toFixed(2);
-  const billingPeriod = selectedPlan.months === 1 ? 'monthly' : selectedPlan.months === 3 ? 'quarterly' : 'yearly';
+  if (error) {
+    return (
+      <SafeAreaView className="flex-1 bg-slate-200 justify-center items-center">
+        <Text className="text-red-500">{error}</Text>
+      </SafeAreaView>
+    );
+  }
+
+  const selectedProduct = selectedPlan ? products.find(p => p.productId === selectedPlan.productId) : null;
+  const billingPeriod = selectedPlan?.months === 1 ? 'monthly' : selectedPlan?.months === 3 ? 'quarterly' : 'yearly';
 
   return (
     <SafeAreaView className="flex-1 bg-slate-200">
@@ -66,6 +114,10 @@ const PremiumScreen = () => {
 
         {planOptions.map(renderPlanOption)}
 
+        {products.length === 0 && (
+          <Text className="text-red-500">No products available</Text>
+        )}
+
         <View className="mt-4 bg-white rounded-3xl border-2 border-gray-200 p-4">
           <Text className="text-lg font-NunitoSemiBold mb-4">What you get with TalkMate Premium</Text>
           {['Unlimited practice', 'Roleplays & advanced modes', 'Personalized learning', 'Ads free'].map((feature, index) => (
@@ -77,14 +129,13 @@ const PremiumScreen = () => {
         </View>
       </ScrollView>
       
+      {selectedProduct && (
       <View className="mt-4 items-center flex flex-row justify-center">
-        {selectedPlan.months !== 1 && (
-          <Text className="text-gray-700 line-through" style={{ textDecorationColor: 'red' }}>${originalPrice} </Text>
-        )}
         <Text className="text-center text-[17px] font-NunitoSemiBold">
-          ${yearlyPrice} (billed {billingPeriod})
+          ${Number(selectedProduct.price).toFixed(2)} (billed {billingPeriod})
         </Text>
       </View>
+    )}
       
       <TouchableOpacity
         className="mt-4 mx-6 rounded-3xl py-4 px-6 items-center bg-primary-500"
@@ -93,7 +144,7 @@ const PremiumScreen = () => {
         <Text className="text-white text-lg font-NunitoSemiBold">Select plan</Text>
       </TouchableOpacity>
 
-      <Text className="text-center text-gray-600 mt-4 ">No payment today. Cancel anytime</Text>
+      <Text className="text-center text-gray-600 mt-4 mb-6">No payment today. Cancel anytime</Text>
     </SafeAreaView>
   );
 };

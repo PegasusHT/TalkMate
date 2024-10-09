@@ -1,3 +1,5 @@
+const { default: plugin } = require("tailwindcss");
+
 module.exports = () => {
   const environment = process.env.APP_ENV || 'dev';
   const GOOGLE_IOS_CLIENT_ID = process.env.GOOGLE_IOS_CLIENT_ID;
@@ -7,6 +9,7 @@ module.exports = () => {
     expo: {
       name: "TalkMate AI",
       slug: "TalkMate-AI",
+      owner: "jimmydevdigimind",
       version: "1.0.0",
       orientation: "portrait",
       scheme: "com.jimmydev.talkmate",
@@ -19,10 +22,16 @@ module.exports = () => {
       ios: {
         supportsTablet: true,
         bundleIdentifier: "com.jimmydev.TalkMate",
-        runtimeVersion: "1.0.0"
+        scheme: "com.jimmydev.talkmate",
+        buildNumber: '2',
+        runtimeVersion: "1.0.0",
+        usesIcloudStorage: true,
+        config: {
+          usesNonExemptEncryption: false
+        }
       },
       updates: {
-        url: "https://u.expo.dev/fb518968-0eef-4a1b-9e12-afa0ce8cb20c"
+        url: "https://u.expo.dev/a9df5a4b-2126-4f44-99a0-aa848e66d363"
       },
       android: {
         package: "com.jimmydev.TalkMate",
@@ -45,13 +54,14 @@ module.exports = () => {
         },
         AI_BACKEND_URL:{
           dev: "http://localhost:8000",
-          staging: "https://ai-backend-378206958409.us-east1.run.app",
-          prod: "http://localhost:8000"
+          staging: "https://ai-backend-785452493637.us-east1.run.app",
+          prod: "https://ai-backend-785452493637.us-east1.run.app"
         },
         eas: {
           projectId: "fb518968-0eef-4a1b-9e12-afa0ce8cb20c"
         }
       },
+  
     },
   };
 };
