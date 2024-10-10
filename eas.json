@@ -21,8 +21,12 @@
           "APP_ENV": "prod"
         }
     }
-  },
-  "submit": {
-    "production": {}
   }
+  // "submit": {
+  //   "production": {
+  //     "appleId": "jimmybui1995@icloud.com",
+  //     "ascAppId": "6736656529",
+  //     "appleTeamId": "Y5VCPSR66D" 
+  //   }
+  // }
 }

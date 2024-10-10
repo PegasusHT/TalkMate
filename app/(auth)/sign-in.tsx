@@ -13,7 +13,7 @@ import { AuthSessionResult } from 'expo-auth-session';
 import { useUser } from '@/context/UserContext';
 
 WebBrowser.maybeCompleteAuthSession();
-
+console.log('url: ', ENV.BACKEND_URL)
 const { GOOGLE_IOS_CLIENT_ID, GOOGLE_WEB_CLIENT_ID } = ENV;
 
 const AuthIcon = require('@/assets/icons/auth.png');

@@ -34,7 +34,7 @@ module.exports = () => {
         url: "https://u.expo.dev/a9df5a4b-2126-4f44-99a0-aa848e66d363"
       },
       android: {
-        package: "com.jimmydev.TalkMate",
+        package: "com.jimmydev.talkmate",
         adaptiveIcon: {
           foregroundImage: "./assets/images/adaptive-icon.png",
           backgroundColor: "#ffffff"

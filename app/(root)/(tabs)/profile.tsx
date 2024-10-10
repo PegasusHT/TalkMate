@@ -8,6 +8,7 @@ import { RootTabParamList } from '@/types/types';
 import { ChevronLeft, ChevronDown } from 'lucide-react-native';
 import TargetLanguageSelector from '@/components/profile/TargetLangSelector';
 import { useUser } from '@/context/UserContext';
+import { bgColor, primaryStrong } from '@/constant/color';
 
 type Props = NativeStackScreenProps<RootTabParamList, 'Profile'>;
 
@@ -130,7 +131,8 @@ const ProfileScreen: React.FC<Props> = () => {
       </View>
 
       <TouchableOpacity 
-        className={`rounded-3xl p-2 mx-20 items-center mb-4 bg-primary-500`}
+        style={{ backgroundColor: primaryStrong }} 
+        className={`rounded-3xl p-2 mx-20 items-center mb-4`}
         onPress={handleSignOut}
       >
         <Text className="text-white text-lg font-NunitoSemiBold">
