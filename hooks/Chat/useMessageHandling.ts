@@ -8,7 +8,7 @@ const { BACKEND_URL } = ENV;
 const MAX_TOKENS = 4000;
 
 export const useMessageHandling = (
-  isSophiaChat: boolean,
+  isJennieChat: boolean,
   setIsTyping: React.Dispatch<React.SetStateAction<boolean>>,
   setShowTopics: React.Dispatch<React.SetStateAction<boolean>>,
   scenarioDetails?: {
@@ -56,8 +56,8 @@ export const useMessageHandling = (
           },
           body: JSON.stringify({
             messages: conversationHistory,
-            chatType: isSophiaChat ? 'main' : 'roleplay',
-            scenarioDetails: !isSophiaChat ? scenarioDetails : undefined,
+            chatType: isJennieChat ? 'main' : 'roleplay',
+            scenarioDetails: !isJennieChat ? scenarioDetails : undefined,
           }),
         });
 
@@ -110,7 +110,7 @@ export const useMessageHandling = (
         setIsTyping(false);
       }
     }
-  }, [isSophiaChat, scenarioDetails, playAudio]);
+  }, [isJennieChat, scenarioDetails, playAudio]);
 
   const handleSend = useCallback((chatHistory: ChatMessage[], setChatHistory: React.Dispatch<React.SetStateAction<ChatMessage[]>>) => {
     if (message.trim()) {
@@ -122,7 +122,7 @@ export const useMessageHandling = (
 
   const handleTopicSelect = useCallback((topic: string, chatHistory: ChatMessage[], setChatHistory: React.Dispatch<React.SetStateAction<ChatMessage[]>>) => {
     const params = topic === 'Fun' ? 'a fun' : topic === 'Interesting' ? 'an interesting' : 'a ';
-    const userMessage = `Hey, Sophia! Ask me ${params} question.`;
+    const userMessage = `Hey, Jennie! Ask me ${params} question.`;
     sendMessage(userMessage, chatHistory, setChatHistory);
   }, [sendMessage]);
 

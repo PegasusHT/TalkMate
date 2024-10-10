@@ -65,7 +65,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
             )}
           </View>
         )}
-        <View className={`rounded-lg p-2 max-w-[80%] ${item.role === 'user' ? 'bg-primary-500' : 'bg-gray-200'}`}>
+        <View className={`rounded-2xl p-4 max-w-[80%] ${item.role === 'user' ? 'bg-primary-500' : 'bg-[#F5F5F5]'}`}>
           <Text className={item.role === 'user' ? 'text-white' : 'text-black'}>{item.content}</Text>
         </View>
         {item.role === 'model' && (

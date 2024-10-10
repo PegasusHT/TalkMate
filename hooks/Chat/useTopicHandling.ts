@@ -10,7 +10,7 @@ export const useTopicHandling = (
 
   const handleTopicSelect = useCallback(async (topic: string) => {
     const params = topic === 'Fun' ? 'a fun' : topic === 'Interesting' ? 'an interesting' : 'a ';
-    const userMessage = `Hey, Sophia! Ask me ${params} question.`;
+    const userMessage = `Hey, Jennie! Ask me ${params} question.`;
     
     const userChatMessage: ChatMessage = {
       role: 'user',

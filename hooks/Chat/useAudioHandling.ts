@@ -20,7 +20,7 @@ type AudioCache = {
 export const useAudioHandling = (
   setChatHistory: React.Dispatch<React.SetStateAction<ChatMessage[]>>,
   chatHistory: ChatMessage[],
-  isSophiaChat: boolean,
+  isJennieChat: boolean,
   setShowTopics: React.Dispatch<React.SetStateAction<boolean>>,
   isTyping: boolean,
   showPopup: (message: string) => void,
@@ -307,8 +307,8 @@ export const useAudioHandling = (
             },
             body: JSON.stringify({
               messages: conversationHistory,
-              chatType: isSophiaChat ? 'main' : 'roleplay',
-              scenarioDetails: !isSophiaChat ? scenarioDetails : undefined,
+              chatType: isJennieChat ? 'main' : 'roleplay',
+              scenarioDetails: !isJennieChat ? scenarioDetails : undefined,
             }),
           });
   
@@ -364,7 +364,7 @@ export const useAudioHandling = (
     } finally {
       setIsProcessingAudio(false);
     }
-  }, [chatHistory, playAudio, setChatHistory, showPopup, stopRecording, isSophiaChat, scenarioDetails, trimConversationHistory]);
+  }, [chatHistory, playAudio, setChatHistory, showPopup, stopRecording, isJennieChat, scenarioDetails, trimConversationHistory]);
 
   return {
     isRecording,

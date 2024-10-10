@@ -16,7 +16,7 @@ type ScenarioDetails = {
 };
 
 export const useChatInitialization = (
-  isSophiaChat: boolean,
+  isJennieChat: boolean,
   setChatHistory: React.Dispatch<React.SetStateAction<ChatMessage[]>>,
   setShowTopics: React.Dispatch<React.SetStateAction<boolean>>,
   scenarioId?: ObjectId,
@@ -32,9 +32,9 @@ export const useChatInitialization = (
 
     try {
       let response;
-      if (isSophiaChat) {
+      if (isJennieChat) {
         response = await axios.post(`${BACKEND_URL}/session`, {
-          aiName: 'Sophia',
+          aiName: 'Jennie',
           primaryRole: 'English practice buddy',
           traits: 'friendly,patient,encouraging',
           context: 'English language learning',
@@ -42,7 +42,7 @@ export const useChatInitialization = (
       } else if (initScenarioId) {
         response = await axios.post(`${BACKEND_URL}/session`, { scenarioId: initScenarioId });
       } else {
-        throw new Error('Invalid chat initialization: missing scenarioId for non-Sophia chat');
+        throw new Error('Invalid chat initialization: missing scenarioId for non-Jennie chat');
       }
 
       const { greetingMessage } = response.data;
@@ -54,7 +54,7 @@ export const useChatInitialization = (
           id: Date.now()
         };
         setChatHistory([greetingMessageObject]);
-        setShowTopics(isSophiaChat);
+        setShowTopics(isJennieChat);
         
         if (playAudio) {
           await playAudio(greetingMessageObject.id, greetingMessageObject.content);
@@ -62,8 +62,8 @@ export const useChatInitialization = (
       }
     } catch (error) {
       console.error('Error initializing chat:', error);
-      if (isSophiaChat) {
-        const fallbackGreeting = "Hey there! 👋 I'm Sophia, your friendly English practice buddy! 😊 Ask me anything or select a topic below:";
+      if (isJennieChat) {
+        const fallbackGreeting = "Hey there! 👋 I'm Jennie, your friendly English practice buddy! 😊 Ask me anything or select a topic below:";
         const fallbackGreetingObject: ChatMessage = {
           role: 'model',
           content: fallbackGreeting,
@@ -78,7 +78,7 @@ export const useChatInitialization = (
     } finally {
       setIsInitializing(false);
     }
-  }, [isInitializing, isSophiaChat, setChatHistory, setShowTopics, playAudio]);
+  }, [isInitializing, isJennieChat, setChatHistory, setShowTopics, playAudio]);
 
   const startNewChat = useCallback(async () => {
     hasInitialized.current = false;

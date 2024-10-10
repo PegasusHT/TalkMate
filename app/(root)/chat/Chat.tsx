@@ -140,7 +140,7 @@ const ChatSession: React.FC = () => {
         className="flex-1"
       >
         <ChatHeader 
-          aiName="Sophia"
+          aiName="Jennie"
           chatType="main"
           onNewChat={startNewChat}
           stopRecording={stopRecording}

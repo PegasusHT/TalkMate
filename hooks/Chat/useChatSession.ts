@@ -8,7 +8,7 @@ import { useMessageHandling } from './useMessageHandling';
 import { usePopupMessage } from './usePopupMessage';
 import { useFeedbackHandling } from './useFeedbackHandling';
 
-export const useChatSession = (isSophiaChat = false, scenarioId?: ObjectId, scenarioDetails?: {
+export const useChatSession = (isJennieChat = false, scenarioId?: ObjectId, scenarioDetails?: {
   aiName: string;
   aiRole: string;
   scenarioTitle: string;
@@ -39,7 +39,7 @@ export const useChatSession = (isSophiaChat = false, scenarioId?: ObjectId, scen
     stopRecording,
     sendAudio,
   } = useAudioHandling(
-    setChatHistory, chatHistory, isSophiaChat, setShowTopics, isTyping,showPopup, isScreenActive, scenarioDetails);
+    setChatHistory, chatHistory, isJennieChat, setShowTopics, isTyping,showPopup, isScreenActive, scenarioDetails);
 
   const {
     message,
@@ -47,7 +47,7 @@ export const useChatSession = (isSophiaChat = false, scenarioId?: ObjectId, scen
     sendMessage,
     handleSend,
     handleTopicSelect,
-  } = useMessageHandling(isSophiaChat,setIsTyping, setShowTopics, scenarioDetails, playAudio);
+  } = useMessageHandling(isJennieChat,setIsTyping, setShowTopics, scenarioDetails, playAudio);
 
   const {
     showFeedbackModal,
@@ -61,7 +61,7 @@ export const useChatSession = (isSophiaChat = false, scenarioId?: ObjectId, scen
     initializeChat,
     startNewChat,
   } = useChatInitialization(
-    isSophiaChat,
+    isJennieChat,
     setChatHistory,
     setShowTopics,
     scenarioId,
