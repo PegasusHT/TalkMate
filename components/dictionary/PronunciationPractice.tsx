@@ -413,7 +413,7 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
   }, []);
 
   return (
-    <SafeAreaView className="flex-1 bg-slate-100 px-4">
+    <SafeAreaView className="flex-1 bg-white px-4">
       <View className=''>
         <TouchableOpacity onPress={handleBackPress}>
           <ArrowLeft size={28} color="#000" />

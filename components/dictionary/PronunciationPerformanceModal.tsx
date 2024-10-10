@@ -155,7 +155,20 @@ const PronunciationPerformanceModal: React.FC<PronunciationPerformanceModalProps
   >
     <View className="flex-1 justify-end">
       <Pressable className="flex-1" onPress={handleCloseModal} />
-      <View className="bg-white shadow-2xl rounded-t-3xl p-4 pt-6" style={{ height: '52%' }}>
+      <View 
+          className="bg-white rounded-t-3xl p-4 pt-6" 
+          style={{ 
+            height: '52%',
+            shadowColor: "#000",
+            shadowOffset: {
+              width: 0,
+              height: -2,
+            },
+            shadowOpacity: 0.15,
+            shadowRadius: 4.65,
+            elevation: 6,
+          }}
+        >
         <View className="flex-row border-b-[0.17px] pb-4 items-center justify-between">
           <View className="flex-row items-center">
             <Text className="text-5xl pt-2 mr-2">{emoji}</Text>
@@ -188,7 +201,7 @@ const PronunciationPerformanceModal: React.FC<PronunciationPerformanceModalProps
               />
             </View>
 
-            <View className='bg-[#FDE7CE] w-full rounded-xl p-3 mt-6 flex flex-row items-center'>
+            <View className='bg-[#FEF1E1] w-full rounded-xl p-3 mt-6 flex flex-row items-center'>
               <LightbulbIcon className='mr-2' color="#F7941F" />
               <Text className='text-lg flex-1 text-[#F7941F]'>
                 Tap on each word for detailed feedback

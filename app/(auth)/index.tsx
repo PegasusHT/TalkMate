@@ -83,7 +83,31 @@ const WelcomeFlow: React.FC = () => {
                         </View>
                     ))}
                 </Animated.ScrollView>
-                
+
+                <View style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    justifyContent: 'flex-end',
+                    alignItems: 'center',
+                    zIndex: 20,
+                    pointerEvents: 'none',
+                }}>
+                    <View style={{
+                        flex: 1,
+                        justifyContent: 'center',
+                        marginBottom: '37%', 
+                    }}>
+                        <Image 
+                            source={onboardingLogo}
+                            style={{ width: 100, height: 100 }}
+                            resizeMode='contain'
+                        />
+                    </View>
+                </View>
+
                 <View style={{
                     position: 'absolute',
                     bottom: 10,
@@ -115,16 +139,6 @@ const WelcomeFlow: React.FC = () => {
                     padding: 20,
                     paddingBottom: 20,
                 }}/>
-            </View>
-            
-            <View style={{ position: 'absolute', top: height/3+28, left: width/2 -48, zIndex: 20 }}>
-                <View style={{ }} className="">
-                    <Image 
-                        source={onboardingLogo}
-                        style={{ width: 100, height: 100 }}
-                        resizeMode='contain'
-                    />
-                </View>
             </View>
 
             <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 30, backgroundColor: 'white' }} className='pt-6'>
