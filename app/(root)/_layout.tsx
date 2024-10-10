@@ -17,6 +17,8 @@ const Layout = () => {
         <Stack.Screen name='customScenario' options={{ headerShown: false }} />
 
         <Stack.Screen name="premium" options={{ headerShown: false }} />
+        <Stack.Screen name="privacyPolicy" options={{ headerShown: false }} />
+        <Stack.Screen name="termsOfUse" options={{ headerShown: false }} />
 
       </Stack>
     </GestureHandlerRootView>

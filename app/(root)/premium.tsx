@@ -102,6 +102,14 @@ const PremiumScreen = () => {
   const selectedProduct = selectedPlan ? products.find(p => p.productId === selectedPlan.productId) : null;
   const billingPeriod = selectedPlan?.months === 1 ? 'monthly' : selectedPlan?.months === 3 ? 'quarterly' : 'yearly';
 
+  const openPrivacyPolicy = () => {
+    router.push('/privacyPolicy');
+  };
+
+  const openTermsOfUse = () => {
+    router.push('/termsOfUse');
+  };
+
   return (
     <SafeAreaView className="flex-1 bg-slate-200">
       <ScrollView className="p-5">
@@ -127,6 +135,25 @@ const PremiumScreen = () => {
             </View>
           ))}
         </View>
+        <Text className='text-gray-600 mt-4'>
+          By picking a plan, you agree with our{' '}
+          <Text
+            className='text-gray-600 underline'
+            onPress={openTermsOfUse}
+          >
+            Terms of Use
+          </Text>
+          {' '}and the{' '}
+          <Text
+            className='text-gray-600 underline'
+            onPress={openPrivacyPolicy}
+          >
+            Privacy Policy
+          </Text>
+          . *Compared to 1 Month plan. **Free trial applies only to first-time trial users.
+        </Text>
+
+
       </ScrollView>
       
       {selectedProduct && (
