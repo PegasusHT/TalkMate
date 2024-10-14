@@ -5,10 +5,11 @@ import { router } from 'expo-router';
 import BoardingButtons from '@/components/boarding/boardingButtons';
 import Text from '@/components/customText';
 import { bgColor, primaryStrong } from '@/constant/color';
-import { Ionicons } from '@expo/vector-icons';
 import { boardingData } from '@/data/boardingData';
 import { Globe } from 'lucide-react-native';
 import { useUser } from '@/context/UserContext';
+import { getTextStyle, combineStyles } from '@/components/customUtils/responsiveFontSize';
+import ResponsiveView from '@/components/customUtils/responsiveView';
 
 const { width, height } = Dimensions.get('window');
 const onboardingLogo = require('@/assets/images/onboarding-logo.png');
@@ -63,42 +64,47 @@ const WelcomeFlow: React.FC = () => {
                                     resizeMode='contain'
                                 />
                             </View>
-                            <View style={{ 
-                                position: 'absolute', 
-                                top: 360,
-                                left: 0,
-                                right: 0,
-                                backgroundColor: 'white', 
-                                padding: 20,
-                                paddingBottom: 80,
-                            }}>
-                                <Text className='text-3xl mt-10 font-NunitoSemiBold text-center'>
+                            <ResponsiveView 
+                                responsiveStyle={{
+                                    sm: { padding: 4, paddingBottom: 50 },
+                                    md: { padding: 20, paddingBottom: 80 },
+                                }}
+                                style={{ 
+                                    position: 'absolute', 
+                                    top: '42%',
+                                    left: 0,
+                                    right: 0,
+                                    backgroundColor: 'white', 
+                                }}
+                            >
+                                <Text style={combineStyles(getTextStyle('base'))}
+                                 className='mt-10 font-NunitoSemiBold text-center'>
                                     {screen.title}
                                 </Text>
                                 <Text className='mx-4 mt-6 text-[16px] opacity-60 text-center'>
                                     {screen.description}
                                 </Text>
-                                
-                            </View>
+                            </ResponsiveView>
                         </View>
                     ))}
                 </Animated.ScrollView>
-
-                <View style={{
+            
+                <View
+                 style={{
                     position: 'absolute',
                     top: 0,
                     left: 0,
                     right: 0,
-                    bottom: 0,
+                    bottom: '16%',
                     justifyContent: 'flex-end',
                     alignItems: 'center',
                     zIndex: 20,
                     pointerEvents: 'none',
                 }}>
-                    <View style={{
+                    <View 
+                     style={{
                         flex: 1,
                         justifyContent: 'center',
-                        marginBottom: '37%', 
                     }}>
                         <Image 
                             source={onboardingLogo}
@@ -108,7 +114,8 @@ const WelcomeFlow: React.FC = () => {
                     </View>
                 </View>
 
-                <View style={{
+                <View
+                 style={{
                     position: 'absolute',
                     bottom: 10,
                     left: 0,
@@ -116,7 +123,12 @@ const WelcomeFlow: React.FC = () => {
                     alignItems: 'center',
                     zIndex:10
                 }}>
-                    <View className="flex-row mb-60">
+                    <ResponsiveView
+                     responsiveStyle={{
+                        sm:{marginBottom:'56%'},
+                        md:{marginBottom:'54%'}
+                     }}
+                     className="flex-row">
                         {boardingData.map((_, i) => (
                             <View
                                 key={i}
@@ -125,11 +137,11 @@ const WelcomeFlow: React.FC = () => {
                                 }`}
                             />
                         ))}
-                    </View>
+                    </ResponsiveView>
                 </View>
                 <View style={{ 
                     position: 'absolute', 
-                    top: 385,
+                    top: '41%',
                     left: 0, 
                     right: 0, 
                     height: 46,
