@@ -1,13 +1,11 @@
-//app/(root)/index.tsx
 import React from 'react';
-import Text from '@/components/customText';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Ionicons } from '@expo/vector-icons';
 import HomeScreen from '@/app/(root)/(tabs)/home';
 import LearnScreen from '@/app/(root)/(tabs)/learn';
 import DictionaryScreen from './(tabs)/dictionary';
 import ProfileScreen from '@/app/(root)/(tabs)/profile';
 import CustomHeader from '@/components/customHeader';
+import CustomTabBar from '@/components/index/customTabBar';
 import { useUser } from '@/context/UserContext';
 
 export type RootTabParamList = {
@@ -19,81 +17,30 @@ export type RootTabParamList = {
 
 const Tab = createBottomTabNavigator<RootTabParamList>();
 
-type TabBarIconProps = {
-  focused: boolean;
-  color: string;
-  size: number;
-};
-
-const getTabBarIcon = (routeName: keyof RootTabParamList) => {
-  return ({ focused, color, size }: TabBarIconProps) => {
-    let iconName: keyof typeof Ionicons.glyphMap;
-
-    switch (routeName) {
-      case 'Home':
-        iconName = focused ? 'home' : 'home-outline';
-        break;
-      case 'Dictionary':
-        iconName = focused ? 'list' : 'list-outline';
-        break;
-      case 'Profile':
-        iconName = focused ? 'person' : 'person-outline';
-        break;
-      default:
-        iconName = 'alert-circle'; 
-    }
-
-    return <Ionicons name={iconName} size={size} color={color} />;
-  };
-};
-
-const getTabBarLabel = (label: string) => {
-  return ({ focused }: { focused: boolean }) => (
-    <Text className={`text-xs ${focused ? 'text-primary-500' : 'text-gray-500'}`}>
-      {label}
-    </Text>
-  );
-};
-
 const Home = () => {
   const { isGuest, firstname } = useUser();
     
   return (
     <Tab.Navigator
-      screenOptions={({ route }) => ({
-        tabBarIcon: getTabBarIcon(route.name),
-        tabBarActiveTintColor: '#585FF9',
-        tabBarInactiveTintColor: 'gray',
-        tabBarStyle: {
-          backgroundColor: 'white',
-          height: 90,
-          paddingBottom: 35,
-          paddingTop: 10,
-          borderTopWidth: 1,
-          borderTopColor: 'gray',
-        },
-        tabBarLabelStyle: {
-          fontSize: 12,
-        },
+      tabBar={(props) => <CustomTabBar {...props} />}
+      screenOptions={{
         header: () => <CustomHeader isGuest={isGuest} firstname={firstname} />,
-      })}
+      }}
     >
       <Tab.Screen 
         name="Home" 
         component={HomeScreen}
-        options={{ tabBarLabel: getTabBarLabel('Home') }}
+        options={{ title: 'Home' }}
       />
       <Tab.Screen 
         name="Dictionary" 
         component={DictionaryScreen}
-        options={{ 
-          tabBarLabel: getTabBarLabel('Dictionary'),
-        }}
+        options={{ title: 'Dictionary' }}
       />
       <Tab.Screen 
         name="Profile" 
         component={ProfileScreen}
-        options={{ tabBarLabel: getTabBarLabel('Profile') }}
+        options={{ title: 'Profile' }}
       />
     </Tab.Navigator>
   );
