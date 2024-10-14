@@ -16,6 +16,13 @@ A cross-platform app that utilizes AI to help the users practice English convers
     npx expo start
    ```
 
+## Build and push the app
+
+```bash
+eas build --platform ios --profile production
+eas submit --platform ios  
+```
+
 This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
 
 ## Learn more
