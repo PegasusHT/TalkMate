@@ -10,6 +10,7 @@ import { Globe } from 'lucide-react-native';
 import { useUser } from '@/context/UserContext';
 import { getTextStyle, combineStyles } from '@/components/customUtils/responsiveFontSize';
 import ResponsiveView from '@/components/customUtils/responsiveView';
+import ResponsiveText from '@/components/customUtils/responsiveText';
 
 const { width, height } = Dimensions.get('window');
 const onboardingLogo = require('@/assets/images/onboarding-logo.png');
@@ -167,19 +168,54 @@ const WelcomeFlow: React.FC = () => {
                 zIndex: 40
               }} 
               className="flex-row justify-between items-center w-full">
-                <View style={{ backgroundColor: bgColor, position: 'absolute', top: 60, left: 6 }}
+                <ResponsiveView 
+                 responsiveStyle={{
+                    sm: { top: 60, left: 6  },
+                    md: { top: 60, left: 6  },
+                    lg: { top: 80, left: 19  },
+                 }}
+                 style={{ backgroundColor: bgColor, position: 'absolute'}}
                  className='rounded-full px-3 py-1'>
-                  <Text style={{ color: primaryStrong }} className='text-[17px]'>
-                    <Text className='font-NunitoBold'>TalkMate </Text>
-                    <Text className='font-NunitoRegular'>AI</Text>
-                  </Text>
-                </View>
+                    <ResponsiveText 
+                        responsiveStyle={{
+                            sm: { fontSize: 16 },
+                            md: { fontSize: 17 },
+                            lg: { fontSize: 30 },
+                        }}
+                        style={{ color: primaryStrong }} 
+                        className=''>
+                        <Text className='font-NunitoBold'>TalkMate </Text>
+                        <Text className='font-NunitoRegular'>AI</Text>
+                    </ResponsiveText>
+                </ResponsiveView>
 
-                <TouchableOpacity style={{position: 'absolute', top: 60, right: 11 }}
-                className="flex-row items-center bg-white px-3 py-1 rounded-full">
-                    <Globe size={16} color={primaryStrong} />
-                    <Text style={{ color: primaryStrong }}
-                    className="ml-2 font-NunitoSemiBold">English</Text>
+                <TouchableOpacity>
+                    <ResponsiveView 
+                        responsiveStyle={{
+                            sm: { top: 60, right: 11   },
+                            md: { top: 60, right: 11  },
+                            lg: { top: 60, right: 11   },
+                        }}
+                        style={{position: 'absolute'}}
+                        className='flex-row items-center bg-white px-3 py-1 rounded-full'>
+                        <ResponsiveView
+                            responsiveStyle={{
+                                sm: { width: 14, height: 14 },
+                                md: { width: 16, height: 16 },
+                                lg: { width: 24, height: 24 },
+                            }}
+                        >
+                            <Globe color={primaryStrong} />
+                        </ResponsiveView>
+                        <ResponsiveText
+                         responsiveStyle={{
+                            sm: { fontSize: 13 },
+                            md: { fontSize: 14 },
+                            lg: { fontSize: 30 },
+                         }}
+                         style={{ color: primaryStrong }}
+                        className="ml-2 font-NunitoSemiBold">English</ResponsiveText>
+                    </ResponsiveView>
                 </TouchableOpacity>
             </View>
         </View>
