@@ -11,6 +11,8 @@ import { useUser } from '@/context/UserContext';
 import { getTextStyle, combineStyles } from '@/components/customUtils/responsiveFontSize';
 import ResponsiveView from '@/components/customUtils/responsiveView';
 import ResponsiveText from '@/components/customUtils/responsiveText';
+import ResponsiveIcon from '@/components/customUtils/responsiveIcon';
+import ResponsiveImage from '@/components/customUtils/responsiveImage';
 
 const { width, height } = Dimensions.get('window');
 const onboardingLogo = require('@/assets/images/onboarding-logo.png');
@@ -59,9 +61,13 @@ const WelcomeFlow: React.FC = () => {
                     {boardingData.map((screen, index) => (
                         <View key={index} style={{ width, height: height - 80 }}>
                             <View style={{ alignItems: 'center' }}>
-                                <Image 
+                                <ResponsiveImage 
                                     source={screen.image}
-                                    style={{ width: 270, height: 360 }}
+                                    responsiveStyle={{
+                                        sm: { width:240, height:320 },
+                                        md: { width:270, height:360 },
+                                        lg: { width:460, height:520 }
+                                    }}
                                     resizeMode='contain'
                                 />
                             </View>
@@ -69,6 +75,7 @@ const WelcomeFlow: React.FC = () => {
                                 responsiveStyle={{
                                     sm: { padding: 4, paddingBottom: 50 },
                                     md: { padding: 20, paddingBottom: 80 },
+                                    lg: { padding: 40, }
                                 }}
                                 style={{ 
                                     position: 'absolute', 
@@ -77,14 +84,23 @@ const WelcomeFlow: React.FC = () => {
                                     right: 0,
                                     backgroundColor: 'white', 
                                 }}
+                                className='h-full'
                             >
-                                <Text style={combineStyles(getTextStyle('base'))}
+                                <ResponsiveText
+                                 responsiveStyle={{
+                                    lg: {fontSize:54}
+                                 }}
                                  className='mt-10 font-NunitoSemiBold text-center'>
                                     {screen.title}
-                                </Text>
-                                <Text className='mx-4 mt-6 text-[16px] opacity-60 text-center'>
+                                </ResponsiveText>
+                                <ResponsiveText
+                                 responsiveStyle={{
+                                    md: {fontSize: 16},
+                                    lg: {fontSize: 28, paddingHorizontal:40, paddingVertical:10}
+                                 }}
+                                  className='mx-4 mt-6 opacity-60 text-center'>
                                     {screen.description}
-                                </Text>
+                                </ResponsiveText>
                             </ResponsiveView>
                         </View>
                     ))}
@@ -107,15 +123,22 @@ const WelcomeFlow: React.FC = () => {
                         flex: 1,
                         justifyContent: 'center',
                     }}>
-                        <Image 
+                        <ResponsiveImage 
                             source={onboardingLogo}
-                            style={{ width: 100, height: 100 }}
+                            responsiveStyle={{
+                                sm: { width: 80, height: 80 },
+                                md: { width: 100, height: 100 },
+                                lg: { width: 160, height: 160 },
+                            }}
                             resizeMode='contain'
                         />
                     </View>
                 </View>
 
-                <View
+                <ResponsiveView 
+                 responsiveStyle={{
+
+                 }}
                  style={{
                     position: 'absolute',
                     bottom: 10,
@@ -127,19 +150,24 @@ const WelcomeFlow: React.FC = () => {
                     <ResponsiveView
                      responsiveStyle={{
                         sm:{marginBottom:'56%'},
-                        md:{marginBottom:'54%'}
+                        md:{marginBottom:'54%'},
+                        lg: { marginBottom:'34%' }
                      }}
                      className="flex-row">
                         {boardingData.map((_, i) => (
-                            <View
+                            <ResponsiveView
+                                responsiveStyle={{
+                                    md: { height:3, width:3, marginHorizontal:1 },
+                                    lg: { height:26, width:26, marginHorizontal:8 }
+                                }}
                                 key={i}
-                                className={`h-3 w-3 rounded-full mx-1 ${
+                                className={`rounded-full ${
                                     i === currentPage ? 'bg-blue-500' : 'bg-gray-300'
                                 }`}
                             />
                         ))}
                     </ResponsiveView>
-                </View>
+                </ResponsiveView>
                 <View style={{ 
                     position: 'absolute', 
                     top: '41%',
@@ -172,7 +200,7 @@ const WelcomeFlow: React.FC = () => {
                  responsiveStyle={{
                     sm: { top: 60, left: 6  },
                     md: { top: 60, left: 6  },
-                    lg: { top: 80, left: 19  },
+                    lg: { top: 74, left: 22  },
                  }}
                  style={{ backgroundColor: bgColor, position: 'absolute'}}
                  className='rounded-full px-3 py-1'>
@@ -192,29 +220,29 @@ const WelcomeFlow: React.FC = () => {
                 <TouchableOpacity>
                     <ResponsiveView 
                         responsiveStyle={{
-                            sm: { top: 60, right: 11   },
-                            md: { top: 60, right: 11  },
-                            lg: { top: 60, right: 11   },
+                            sm: { top: 60, right: 11, paddingVertical:1, paddingHorizontal:3 },
+                            md: { top: 60, right: 11, paddingVertical:1, paddingHorizontal:3 },
+                            lg: { top: 70, right: 22, paddingVertical:6, paddingHorizontal:18 },
                         }}
                         style={{position: 'absolute'}}
-                        className='flex-row items-center bg-white px-3 py-1 rounded-full'>
-                        <ResponsiveView
-                            responsiveStyle={{
-                                sm: { width: 14, height: 14 },
-                                md: { width: 16, height: 16 },
-                                lg: { width: 24, height: 24 },
+                        className='flex-row items-center bg-white rounded-full'>
+                        <ResponsiveIcon 
+                            icon={Globe}
+                            responsiveSize={{
+                                sm: 16,
+                                md: 20,
+                                lg: 30,
                             }}
-                        >
-                            <Globe color={primaryStrong} />
-                        </ResponsiveView>
+                            color={primaryStrong}
+                        />
                         <ResponsiveText
                          responsiveStyle={{
                             sm: { fontSize: 13 },
                             md: { fontSize: 14 },
-                            lg: { fontSize: 30 },
+                            lg: { fontSize: 28, marginLeft:8 },
                          }}
                          style={{ color: primaryStrong }}
-                        className="ml-2 font-NunitoSemiBold">English</ResponsiveText>
+                        className="font-NunitoSemiBold">English</ResponsiveText>
                     </ResponsiveView>
                 </TouchableOpacity>
             </View>

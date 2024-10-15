@@ -4,6 +4,8 @@ import { View, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 import Text from '@/components/customText';
 import { bgColor, primaryStrong } from '@/constant/color';
+import ResponsiveView from '../customUtils/responsiveView';
+import ResponsiveText from '../customUtils/responsiveText';
 
 interface BoardingButtonsProps {
     onGuestSignIn: () => void;
@@ -19,37 +21,75 @@ const BoardingButtons: React.FC<BoardingButtonsProps> = ({ onGuestSignIn }) => {
     };
 
     return (
-        <View className='bg-white px-6 pb-10'>
-            <TouchableOpacity
-                style={{ backgroundColor: primaryStrong }} 
-                className='w-full rounded-3xl h-14 items-center justify-center'
-                onPress={handleGetStarted}
-            >
-                <Text className='text-white text-lg font-NunitoSemiBold'>
-                    Get started
-                </Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
+        <ResponsiveView responsiveStyle={{ 
+            md: { paddingHorizontal:24, paddingBottom:40 },
+            lg: { paddingHorizontal: 40, paddingBottom:60, gap:8 }
+        }}
+         className='bg-white'>
+            <ResponsiveView 
+             responsiveStyle={{
+                md: {height:56},
+                lg: { height:80, }
+             }}>
+                <TouchableOpacity
+                    style={{ backgroundColor: primaryStrong }} 
+                    className='w-full rounded-3xl h-full items-center justify-center'
+                    onPress={handleGetStarted}
+                >
+                    <ResponsiveText
+                     responsiveStyle={{
+                        md: { fontSize:18 },
+                        lg: { fontSize:30 }
+                     }}
+                     className='text-white font-NunitoSemiBold'>
+                        Get started
+                    </ResponsiveText>
+                </TouchableOpacity>
+            </ResponsiveView>
+       
+            <ResponsiveView 
+             responsiveStyle={{
+                md: {height:56},
+                lg: { height:80, }
+             }}>
+              <TouchableOpacity 
                 style={{ backgroundColor: bgColor }} 
-                className='w-full mt-2 rounded-3xl h-14 items-center justify-center'
+                className='w-full mt-2 rounded-3xl h-full items-center justify-center'
                 onPress={handleLogIn}
-            >
-                <Text
+              >
+                <ResponsiveText
+                    responsiveStyle={{
+                        md: { fontSize:18 },
+                        lg: { fontSize:30 }
+                     }}
                     style={{ color: primaryStrong }} 
-                    className='text-lg font-NunitoSemiBold'
+                    className='font-NunitoSemiBold'
                 >
                     Log in
-                </Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-                className='mt-3 items-center'
+                </ResponsiveText>
+              </TouchableOpacity>
+            </ResponsiveView>
+
+            <ResponsiveView 
+             responsiveStyle={{
+                md: { marginTop: 12},
+                lg: { marginTop: 24}
+             }}>
+              <TouchableOpacity 
+                className='items-center'
                 onPress={onGuestSignIn}
-            >
-                <Text className='text-gray-800 opacity-80 text-lg'>
+              >
+                <ResponsiveText
+                    responsiveStyle={{
+                        md: { fontSize:18 },
+                        lg: { fontSize:30 }
+                     }}
+                    className='text-gray-800 opacity-80'>
                     Guest mode
-                </Text>
-            </TouchableOpacity>
-        </View>
+                </ResponsiveText>
+              </TouchableOpacity>
+            </ResponsiveView>
+        </ResponsiveView>
     );
 };
 

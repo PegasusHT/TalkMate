@@ -8,9 +8,9 @@ export type DeviceSize = 'sm' | 'md' | 'lg' | 'xl';
 export const getDeviceSize = (): DeviceSize => {
   const shortestSide = Math.min(width, height);
   
-  if (shortestSide <= 390) return 'sm'; //iphone13 pro
-  if (shortestSide <= 430) return 'md'; //iphone 15 pro max
-  if (shortestSide <= 1024) return 'lg'; //ipad 13'
+  if (shortestSide <= 390) return 'sm'; //iphone13 pro: 390
+  if (shortestSide <= 600) return 'md'; //iphone 15 pro max: 430
+  if (shortestSide <= 1400) return 'lg'; //ipad 13'
   return 'xl';
 };
 
