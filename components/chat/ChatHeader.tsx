@@ -1,9 +1,11 @@
-//components/chat/ChatHeader.tsx
 import React, { useState } from 'react';
-import { View, TouchableOpacity, Image, Modal } from 'react-native';
-import Text from '@/components/customText';
-import { ArrowLeft, MoreVertical, MessageCirclePlus, Info } from 'lucide-react-native';
+import { View, TouchableOpacity, Modal } from 'react-native';
+import { ArrowLeft, MoreVertical, MessageCirclePlus } from 'lucide-react-native';
 import { useNavigation } from 'expo-router';
+import ResponsiveView from '@/components/customUtils/responsiveView';
+import ResponsiveText from '@/components/customUtils/responsiveText';
+import ResponsiveIcon from '@/components/customUtils/responsiveIcon';
+import ResponsiveImage from '@/components/customUtils/responsiveImage';
 
 const faceIcon = require('@/assets/icons/chat-face.png');
 const secondaryColor = "#FFC132";
@@ -25,6 +27,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({ aiName, chatType, isScreenActiv
     setModalVisible(false);
     onNewChat && onNewChat();
   };
+
   const handleBackPress = async () => {
     await stopRecording(); 
     isScreenActive.current = false;
@@ -33,22 +36,65 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({ aiName, chatType, isScreenActiv
 
   return (
     <>
-      <View className="flex-row items-center justify-between pb-1 px-4 border-b mb-2 border-gray-200">
-        <View className="flex-row items-center">
+      <ResponsiveView 
+        className="flex-row items-center justify-between border-b border-gray-200"
+        responsiveStyle={{
+          sm: { paddingHorizontal: 16, paddingBottom: 4, marginBottom: 8 },
+          md: { paddingHorizontal: 16, paddingBottom: 4, marginBottom: 8, marginTop:0 },
+          lg: { paddingHorizontal: 28, paddingBottom: 8, marginBottom: 12, marginTop:24 },
+        }}
+      >
+        <ResponsiveView className="flex-row items-center">
           <TouchableOpacity onPress={handleBackPress}>
-            <ArrowLeft size={24} color="#000" />
+            <ResponsiveIcon
+              icon={{ type: 'lucide', icon: ArrowLeft }}
+              responsiveSize={{
+                sm: 24,
+                md: 24,
+                lg: 40,
+              }}
+              color="#000"
+            />
           </TouchableOpacity>
-          <Image
+          <ResponsiveImage
             source={faceIcon}
-            className="w-10 h-10 ml-2 mr-[-10px]"
+            responsiveStyle={{
+              sm: { width: 40, height: 40, marginLeft: 8, marginRight: -10 },
+              md: { width: 40, height: 40, marginLeft: 8, marginRight: -10 },
+              lg: { width: 72, height: 72, marginLeft: 18, marginRight: -10 },
+            }}
           />
-          <View className="absolute left-16 bottom-0 w-3 h-3 bg-green-500 rounded-full" />
-          <Text className="text-lg font-NunitoSemiBold ml-4">{aiName.charAt(0).toUpperCase() + aiName.slice(1)}</Text>
-        </View>
+          <ResponsiveView 
+            className="absolute bg-green-500 rounded-full"
+            responsiveStyle={{
+              sm: { left: 64, bottom: 0, width: 12, height: 12 },
+              md: { left: 64, bottom: 0, width: 12, height: 12 },
+              lg: { left: 112, bottom: 0, width: 20, height: 20 },
+            }}
+          />
+          <ResponsiveText 
+            className="font-NunitoSemiBold"
+            responsiveStyle={{
+              sm: { fontSize: 18, marginLeft: 16 },
+              md: { fontSize: 18, marginLeft: 16 },
+              lg: { fontSize: 36, marginLeft: 32 },
+            }}
+          >
+            {aiName.charAt(0).toUpperCase() + aiName.slice(1)}
+          </ResponsiveText>
+        </ResponsiveView>
         <TouchableOpacity onPress={() => setModalVisible(true)}>
-          <MoreVertical size={24} color="#000" />
+          <ResponsiveIcon
+            icon={{ type: 'lucide', icon: MoreVertical }}
+            responsiveSize={{
+              sm: 24,
+              md: 24,
+              lg: 40,
+            }}
+            color="#000"
+          />
         </TouchableOpacity>
-      </View>
+      </ResponsiveView>
 
       <Modal
         animationType="slide"
@@ -61,26 +107,72 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({ aiName, chatType, isScreenActiv
           activeOpacity={1} 
           onPress={() => setModalVisible(false)}
         >
-          <View className="absolute bottom-0 left-0 right-0 bg-slate-400 opacity-90 h-44 justify-center">
-            <View className="w-28 h-1 mt-[-30px] bg-white rounded-full self-center mb-4" />
-            <View className="mx-4 bg-white rounded-3xl pb-5">
+          <ResponsiveView 
+            className="absolute bottom-0 left-0 right-0 bg-slate-400 justify-center"
+            responsiveStyle={{
+              sm: { height: 176 },
+              md: { height: 176 },
+              lg: { height: 280 },
+            }}
+          >
+            <ResponsiveView 
+              className="bg-white rounded-full self-center "
+              responsiveStyle={{
+                sm: { marginTop: -30 },
+                md: { marginTop: -30, width: 160, height: 4, marginBottom:16  },
+                lg: { marginTop: -40, width: 420, height: 8, marginBottom:32},
+              }}
+            />
+            <ResponsiveView className="mx-4 bg-white rounded-3xl pb-5">
               <TouchableOpacity
                 onPress={handleNewSession}
                 className="flex-row items-center mx-6 mt-6 mb-2"
               >
-                <View className="bg-primary-500 rounded-full p-2 mr-4">
-                  <MessageCirclePlus color={'white'} size={30} />
-                </View>
+                <ResponsiveView 
+                  className="bg-primary-500 rounded-full mr-4"
+                  responsiveStyle={{
+                    sm: { padding: 8 },
+                    md: { padding: 8 },
+                    lg: { padding: 16 },
+                  }}
+                >
+                  <ResponsiveIcon
+                    icon={{ type: 'lucide', icon: MessageCirclePlus }}
+                    responsiveSize={{
+                      sm: 30,
+                      md: 30,
+                      lg: 46,
+                    }}
+                    color="white"
+                  />
+                </ResponsiveView>
                 <View>
-                  <Text className="text-black text-b=ase font-NunitoSemiBold">Start a new chat</Text>
-                  <Text className="text-gray-500 text-sm">End the current chat and start a new one.</Text>
+                  <ResponsiveText 
+                    className="text-black font-NunitoSemiBold"
+                    responsiveStyle={{
+                      sm: { fontSize: 16 },
+                      md: { fontSize: 16 },
+                      lg: { fontSize: 32 },
+                    }}
+                  >
+                    Start a new chat
+                  </ResponsiveText>
+                  <ResponsiveText 
+                    className="text-gray-500"
+                    responsiveStyle={{
+                      sm: { fontSize: 14 },
+                      md: { fontSize: 14 },
+                      lg: { fontSize: 28 },
+                    }}
+                  >
+                    End the current chat and start a new one.
+                  </ResponsiveText>
                 </View>
               </TouchableOpacity>
-            </View>
-          </View>
+            </ResponsiveView>
+          </ResponsiveView>
         </TouchableOpacity>
       </Modal>
-      
     </>
   );
 };

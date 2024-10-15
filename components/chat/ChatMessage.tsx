@@ -1,10 +1,10 @@
-//components/chat/ChatMessage.tsx
 import React from 'react';
 import { View, TouchableOpacity, ActivityIndicator } from 'react-native';
 import Text from '@/components/customText';
 import { Volume2, Pause, Check, AlertTriangle } from 'lucide-react-native';
 import { ChatMessage as ChatMessageType } from '@/types/chat';
 import { primaryColor } from '@/constant/color';
+import ResponsiveIcon from '@/components/customUtils/responsiveIcon';
 
 type ChatMessageProps = {
   item: ChatMessageType;
@@ -29,9 +29,29 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
     if (isAudioLoading) {
       return <ActivityIndicator size="small" color={primaryColor} />;
     } else if (isPlaying) {
-      return <Pause size={22} color={primaryColor} />;
+      return (
+        <ResponsiveIcon
+          icon={{ type: 'lucide', icon: Pause }}
+          responsiveSize={{
+            sm: 22,
+            md: 24,
+            lg: 40,
+          }}
+          color={primaryColor}
+        />
+      );
     } else {
-      return <Volume2 size={22} color={primaryColor} />;
+      return (
+        <ResponsiveIcon
+          icon={{ type: 'lucide', icon: Volume2 }}
+          responsiveSize={{
+            sm: 22,
+            md: 24,
+            lg: 40,
+          }}
+          color={primaryColor}
+        />
+      );
     }
   };
 
@@ -40,11 +60,30 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
       return <ActivityIndicator size="small" color="#007AFF" style={{ marginRight: 8 }} />;
     } else if (item.feedback) {
       if (item.feedback.isCorrect) {
-        return <Check size={22} className='mr-2' color="#008000" />;
+        return (
+          <ResponsiveIcon
+            icon={{ type: 'lucide', icon: Check }}
+            responsiveSize={{
+              sm: 22,
+              md: 24,
+              lg: 40,
+            }}
+            color="#008000"
+            className="mr-2"
+          />
+        );
       } else {
         return (
           <TouchableOpacity className="mr-2 rounded-lg" onPress={onFeedbackPress}>
-            <AlertTriangle size={22} color="#FFA500" />
+            <ResponsiveIcon
+              icon={{ type: 'lucide', icon: AlertTriangle }}
+              responsiveSize={{
+                sm: 22,
+                md: 24,
+                lg: 40,
+              }}
+              color="#FFA500"
+            />
           </TouchableOpacity>
         );
       }
@@ -54,7 +93,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
 
   return (
     <View className=''>
-      <View className={`flex flex-row items-center px-1 m-2 ${item.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+      <View className={`flex flex-row items-center px-1 lg:px-4 m-2 lg:m-5 ${item.role === 'user' ? 'justify-end' : 'justify-start'}`}>
         {item.role === 'user' && (
           <View className='flex flex-row'>
             {renderFeedbackIcon()}
@@ -65,8 +104,12 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
             )}
           </View>
         )}
-        <View className={`rounded-2xl p-4 max-w-[80%] ${item.role === 'user' ? 'bg-primary-500' : 'bg-[#F5F5F5]'}`}>
-          <Text className={item.role === 'user' ? 'text-white' : 'text-black'}>{item.content}</Text>
+        <View className={`rounded-2xl p-4 lg:p-6 max-w-[80%] ${item.role === 'user' ? 'bg-primary-500' : 'bg-[#F5F5F5]'}`}>
+          <Text 
+            className={`${item.role === 'user' ? 'text-white' : 'text-black'} lg:text-2xl`}
+          >
+            {item.content}
+          </Text>
         </View>
         {item.role === 'model' && (
           <TouchableOpacity className="ml-2" onPress={handleAudioPress} disabled={isAudioLoading}>

@@ -3,15 +3,12 @@ import { Image, ImageProps, ImageStyle } from 'react-native';
 import { getDeviceSize, DeviceSize } from './deviceSizeUtils';
 
 type ResponsiveImageStyleProp = {
-  [K in DeviceSize]?: {
-    width: number;
-    height: number;
-  };
+  [K in DeviceSize]?: Partial<ImageStyle>;
 };
 
 interface ResponsiveImageProps extends Omit<ImageProps, 'style'> {
   responsiveStyle: ResponsiveImageStyleProp;
-  style?: Omit<ImageStyle, 'width' | 'height'>;
+  style?: ImageStyle;
 }
 
 const ResponsiveImage: React.FC<ResponsiveImageProps> = ({ 
@@ -21,13 +18,13 @@ const ResponsiveImage: React.FC<ResponsiveImageProps> = ({
 }) => {
   const deviceSize = getDeviceSize();
   
-  const { width, height } = responsiveStyle[deviceSize] || 
+  const responsiveStyles = responsiveStyle[deviceSize] || 
     responsiveStyle.md || 
     { width: 100, height: 100 }; 
   
   return (
     <Image
-      style={[{ width, height }, style]}
+      style={[responsiveStyles, style]}
       {...props}
     />
   );

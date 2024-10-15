@@ -34,7 +34,7 @@ const RecordingAnimation: React.FC = () => {
           transform: [{ scale: scaleAnim }],
         }}
       >
-        <View className="w-4 h-4 bg-red-500 rounded-full" />
+        <View className="w-4 h-4 lg:w-12 lg:h-12 bg-red-500 rounded-full" />
       </Animated.View>
     </View>
   );
