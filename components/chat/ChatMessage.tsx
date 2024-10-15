@@ -5,6 +5,7 @@ import { Volume2, Pause, Check, AlertTriangle } from 'lucide-react-native';
 import { ChatMessage as ChatMessageType } from '@/types/chat';
 import { primaryColor } from '@/constant/color';
 import ResponsiveIcon from '@/components/customUtils/responsiveIcon';
+import { getDeviceSize } from '@/components/customUtils/deviceSizeUtils';
 
 type ChatMessageProps = {
   item: ChatMessageType;
@@ -21,13 +22,19 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
   isPlaying, 
   isAudioLoading 
 }) => {
+  const deviceSize = getDeviceSize();
   const handleAudioPress = () => {
     onAudioPress(item.id, item.content, item.audioUri);
   };
 
   const renderAudioButton = () => {
     if (isAudioLoading) {
-      return <ActivityIndicator size="small" color={primaryColor} />;
+      return (
+        <ActivityIndicator 
+          size={deviceSize === 'lg' || deviceSize === 'xl' ? 'large' : 'small'} 
+          color={primaryColor} 
+        />
+      )
     } else if (isPlaying) {
       return (
         <ResponsiveIcon
@@ -57,7 +64,13 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
 
   const renderFeedbackIcon = () => {
     if (item.isLoading) {
-      return <ActivityIndicator size="small" color="#007AFF" style={{ marginRight: 8 }} />;
+      return (
+        <ActivityIndicator 
+          size={deviceSize === 'lg' || deviceSize === 'xl' ? 'large' : 'small'} 
+          color="#007AFF" 
+          style={{ marginRight: 8 }} 
+        />
+      )
     } else if (item.feedback) {
       if (item.feedback.isCorrect) {
         return (
@@ -69,12 +82,12 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
               lg: 40,
             }}
             color="#008000"
-            className="mr-2"
+            className="mr-2 lg:mr-4"
           />
         );
       } else {
         return (
-          <TouchableOpacity className="mr-2 rounded-lg" onPress={onFeedbackPress}>
+          <TouchableOpacity className="mr-2 lg:mr-4 rounded-lg" onPress={onFeedbackPress}>
             <ResponsiveIcon
               icon={{ type: 'lucide', icon: AlertTriangle }}
               responsiveSize={{
@@ -112,7 +125,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
           </Text>
         </View>
         {item.role === 'model' && (
-          <TouchableOpacity className="ml-2" onPress={handleAudioPress} disabled={isAudioLoading}>
+          <TouchableOpacity className="ml-2 lg:ml-4" onPress={handleAudioPress} disabled={isAudioLoading}>
             {renderAudioButton()}
           </TouchableOpacity>
         )}
