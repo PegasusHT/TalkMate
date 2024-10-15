@@ -88,6 +88,7 @@ const WelcomeFlow: React.FC = () => {
                             >
                                 <ResponsiveText
                                  responsiveStyle={{
+                                    md: { fontSize:30 },
                                     lg: {fontSize:54}
                                  }}
                                  className='mt-10 font-NunitoSemiBold text-center'>
@@ -168,15 +169,19 @@ const WelcomeFlow: React.FC = () => {
                         ))}
                     </ResponsiveView>
                 </ResponsiveView>
-                <View style={{ 
+                <ResponsiveView
+                 responsiveStyle={{
+                    sm: { height:20, borderTopLeftRadius: 30, borderTopRightRadius:30 },
+                    md: { height:20, borderTopLeftRadius: 30, borderTopRightRadius:30 },
+                    xl: { height:120, borderTopLeftRadius: 60, borderTopRightRadius:60 },
+                 }}
+                 style={{ 
                     position: 'absolute', 
                     top: '41%',
                     left: 0, 
                     right: 0, 
-                    height: 46,
                     backgroundColor: 'white', 
-                    borderTopLeftRadius: 30, 
-                    borderTopRightRadius: 30, 
+           
                     padding: 20,
                     paddingBottom: 20,
                 }}/>
