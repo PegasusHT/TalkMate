@@ -1,6 +1,7 @@
 // components/customUtils/ResponsiveText.tsx
 import React from 'react';
-import { Text, TextProps, TextStyle } from 'react-native';
+import { TextProps, TextStyle } from 'react-native';
+import Text from '@/components/customText';
 import { getDeviceSize, DeviceSize } from './deviceSizeUtils';
 
 type ResponsiveTextStyleProp = {

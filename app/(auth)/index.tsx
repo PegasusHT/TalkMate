@@ -6,7 +6,6 @@ import BoardingButtons from '@/components/boarding/boardingButtons';
 import Text from '@/components/customText';
 import { bgColor, primaryStrong } from '@/constant/color';
 import { boardingData } from '@/data/boardingData';
-import { Globe } from 'lucide-react-native';
 import { useUser } from '@/context/UserContext';
 import { getTextStyle, combineStyles } from '@/components/customUtils/responsiveFontSize';
 import ResponsiveView from '@/components/customUtils/responsiveView';
@@ -226,13 +225,13 @@ const WelcomeFlow: React.FC = () => {
                     <ResponsiveView 
                         responsiveStyle={{
                             sm: { top: 60, right: 11, paddingVertical:1, paddingHorizontal:3 },
-                            md: { top: 60, right: 11, paddingVertical:1, paddingHorizontal:3 },
-                            lg: { top: 70, right: 22, paddingVertical:6, paddingHorizontal:18 },
+                            md: { top: 60, right: 11, paddingVertical:4, paddingHorizontal:12 },
+                            lg: { top: 68, right: 22, paddingVertical:8, paddingHorizontal:24 },
                         }}
                         style={{position: 'absolute'}}
                         className='flex-row items-center bg-white rounded-full'>
                         <ResponsiveIcon 
-                            icon={Globe}
+                            icon={{ type: 'ionicon', name: 'globe-outline' }}
                             responsiveSize={{
                                 sm: 16,
                                 md: 20,

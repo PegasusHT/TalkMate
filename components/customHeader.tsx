@@ -1,10 +1,13 @@
 import React from 'react';
-import { View, Image } from 'react-native';
+import { View } from 'react-native';
 import Text from '@/components/customText';
-import { Ionicons } from '@expo/vector-icons';
+import ResponsiveView from '@/components/customUtils/responsiveView';
+import ResponsiveText from '@/components/customUtils/responsiveText';
+import ResponsiveImage from '@/components/customUtils/responsiveImage';
 import { primaryColor } from '@/constant/color';
 
-const appLogo = require('@/assets/images/phone-logo.png')
+const appLogo = require('@/assets/images/phone-logo.png');
+
 interface CustomHeaderProps {
   isGuest: boolean;
   firstname: string;
@@ -12,14 +15,36 @@ interface CustomHeaderProps {
 
 const CustomHeader: React.FC<CustomHeaderProps> = ({ isGuest, firstname }) => {
   return (
-    <View className="flex-row justify-between items-center p-4 pt-16 bg-white pb-0">
+    <ResponsiveView
+      responsiveStyle={{
+        sm: { paddingHorizontal: 8, paddingTop: 60, paddingBottom: 0 },
+        md: { paddingHorizontal: 8, paddingTop: 60, paddingBottom: 0 },
+        lg: { paddingHorizontal: 24, paddingTop: 60, paddingBottom: 0 },
+      }}
+      className="flex-row justify-between items-center bg-white"
+    >
       <View className="flex-row items-center">
-        <Image source={appLogo} className="w-8 h-12" />
-        <Text className="ml-2 text-lg font-NunitoSemiBold">
+        <ResponsiveImage
+          source={appLogo}
+          responsiveStyle={{
+            sm: { width: 50, height: 56 },
+            md: { width: 50, height: 56 },
+            lg: { width: 80, height: 84 },
+          }}
+          resizeMode="contain"
+        />
+        <ResponsiveText
+          responsiveStyle={{
+            sm: { fontSize: 18, marginLeft: 4 },
+            md: { fontSize: 18, marginLeft: 4 },
+            lg: { fontSize: 32, marginLeft: 8 },
+          }}
+          className="font-NunitoSemiBold"
+        >
           {isGuest ? 'Hi!' : `Hi, ${firstname}!`}
-        </Text>
+        </ResponsiveText>
       </View>
-    </View>
+    </ResponsiveView>
   );
 };
 

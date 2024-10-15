@@ -3,10 +3,18 @@ import { View, TouchableOpacity } from 'react-native';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import Text from '@/components/customText';
+import ResponsiveView from '@/components/customUtils/responsiveView';
+import ResponsiveText from '@/components/customUtils/responsiveText';
+import ResponsiveIcon from '@/components/customUtils/responsiveIcon';
 
 const CustomTabBar: React.FC<BottomTabBarProps> = ({ state, descriptors, navigation }) => {
   return (
-    <View className="flex-row bg-white border-t border-gray-200">
+    <ResponsiveView 
+      responsiveStyle={{
+        sm: { paddingBottom: 8 },
+        md: { paddingBottom: 12,  paddingTop:0 },
+        lg: { paddingBottom: 24, paddingTop:8 },
+      }} className="flex-row bg-white border-t border-gray-200">
       {state.routes.map((route, index) => {
         const { options } = descriptors[route.key];
         const label =
@@ -49,26 +57,41 @@ const CustomTabBar: React.FC<BottomTabBarProps> = ({ state, descriptors, navigat
           <TouchableOpacity
             key={route.key}
             onPress={onPress}
-            className="flex-1 items-center justify-center py-2"
+            className="flex-1 items-center justify-center py-1"
           >
-            <View className="flex-col items-center justify-center h-16">
-              <Ionicons
-                name={iconName}
-                size={24}
-                color={isFocused ? '#585FF9' : 'gray'}
+            <ResponsiveView 
+              responsiveStyle={{
+                sm: { height: 60 },
+                md: { height: 60 },
+                lg: { height: 100 },
+              }} className="flex-col items-center justify-center">
+                <ResponsiveIcon
+                icon={{ type: 'ionicon', name: iconName }}
+                responsiveSize={{
+                  sm: 24,
+                  md: 24,
+                  lg: 40,
+                }}
+                color={isFocused ?'#585FF9' : 'gray'}
               />
-              <Text
-                className={`text-xs mt-1 ${
+        
+              <ResponsiveText
+                responsiveStyle={{
+                  sm: { fontSize: 12, marginTop: 4 },
+                  md: { fontSize: 12, marginTop: 4 },
+                  lg: { fontSize: 20, marginTop: 8 },
+                }}
+                className={`${
                   isFocused ? 'text-primary-500' : 'text-gray-500'
                 }`}
               >
                 {label.toString()}
-              </Text>
-            </View>
+              </ResponsiveText>
+            </ResponsiveView>
           </TouchableOpacity>
         );
       })}
-    </View>
+    </ResponsiveView>
   );
 };
 

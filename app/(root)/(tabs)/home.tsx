@@ -1,7 +1,5 @@
-//app/(root)/(tabs)/home.tsx
 import React from 'react';
-import { ScrollView, View, TouchableOpacity, Alert } from 'react-native';
-import Text from '@/components/customText';
+import { ScrollView, View, TouchableOpacity } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootTabParamList } from '@/types/types'; 
 import ChatFeature from '@/components/chatPage';
@@ -10,6 +8,9 @@ import CustomScenarioFeature from '@/components/customScenario';
 import { useUser } from '@/context/UserContext';
 import { Lock } from 'lucide-react-native';
 import { router } from 'expo-router';
+import ResponsiveView from '@/components/customUtils/responsiveView';
+import ResponsiveText from '@/components/customUtils/responsiveText';
+import ResponsiveIcon from '@/components/customUtils/responsiveIcon';
 
 type Props = NativeStackScreenProps<RootTabParamList, 'Home'>;
 
@@ -27,16 +28,38 @@ const HomeScreen: React.FC<Props> = () => {
   };
 
   return (
-    <ScrollView className='flex-1 bg-slate-100' 
+    <ScrollView 
+      className='flex-1 bg-slate-100' 
       contentContainerStyle={{ flexGrow: 1 }}
       showsVerticalScrollIndicator={false}
     >
-      <View className="flex-1 justify-start items-center bg-slate-100 pt-8">
-        <View className='w-full pl-4'>
-          <Text className="text-3xl font-NunitoBold text-primary-500">
+      <ResponsiveView 
+        className="flex-1 justify-start items-center bg-slate-100"
+        responsiveStyle={{
+          sm: { paddingTop: 32 },
+          md: { paddingTop: 32 },
+          lg: { paddingTop: 48 },
+        }}
+      >
+        <ResponsiveView 
+          className='w-full'
+          responsiveStyle={{
+            sm: { paddingLeft: 16 },
+            md: { paddingLeft: 16 },
+            lg: { paddingLeft: 36 },
+          }}
+        >
+          <ResponsiveText 
+            className="font-NunitoBold text-primary-500"
+            responsiveStyle={{
+              sm: { fontSize: 24 },
+              md: { fontSize: 24 },
+              lg: { fontSize: 48 },
+            }}
+          >
             Practice modes
-          </Text>
-        </View>
+          </ResponsiveText>
+        </ResponsiveView>
 
         <TouchableOpacity onPress={() => handleFeaturePress('chat')} className="w-full justify-start items-center">
           <ChatFeature />
@@ -49,9 +72,24 @@ const HomeScreen: React.FC<Props> = () => {
           <View className="relative justify-start items-center">
             <RoleplayFeature />
             {!isPremium && (
-              <View className="absolute top-6 right-4 bg-gray-800 rounded-lg p-2">
-                <Lock size={20} color="white" />
-              </View>
+              <ResponsiveView 
+                className="absolute bg-gray-800"
+                responsiveStyle={{
+                  sm: { padding: 8, top:6, right:4, borderRadius:8 },
+                  md: { padding: 8, top:20, right:14, borderRadius:8  },
+                  lg: { padding: 12, top:28, right:32, borderRadius:12  },
+                }}
+              >
+                <ResponsiveIcon
+                  icon={{ type: 'lucide', icon: Lock }}
+                  responsiveSize={{
+                    sm: 20,
+                    md: 20,
+                    lg: 28,
+                  }}
+                  color="white"
+                />
+              </ResponsiveView>
             )}
           </View>
         </TouchableOpacity>
@@ -63,13 +101,28 @@ const HomeScreen: React.FC<Props> = () => {
           <View className="relative justify-start items-center">
             <CustomScenarioFeature />
             {!isPremium && (
-              <View className="absolute top-6 right-4 bg-gray-800 rounded-lg p-2">
-                <Lock size={20} color="white" />
-              </View>
+              <ResponsiveView 
+                className="absolute bg-gray-800"
+                responsiveStyle={{
+                  sm: { padding: 8, top:6, right:4, borderRadius:8 },
+                  md: { padding: 8, top:20, right:14, borderRadius:8  },
+                  lg: { padding: 12, top:28, right:32, borderRadius:12  },
+                }}
+              >
+                <ResponsiveIcon
+                  icon={{ type: 'lucide', icon: Lock }}
+                  responsiveSize={{
+                    sm: 20,
+                    md: 20,
+                    lg: 28,
+                  }}
+                  color="white"
+                />
+              </ResponsiveView>
             )}
           </View>
         </TouchableOpacity>
-      </View>
+      </ResponsiveView>
     </ScrollView>
   );
 };
