@@ -90,7 +90,7 @@ const WelcomeFlow: React.FC = () => {
                                     md: { fontSize:30 },
                                     lg: {fontSize:54}
                                  }}
-                                 className='mt-10 font-NunitoSemiBold text-center'>
+                                 className='mt-6 lg:mt-10 font-NunitoSemiBold text-center'>
                                     {screen.title}
                                 </ResponsiveText>
                                 <ResponsiveText
@@ -157,7 +157,7 @@ const WelcomeFlow: React.FC = () => {
                         {boardingData.map((_, i) => (
                             <ResponsiveView
                                 responsiveStyle={{
-                                    md: { height:3, width:3, marginHorizontal:1 },
+                                    md: { height:16, width:16, marginHorizontal:4 },
                                     lg: { height:26, width:26, marginHorizontal:8 }
                                 }}
                                 key={i}

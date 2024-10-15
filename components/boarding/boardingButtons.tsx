@@ -22,7 +22,7 @@ const BoardingButtons: React.FC<BoardingButtonsProps> = ({ onGuestSignIn }) => {
 
     return (
         <ResponsiveView responsiveStyle={{ 
-            md: { paddingHorizontal:24, paddingBottom:40 },
+            md: { paddingHorizontal:24, paddingBottom:40, gap:0 },
             lg: { paddingHorizontal: 40, paddingBottom:60, gap:8 }
         }}
          className='bg-white'>
@@ -84,7 +84,7 @@ const BoardingButtons: React.FC<BoardingButtonsProps> = ({ onGuestSignIn }) => {
                         md: { fontSize:18 },
                         lg: { fontSize:30 }
                      }}
-                    className='text-gray-800 opacity-80'>
+                    className='text-gray-800 mt-2 lg:mt-0 opacity-80'>
                     Guest mode
                 </ResponsiveText>
               </TouchableOpacity>

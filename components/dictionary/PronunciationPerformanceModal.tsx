@@ -8,6 +8,7 @@ import { primaryColor } from '@/constant/color';
 import Svg, { Circle } from 'react-native-svg';
 import CircularProgress from './utils/CircularProgress'
 import { useNavigation } from 'expo-router';
+import ResponsiveIcon from '../customUtils/responsiveIcon';
 
 type PerformanceData = {
   recording_transcript: string;
@@ -148,15 +149,15 @@ const PronunciationPerformanceModal: React.FC<PronunciationPerformanceModalProps
 
   return (
     <Modal
-    animationType="slide"
-    transparent={true}
-    visible={isVisible}
-    onRequestClose={handleCloseModal}
-  >
-    <View className="flex-1 justify-end">
+      animationType="slide"
+      transparent={true}
+      visible={isVisible}
+      onRequestClose={handleCloseModal}
+    >
+     <View className="flex-1 justify-end">
       <Pressable className="flex-1" onPress={handleCloseModal} />
       <View 
-          className="bg-white rounded-t-3xl p-4 pt-6" 
+          className="bg-white rounded-t-3xl p-4 lg:p-8 pt-6 lg:pt-10" 
           style={{ 
             height: '52%',
             shadowColor: "#000",
@@ -169,41 +170,56 @@ const PronunciationPerformanceModal: React.FC<PronunciationPerformanceModalProps
             elevation: 6,
           }}
         >
-        <View className="flex-row border-b-[0.17px] pb-4 items-center justify-between">
+        <View className="flex-row border-b-[0.17px] lg:border-b-[1.17px] pb-4 items-center justify-between">
           <View className="flex-row items-center">
-            <Text className="text-5xl pt-2 mr-2">{emoji}</Text>
-            <Text style={{ color }} className="text-2xl ml-2 font-NunitoBold">{text}</Text>
+            <Text className="text-5xl lg:text-7xl pt-2 mr-2">{emoji}</Text>
+            <Text style={{ color }} className="text-2xl lg:text-4xl ml-2 font-NunitoBold">{text}</Text>
           </View>
           <TouchableOpacity 
             onPress={playRecordedAudio} 
             className="rounded-full p-2 z-10 top-[-4]"
           >
-            <Ear color={isPlaying ? 'red' : primaryColor} size={28} />
+            <ResponsiveIcon
+              icon={{ type: 'lucide', icon: Ear }}
+              responsiveSize={{
+                sm: 28,
+                md: 28,
+                lg: 56,
+              }}
+              color={isPlaying ? 'red' : primaryColor} 
+            />
           </TouchableOpacity>
         </View>
 
         <View className="mb-6 flex-1">
-          <View className="w-full rounded-2xl mt-2 bg-primary-100 py-4 px-2">
+          <View className="w-full rounded-2xl mt-2 bg-primary-100 py-4 lg:py-8 px-2 lg:px-4">
             <View className='flex flex-row w-full items-center justify-between'>
-              <Text className='text-lg flex-1 mr-4'>
+              <Text className='text-lg lg:text-3xl flex-1 mr-4'>
                 <Text className=''>Sound </Text>
                 <Text className="font-NunitoBold" >
                   {performanceData.pronunciation_accuracy !== undefined 
                     ? `${performanceData.pronunciation_accuracy.toFixed(0)}%`
                     : 'N/A'}
                 </Text>
-                <Text className=''> like a native speaker.</Text>
+                <Text className='text-lg lg:text-3xl'> like a native speaker.</Text>
               </Text>
               <CircularProgress 
-                size={60} 
-                strokeWidth={6} 
                 progress={parseInt(performanceData.pronunciation_accuracy.toFixed(0))} 
               />
             </View>
 
-            <View className='bg-[#FEF1E1] w-full rounded-xl p-3 mt-6 flex flex-row items-center'>
-              <LightbulbIcon className='mr-2' color="#F7941F" />
-              <Text className='text-lg flex-1 text-[#F7941F]'>
+            <View className='bg-[#FEF1E1] w-full rounded-xl p-3 lg:p-6 mt-6 lg:mt-12 flex flex-row items-center'>
+              <ResponsiveIcon
+                icon={{ type: 'lucide', icon: LightbulbIcon }}
+                responsiveSize={{
+                  sm: 18,
+                  md: 18,
+                  lg: 36,
+                }}
+                color="#F7941F"
+                className='mr-2'
+              />
+              <Text className='text-lg lg:text-3xl flex-1 text-[#F7941F]'>
                 Tap on each word for detailed feedback
               </Text>
             </View>
@@ -212,15 +228,15 @@ const PronunciationPerformanceModal: React.FC<PronunciationPerformanceModalProps
           
         <TouchableOpacity
           onPress={handleTryAgain}
-          className="bg-primary-500 p-4 rounded-full mt-4"
+          className="bg-primary-500 p-4 lg:p-6 rounded-full mt-4 lg:mx-2"
         >
-          <Text className="text-white text-xl text-center font-NunitoSemiBold">Try again!</Text>
+          <Text className="text-white text-xl lg:text-3xl text-center font-NunitoSemiBold">Try again!</Text>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={handleTryNewWord}
-          className="bg-white border-[1px] p-4 rounded-full mt-4 mb-10"
+          className="bg-white border-[1px] p-4 lg:p-6 rounded-full mt-4 mb-10 lg:mx-2"
         >
-          <Text className="text-center text-xl font-NunitoSemiBold">Try new word</Text>
+          <Text className="text-center text-xl lg:text-3xl font-NunitoSemiBold">Try new word</Text>
         </TouchableOpacity>
       </View>
     </View>

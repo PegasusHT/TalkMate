@@ -99,7 +99,7 @@ const DictionaryScreen: React.FC<Props> = () => {
 
   return (
     <TouchableWithoutFeedback onPress={handleOutsidePress}>
-      <View className={`flex-1 pt-6 lg:pt-12 lg:mx-6 ${isEmphasized ? 'bg-gray-900' : 'bg-slate-100'}`}>
+      <View className={`flex-1 pt-6 lg:pt-12 lg:px-6 ${isEmphasized ? 'bg-gray-900' : 'bg-slate-100'}`}>
         <View className="p-4">
           <Text className="text-primary-500 text-2xl lg:text-5xl font-NunitoBold mb-4">
             What do you want to say?

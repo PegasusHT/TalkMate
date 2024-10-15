@@ -14,6 +14,7 @@ import PerformanceSound from './utils/PerformanceSound';
 import { primaryColor, secondaryColor } from '@/constant/color';
 import { getColorForAccuracy } from '@/components/dictionary/PronunciationPerformanceModal';
 import WordPerformanceModal from './WordPerformanceModal';
+import ResponsiveIcon from '../customUtils/responsiveIcon';
 
 type PronunciationPracticeProp = {
   sentence: string;
@@ -413,19 +414,27 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
   }, []);
 
   return (
-    <SafeAreaView className="flex-1 bg-white px-4">
-      <View className=''>
+    <SafeAreaView className="flex-1 bg-white px-4 lg:px-8">
+      <View className='lg:mt-6'>
         <TouchableOpacity onPress={handleBackPress}>
-          <ArrowLeft size={28} color="#000" />
+          <ResponsiveIcon
+            icon={{ type: 'lucide', icon: ArrowLeft }}
+            responsiveSize={{
+              sm: 28,
+              md: 28,
+              lg: 46,
+            }}
+            color="black"
+          />
         </TouchableOpacity>
       </View>
 
-      <View className="flex-1 justify-start px-4 pt-4">
-        <View className="flex-row flex-wrap mb-1 mt-4">
+      <View className="flex-1 justify-start px-4 lg:px-8 pt-4">
+        <View className="flex-row flex-wrap mb-1 lg:mb-2 mt-4">
           {phoneticWords.map((item, index) => (
             <TouchableOpacity key={index} onPress={() => handleWordPress(item)}>
               <Text
-                className={`${isLongSentence ? 'text-2xl' : 'text-4xl'} font-NunitoBold mr-2 ${getColorForAccuracy(item.accuracy)} ${
+                className={`${isLongSentence ? 'text-2xl lg:text-4xl' : 'text-4xl lg:text-7xl'} font-NunitoBold mr-2 lg:mr-4 lg:pt-6 ${getColorForAccuracy(item.accuracy)} ${
                   showUnderline ? 'underline' : ''
                 }`}
               >
@@ -435,47 +444,71 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
           ))}
         </View>
         
-        <View className="flex-row flex-wrap mb-2">
-          <Text className={`${isLongSentence ? 'text-base' : 'text-lg'} mr-1`}>/</Text>
+        <View className="flex-row flex-wrap mb-2 lg:mb-4">
+          <Text className={`${isLongSentence ? 'text-base lg:text-xl' : 'text-lg lg:text-3xl'} mr-1 lg:mr-2`}>/</Text>
           {phoneticWords.map((phoneticWord, index) => (
             <Text 
               key={index} 
-              className={`${isLongSentence ? 'text-base' : 'text-lg'} mr-1 ${getColorForAccuracy(phoneticWord.accuracy)}`}
+              className={`${isLongSentence ? 'text-base lg:text-xl' : 'text-lg lg:text-3xl'} mr-1 lg:mr-2 ${getColorForAccuracy(phoneticWord.accuracy)}`}
             >
               {phoneticWord.phonetic}
             </Text>
           ))}
-          <Text className={`${isLongSentence ? 'text-base' : 'text-lg'} mr-1`}>/</Text>
+          <Text className={`${isLongSentence ? 'text-base lg:text-xl' : 'text-lg lg:text-3xl'} mr-1 lg:mr-2`}>/</Text>
         </View>
 
         <View className="flex-row justify-start space-x-4 my-4">
-          <TouchableOpacity className='rounded-full border-[0.4px] p-2'
+          <TouchableOpacity className='rounded-full border-[0.4px] lg:border-[1.4px] p-2 lg:p-3'
            onPress={() => playSound()} disabled={isPlaying || isLoadingAudio || isRecording}>
-            <Volume2 color={isPlaying || isLoadingAudio || isRecording ? "gray" : "black"} size={20} />
+            <ResponsiveIcon
+              icon={{ type: 'lucide', icon: Volume2 }}
+              responsiveSize={{
+                sm: 20,
+                md: 20,
+                lg: 36,
+              }}
+              color={isPlaying || isLoadingAudio || isRecording ? "gray" : "black"}
+            />
           </TouchableOpacity>
-          <TouchableOpacity className='rounded-full border-[0.4px] p-2'
+          <TouchableOpacity className='rounded-full border-[0.4px] lg:border-[1.4px] p-2 lg:p-3'
            onPress={() => playSound(0.75)} disabled={isPlaying || isLoadingAudio || isRecording}>
-            <Snail color={isPlaying || isLoadingAudio || isRecording ? "gray" : "black"} size={20} />
+            <ResponsiveIcon
+              icon={{ type: 'lucide', icon: Snail }}
+              responsiveSize={{
+                sm: 20,
+                md: 20,
+                lg: 36,
+              }}
+              color={isPlaying || isLoadingAudio || isRecording ? "gray" : "black"}
+            />
           </TouchableOpacity>
           {isPlaying && (
-            <TouchableOpacity  className='rounded-full border-[0.4px] p-2' onPress={stopSound}>
-              <VolumeX color="black" size={20} />
+            <TouchableOpacity  className='rounded-full border-[0.4px] lg:border-[1.4px] p-2 lg:p-3' onPress={stopSound}>
+              <ResponsiveIcon
+              icon={{ type: 'lucide', icon: VolumeX }}
+              responsiveSize={{
+                sm: 20,
+                md: 20,
+                lg: 36,
+              }}
+              color={"black"}
+            />
             </TouchableOpacity>
           )}
         </View>
         {isLoadingDefinition ? (
-          <ActivityIndicator size="small" color="#0000ff" />
+          <ActivityIndicator size="large" color="#0000ff" />
         ) : (
           <>
             {dictionaryDefinition ? (
-              <ScrollView className="mb-4">
+              <ScrollView className="mb-4 lg:mb-8">
                 {dictionaryDefinition.meanings.map((meaning, index) => (
-                  <View key={index} className="mb-2">
-                    <Text className="font-NunitoSemiBold">{meaning.part_of_speech}</Text>
+                  <View key={index} className="mb-2 lg:mb-2 lg:mt-4">
+                    <Text className="font-NunitoSemiBold lg:text-3xl">{meaning.part_of_speech}</Text>
                     {meaning.definitions.map((def, defIndex) => (
-                      <View key={defIndex} className="ml-4">
-                        <Text>{defIndex + 1}. {def.definition}</Text>
-                        {def.example && <Text className="italic">Example: {def.example}</Text>}
+                      <View key={defIndex} className="ml-4 lg:ml-8">
+                        <Text className='lg:text-2xl lg:mt-2'>{defIndex + 1}. {def.definition}</Text>
+                        {def.example && <Text className="italic lg:text-2xl">Example: {def.example}</Text>}
                       </View>
                     ))}
                   </View>
@@ -483,7 +516,7 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
               </ScrollView>
             ) : (
               sentence.trim().split(/\s+/).length === 1 && (
-                <Text className="text-gray-500 italic mb-4">No definition found for this word.</Text>
+                <Text className="text-gray-500 italic mb-4 lg:mb-8 lg:text-xl">No definition found for this word.</Text>
               )
             )}
           </>
@@ -492,14 +525,22 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
       <TouchableOpacity
         onPress={handleMicPress}
         disabled={isProcessing || isPlaying}
-        className={`self-center p-6 rounded-full ${
+        className={`self-center p-6 lg:p-10 lg:mb-6 rounded-full ${
           isRecording ? 'bg-red-500' : isProcessing || isPlaying ? 'bg-gray-500' : 'bg-primary-500'
         }`}
       >
         {isProcessing ? (
-          <ActivityIndicator color="white" />
+          <ActivityIndicator size="large" color="white" />
         ) : (
-          <Mic color="white" size={32} />
+            <ResponsiveIcon
+              icon={{ type: 'lucide', icon: Mic }}
+              responsiveSize={{
+                sm: 32,
+                md: 32,
+                lg: 64,
+              }}
+              color={"white"}
+            />
         )}
       </TouchableOpacity>
       <PerformanceSound score={performanceScore} isVisible={showPerformanceModal} />
