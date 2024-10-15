@@ -133,7 +133,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
     >
       <TextInput
         ref={inputRef}
-        className={`flex-1 lg:h-full lg:text-3xl bg-gray-100 mr-2 min-h-[60px] max-h-[160px] lg:min-h-100 lg:max-h-340 ${isMultiline ? 'rounded-xl lg:rounded-2xl py-2 ' : 'rounded-full py-5 lg:py-8 lg:px-8'}`}
+        className={`flex-1 lg:h-full lg:text-3xl bg-gray-100 mr-2 min-h-[60px] max-h-[160px] lg:min-h-100 lg:max-h-340 ${isMultiline ? 'rounded-xl lg:rounded-2xl py-2 ' : 'rounded-full py-5 px-2 lg:py-8 lg:px-8'}`}
         value={message}
         onChangeText={setMessage}
         multiline={true}
