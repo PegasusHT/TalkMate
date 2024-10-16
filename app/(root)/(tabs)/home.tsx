@@ -20,7 +20,7 @@ const HomeScreen: React.FC<Props> = () => {
   const handleFeaturePress = (feature: string) => {
     console.log()
     if (feature === 'chat') {
-      router.push('/chat');
+      router.push('/chat' as never);
     } else if (!isPremium) {
        router.push('/premium') 
     } else {
