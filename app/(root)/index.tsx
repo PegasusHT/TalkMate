@@ -1,3 +1,4 @@
+//app/(root)/index.tsx
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import HomeScreen from '@/app/(root)/(tabs)/home';
@@ -19,7 +20,6 @@ const Tab = createBottomTabNavigator<RootTabParamList>();
 
 const Home = () => {
   const { isGuest, firstname } = useUser();
-    
   return (
     <Tab.Navigator
       tabBar={(props) => <CustomTabBar {...props} />}

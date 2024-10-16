@@ -39,7 +39,7 @@ const WelcomeFlow: React.FC = () => {
         setEmail('');
         setFirstname('');
         setLastName('');
-        router.replace('/(root)');
+        router.replace('/(root)/');
     };
     
     return (
