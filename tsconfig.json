@@ -13,6 +13,9 @@
   },
   "include": [
     "**/*.ts",
-    "**/*.tsx"
-, "components/customUtils/responsiveFontSize.js"  ]
+    "**/*.tsx",
+    "components/customUtils/responsiveFontSize.js",
+    ".expo/types/**/*.ts",
+    "expo-env.d.ts"
+  ]
 }

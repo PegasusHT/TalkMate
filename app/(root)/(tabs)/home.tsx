@@ -18,12 +18,14 @@ const HomeScreen: React.FC<Props> = () => {
   const { isGuest, isPremium } = useUser();
 
   const handleFeaturePress = (feature: string) => {
+    console.log()
     if (feature === 'chat') {
       router.push('/chat');
     } else if (!isPremium) {
        router.push('/premium') 
     } else {
-      router.push(`/${feature.toLowerCase().replace(/\s+/g, '-')}`);
+      const route = `/${feature.toLowerCase().replace(/\s+/g, '-')}`;
+      router.push(route as any);
     }
   };
 
