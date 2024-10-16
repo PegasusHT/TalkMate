@@ -28,13 +28,21 @@
         <key>CFBundleURLSchemes</key>
         <array>
           <string>com.jimmydev.talkmate</string>
+          <string>com.jimmydev.talkmate</string>
           <string>com.jimmydev.TalkMate</string>
-          <string>com.jimmydev.TalkMate</string>
+        </array>
+      </dict>
+      <dict>
+        <key>CFBundleURLSchemes</key>
+        <array>
+          <string>exp+talkmate-ai</string>
         </array>
       </dict>
     </array>
     <key>CFBundleVersion</key>
-    <string>1</string>
+    <string>2</string>
+    <key>ITSAppUsesNonExemptEncryption</key>
+    <false/>
     <key>LSRequiresIPhoneOS</key>
     <true/>
     <key>NSAppTransportSecurity</key>

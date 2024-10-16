@@ -25,7 +25,6 @@ module.exports = () => {
         scheme: "com.jimmydev.talkmate",
         buildNumber: '2',
         runtimeVersion: "1.0.0",
-        usesIcloudStorage: true,
         config: {
           usesNonExemptEncryption: false
         }
