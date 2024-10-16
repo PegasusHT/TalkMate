@@ -208,7 +208,7 @@ const RoleplaysScreen: React.FC = () => {
             <TouchableOpacity
               key={scenario.id}
               onPress={() => handleScenarioPress(scenario._id)}
-              className="w-[48%] lg:w-[45%] bg-primary-500 rounded-xl mb-4 overflow-hidden"
+              className="w-[48%] lg:w-[45%] bg-primary-500 rounded-xl mb-4 lg:mb-10 overflow-hidden"
             >
               <Image source={convoIcon} className="w-full h-32 lg:h-72" />
               <View className="flex-row justify-between items-center p-2 lg:p-4">
