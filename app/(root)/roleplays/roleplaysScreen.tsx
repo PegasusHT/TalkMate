@@ -11,6 +11,7 @@ import {
   PanResponder,
   Animated
 } from 'react-native';
+import ResponsiveIcon from '@/components/customUtils/responsiveIcon';
 import { ArrowRight, ArrowLeft, ChevronDown, CodeSquare } from 'lucide-react-native';
 import { useNavigation } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -145,31 +146,55 @@ const RoleplaysScreen: React.FC = () => {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-slate-100 p-4">
+    <SafeAreaView className="flex-1 bg-slate-100 p-4 lg:p-8">
       <TouchableOpacity className="pb-4" onPress={() => navigation.goBack()}>
-        <ArrowLeft size={28} color="black" />
+        <ResponsiveIcon
+          icon={{ type: 'lucide', icon: ArrowLeft }}
+          responsiveSize={{
+            sm: 28,
+            md: 28,
+            lg: 52,
+          }}
+          color="black"
+        />
       </TouchableOpacity>
-      <View className="bg-white rounded-xl border-[0.6px] p-4 mb-8 mt-6">
-        <View className="flex-row justify-between items-center mb-2">
-          <Text className="text-xl font-NunitoSemiBold">Character Card</Text>
+      <View className="bg-white rounded-xl border-[0.6px] lg:border-[1.4px] p-4 lg:p-8 lg:mx-8 mb-8 mt-6 lg:mt-12">
+        <View className="flex-row justify-between items-center mb-2 lg:mb-4">
+          <Text className="text-xl lg:text-5xl lg:pt-4 font-NunitoSemiBold">Character Card</Text>
         </View>
         <View className="flex-row items-center mt-2">
           <TouchableOpacity 
             onPress={() => openModal('category')} 
-            className="flex-1 flex-row justify-between items-center bg-white border-t-[0.2px] p-2 rounded-md"
+            className="flex-1 flex-row justify-between items-center bg-white border-t-[0.2px] lg:border-t-[1.2px] p-2 rounded-md"
           >
-            <Text>{card.mainCategory || 'Select a category'}</Text>
-            <ChevronDown color="black" size={20} />
+            <Text className='lg:text-2xl'>{card.mainCategory || 'Select a category'}</Text>
+            <ResponsiveIcon
+              icon={{ type: 'lucide', icon: ChevronDown }}
+              responsiveSize={{
+                sm: 20,
+                md: 20,
+                lg: 40,
+              }}
+              color="black"
+            />
           </TouchableOpacity>
         </View>
         <View className="flex-row items-center mt-2">
           <TouchableOpacity 
             onPress={() => openModal('role')} 
-            className={`flex-1 flex-row justify-between items-center p-2 border-t-[0.2px] rounded-md ${!card.mainCategory ? 'opacity-50' : ''}`}
+            className={`flex-1 flex-row justify-between items-center p-2 border-t-[0.2px] lg:border-t-[1.2px] rounded-md ${!card.mainCategory ? 'opacity-50' : ''}`}
             disabled={!card.mainCategory}
           >
-            <Text>{card.role || 'Select a role'}</Text>
-            <ChevronDown color="black" size={20} />
+            <Text className='lg:text-2xl'>{card.role || 'Select a role'}</Text>
+            <ResponsiveIcon
+              icon={{ type: 'lucide', icon: ChevronDown }}
+              responsiveSize={{
+                sm: 20,
+                md: 20,
+                lg: 40,
+              }}
+              color="black"
+            />
           </TouchableOpacity>
         </View>
       </View>
@@ -177,19 +202,28 @@ const RoleplaysScreen: React.FC = () => {
       {loading ? (
         <ActivityIndicator size="large" color="#6366f1" />
       ) : (
-        <ScrollView contentContainerStyle={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
+        <ScrollView className='lg:w-[90%] self-center'
+         contentContainerStyle={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
           {scenarios.map((scenario) => (
             <TouchableOpacity
               key={scenario.id}
               onPress={() => handleScenarioPress(scenario._id)}
-              className="w-[48%] bg-primary-500 rounded-xl mb-4 overflow-hidden"
+              className="w-[48%] lg:w-[45%] bg-primary-500 rounded-xl mb-4 overflow-hidden"
             >
-              <Image source={convoIcon} className="w-full h-32" />
-              <View className="flex-row justify-between items-center p-2">
-                <Text className="text-white font-NunitoSemiBold w-5/6">
+              <Image source={convoIcon} className="w-full h-32 lg:h-72" />
+              <View className="flex-row justify-between items-center p-2 lg:p-4">
+                <Text className="text-white lg:text-xl font-NunitoSemiBold w-5/6 ">
                   Convo {`${scenario.id}`}: {`${scenario.title}`}
                 </Text>
-                <ArrowRight color="white" size={20} />
+                <ResponsiveIcon
+                  icon={{ type: 'lucide', icon: ArrowRight }}
+                  responsiveSize={{
+                    sm: 20,
+                    md: 20,
+                    lg: 36,
+                  }}
+                  color="white"
+                />
               </View>
             </TouchableOpacity>
           ))}
@@ -218,17 +252,17 @@ const RoleplaysScreen: React.FC = () => {
               marginTop: 'auto',
             }}
           >
-            <View className="w-16 h-1 bg-gray-300 rounded-full self-center mb-4" />
-            <Text className="text-xl font-NunitoSemiBold mb-4 mt-4 text-center">
+            <View className="w-16 lg:w-52 h-1 lg:h-2 bg-gray-300 rounded-full self-center mb-4 lg:mb-8" />
+            <Text className="text-xl lg:text-4xl font-NunitoSemiBold mb-4 lg:mb-8 mt-4 text-center">
               {`Select ${modalType === 'category' ? 'a category' : 'a role'}`}
             </Text>
             <FlatList
               data={modalType === 'category' ? Object.keys(optionsData?.mainCategories || {}) : availableRoles}
-              keyExtractor={(item) => item} className='mb-6'
+              keyExtractor={(item) => item} className='mb-6 lg:mb-12'
               renderItem={({ item }) => (
                 <TouchableOpacity 
                   onPress={() => selectOption(item)}
-                  className="flex-row items-center py-3 border-b border-gray-200"
+                  className="flex-row items-center py-3 lg:p-6 border-b border-gray-200"
                 >
                   <View className={`w-6 h-6 rounded-full border-2 mr-4 ${
                     (modalType === 'category' ? card.mainCategory : card.role) === item
@@ -239,7 +273,7 @@ const RoleplaysScreen: React.FC = () => {
                       <View className="w-3 h-3 rounded-full bg-primary-500 m-auto" />
                     )}
                   </View>
-                  <Text className={`text-lg ${
+                  <Text className={`text-lg lg:text-2xl ${
                     (modalType === 'category' ? card.mainCategory : card.role) === item
                       ? 'text-primary-500 font-NunitoSemiBold'
                       : 'text-gray-800'
