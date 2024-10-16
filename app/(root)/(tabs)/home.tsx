@@ -18,6 +18,7 @@ const HomeScreen: React.FC<Props> = () => {
   const { isGuest, isPremium } = useUser();
 
   const handleFeaturePress = (feature: string) => {
+    console.log('runss')
     if (feature === 'chat') {
       router.push('/chat' as never);
     } else if (!isPremium) {
@@ -66,63 +67,54 @@ const HomeScreen: React.FC<Props> = () => {
           <ChatFeature />
         </TouchableOpacity>
 
-        <TouchableOpacity 
-          onPress={() => handleFeaturePress('roleplays')} 
-          className={`w-full ${!isPremium ? 'opacity-70' : ''}`}
-        >
-          <View className="relative justify-start items-center">
-            <RoleplayFeature />
-            {!isPremium && (
-              <ResponsiveView 
-                className="absolute bg-gray-800"
-                responsiveStyle={{
-                  sm: { padding: 8, top:6, right:4, borderRadius:8 },
-                  md: { padding: 8, top:20, right:14, borderRadius:8  },
-                  lg: { padding: 12, top:28, right:32, borderRadius:12  },
+  
+        <View className={`w-full relative justify-start items-center ${!isPremium ? 'opacity-70' : ''}`}>
+          <RoleplayFeature onPress={() => handleFeaturePress('roleplays')}/>
+          {!isPremium && (
+            <ResponsiveView 
+              className="absolute bg-gray-800"
+              responsiveStyle={{
+                sm: { padding: 8, top:6, right:4, borderRadius:8 },
+                md: { padding: 8, top:20, right:14, borderRadius:8  },
+                lg: { padding: 12, top:28, right:32, borderRadius:12  },
+              }}
+            >
+              <ResponsiveIcon
+                icon={{ type: 'lucide', icon: Lock }}
+                responsiveSize={{
+                  sm: 20,
+                  md: 20,
+                  lg: 28,
                 }}
-              >
-                <ResponsiveIcon
-                  icon={{ type: 'lucide', icon: Lock }}
-                  responsiveSize={{
-                    sm: 20,
-                    md: 20,
-                    lg: 28,
-                  }}
-                  color="white"
-                />
-              </ResponsiveView>
-            )}
-          </View>
-        </TouchableOpacity>
-
-        <TouchableOpacity 
-          onPress={() => handleFeaturePress('customScenario')} 
-          className={`w-full ${!isPremium ? 'opacity-70' : ''}`}
-        >
-          <View className="relative justify-start items-center">
-            <CustomScenarioFeature />
-            {!isPremium && (
-              <ResponsiveView 
-                className="absolute bg-gray-800"
-                responsiveStyle={{
-                  sm: { padding: 8, top:6, right:4, borderRadius:8 },
-                  md: { padding: 8, top:20, right:14, borderRadius:8  },
-                  lg: { padding: 12, top:28, right:32, borderRadius:12  },
+                color="white"
+              />
+            </ResponsiveView>
+          )}
+        </View>
+        
+        <View className={`w-full relative justify-start items-center ${!isPremium ? 'opacity-70' : ''}`}>
+          <CustomScenarioFeature onPress={() => handleFeaturePress('customScenario')}/>
+          {!isPremium && (
+            <ResponsiveView 
+              className="absolute bg-gray-800"
+              responsiveStyle={{
+                sm: { padding: 8, top:6, right:4, borderRadius:8 },
+                md: { padding: 8, top:20, right:14, borderRadius:8  },
+                lg: { padding: 12, top:28, right:32, borderRadius:12  },
+              }}
+            >
+              <ResponsiveIcon
+                icon={{ type: 'lucide', icon: Lock }}
+                responsiveSize={{
+                  sm: 20,
+                  md: 20,
+                  lg: 28,
                 }}
-              >
-                <ResponsiveIcon
-                  icon={{ type: 'lucide', icon: Lock }}
-                  responsiveSize={{
-                    sm: 20,
-                    md: 20,
-                    lg: 28,
-                  }}
-                  color="white"
-                />
-              </ResponsiveView>
-            )}
-          </View>
-        </TouchableOpacity>
+                color="white"
+              />
+            </ResponsiveView>
+          )}
+        </View>
       </ResponsiveView>
     </ScrollView>
   );
