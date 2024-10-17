@@ -55,7 +55,7 @@ module.exports = () => {
         [
           "expo-av",
           {
-            "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone to temporarily record chat audio."
+            "microphonePermission": "Allow access to microphone to record voice messages for sending in the chat."
           }
         ],
         [
