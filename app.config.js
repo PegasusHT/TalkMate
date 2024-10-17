@@ -24,7 +24,8 @@ module.exports = () => {
         buildNumber: '2',
         runtimeVersion: "1.0.0",
         config: {
-          usesNonExemptEncryption: false
+          usesNonExemptEncryption: false,
+          usesIAP: true
         }
       },
       android: {

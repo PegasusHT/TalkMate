@@ -11,6 +11,7 @@ import BoardingHeader from '@/components/boarding/header/boardingHeader';
 import { SvgXml } from 'react-native-svg';
 import { AuthSessionResult } from 'expo-auth-session';
 import { useUser } from '@/context/UserContext';
+import { Buffer } from 'buffer';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -41,9 +42,7 @@ const SignIn: React.FC = () => {
   const decodeJwt = (token: string) => {
     const base64Url = token.split('.')[1];
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-    }).join(''));
+    const jsonPayload = Buffer.from(base64, 'base64').toString('utf8');
     return JSON.parse(jsonPayload);
   };
 
