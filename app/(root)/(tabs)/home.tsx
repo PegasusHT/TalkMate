@@ -1,3 +1,4 @@
+//app/(root)/(tabs)/home.tsx
 import React from 'react';
 import { ScrollView, View, TouchableOpacity } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -18,7 +19,6 @@ const HomeScreen: React.FC<Props> = () => {
   const { isGuest, isPremium } = useUser();
 
   const handleFeaturePress = (feature: string) => {
-    console.log('runss')
     if (feature === 'chat') {
       router.push('/chat' as never);
     } else if (!isPremium) {

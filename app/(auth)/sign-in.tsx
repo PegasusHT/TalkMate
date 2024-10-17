@@ -16,7 +16,6 @@ import { Buffer } from 'buffer';
 WebBrowser.maybeCompleteAuthSession();
 
 const { GOOGLE_IOS_CLIENT_ID, GOOGLE_WEB_CLIENT_ID } = ENV;
-
 const AuthIcon = require('@/assets/icons/auth.png');
 
 const SignIn: React.FC = () => {
@@ -58,7 +57,7 @@ const SignIn: React.FC = () => {
           providerId: decodedToken.sub,
           provider: 'google'
         };
-  
+      
         try {
           const backendResponse = await fetch(`${ENV.BACKEND_URL}/auth/oauth`, {
             method: 'POST',
