@@ -48,17 +48,6 @@ const SignIn: React.FC = () => {
     checkAvailable();
   }, [])
 
-  const getAppleAuthContent = () => {
-    return (
-        <AppleAuthentication.AppleAuthenticationButton
-          buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
-          buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
-          cornerRadius={5} style={{ width: 200, height: 44 }}
-          onPress={handleAppleSignIn}
-        />
-      )
-  };
-
   const decodeJwt = (token: string) => {
     const base64Url = token.split('.')[1];
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
@@ -138,10 +127,9 @@ const SignIn: React.FC = () => {
           AppleAuthentication.AppleAuthenticationScope.EMAIL,
         ],
       });
-      console.log('Apple Sign In successful', credential);
       
       const userData = {
-        email: credential.email,
+        email: credential.email || null,
         firstName: credential.fullName?.givenName || '',
         lastName: credential.fullName?.familyName || '',
         providerId: credential.user,
@@ -171,7 +159,7 @@ const SignIn: React.FC = () => {
   
         router.replace('/(root)');
         setTimeout(() => {
-          Alert.alert('Sign In Successful', `Welcome, ${authData.user.firstName}!`);
+          Alert.alert('Sign In Successful', `Welcome${authData.user.firstName ? ', ' + authData.user.firstName : ''}!`);
         }, 500);
       } catch (backendError) {
         console.error('Backend authentication error:', backendError);

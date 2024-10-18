@@ -1,6 +1,6 @@
 import { SafeAreaView, View, TouchableOpacity, ScrollView, Image, Alert } from 'react-native';
 import Text from '@/components/customText';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { router } from 'expo-router';
 import { ArrowLeft } from 'lucide-react-native';
 import * as Google from 'expo-auth-session/providers/google';
@@ -11,6 +11,8 @@ import { SvgXml } from 'react-native-svg';
 import { AuthSessionResult } from 'expo-auth-session';
 import { useUser } from '@/context/UserContext';
 import { Buffer } from 'buffer'
+import * as AppleAuthentication from 'expo-apple-authentication';
+
 WebBrowser.maybeCompleteAuthSession();
 
 const { GOOGLE_IOS_CLIENT_ID, GOOGLE_WEB_CLIENT_ID, BACKEND_URL } = ENV;
@@ -22,6 +24,7 @@ const SignUp = () => {
         scopes: ['profile', 'email'],
     });
     const { setIsGuest, setEmail, setFirstname, setLastName, setIsPremium } = useUser();
+    const [AppleAuthAvailable, setAppleAuthAvailable] = useState(false);
 
     useEffect(() => {
         if (response?.type === 'success') {
@@ -31,6 +34,14 @@ const SignUp = () => {
           handleSignUpError();
         }
       }, [response]);
+
+    useEffect(() => {
+      const checkAvailable = async () => {
+        const isAvailable = await AppleAuthentication.isAvailableAsync();
+        setAppleAuthAvailable(isAvailable)
+      }
+      checkAvailable();
+    }, [])
     
     const decodeJwt = (token: string) => {
       const base64Url = token.split('.')[1];
@@ -51,7 +62,6 @@ const SignUp = () => {
               providerId: decodedToken.sub,
               provider: 'google'
             };
-      
             try {
               const backendResponse = await fetch(`${BACKEND_URL}/auth/oauth`, {
                 method: 'POST',
@@ -67,7 +77,6 @@ const SignUp = () => {
       
               const authData = await backendResponse.json();
               
-              // Save the token and user data in your app's state or secure storage
               setIsGuest(false);
               setEmail(authData.user.email);
               setFirstname(authData.user.firstName);
@@ -101,12 +110,76 @@ const SignUp = () => {
     promptAsync();
     };
 
-    const handleAppleSignUp = () => {
-        Alert.alert('Sorry, only Google Sign Up is available at the moment.')
+    const handleAppleSignUp = async () => {
+      if (!AppleAuthAvailable) {
+        Alert.alert('Error', 'Apple Sign Up is not available on this device');
+        return;
+      }
+      try {
+        const credential = await AppleAuthentication.signInAsync({
+          requestedScopes: [
+            AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+            AppleAuthentication.AppleAuthenticationScope.EMAIL,
+          ],
+        });
+        
+        const userData = {
+          email: credential.email,
+          firstName: credential.fullName?.givenName || '',
+          lastName: credential.fullName?.familyName || '',
+          providerId: credential.user,
+          provider: 'apple'
+        };
+        console.log('userData: ', userData)
+
+        try {
+          const backendResponse = await fetch(`${ENV.BACKEND_URL}/auth/oauth`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(userData),
+          });
+    
+          if (!backendResponse.ok) {
+            throw new Error('Backend authentication failed');
+          }
+    
+          const authData = await backendResponse.json();
+          
+          setIsGuest(false);
+          setEmail(authData.user.email);
+          setFirstname(authData.user.firstName);
+          setLastName(authData.user.lastName);
+          setIsPremium(authData.user.isPremium);
+    
+          router.replace('/(root)');
+          setTimeout(() => {
+            Alert.alert('Sign Up Successful', `Welcome, ${authData.user.firstName}!`);
+          }, 500);
+        } catch (backendError) {
+          console.error('Backend authentication error:', backendError);
+          Alert.alert('Authentication Error', 'Unable to authenticate with the server.');
+        }
+    
+      } catch (error) {
+        console.log('Apple Sign Up error', error);
+        if (error instanceof Error) {
+          if ('code' in error) {
+            const appleError = error as { code: string };
+            if (appleError.code === 'ERR_CANCELED') {
+              console.log('User canceled Apple Sign Up');
+              return;
+            }
+          }
+        } else {
+          Alert.alert('Sign Up Error', 'An unknown error occurred during Apple Sign In');
+        }
+      }
     };
 
     const handleFacebookSignUp = () => {
-        Alert.alert('Sorry, only Google Sign Up is available at the moment.')
+        Alert.alert('Sorry, Facebook Sign Up is not available at the moment.')
     };
 
     const googleSvg = `
