@@ -26,9 +26,12 @@ module.exports = () => {
         runtimeVersion: "1.0.0",
         usesIap: true, 
         teamId: 'Y5VCPSR66D', 
+        useAppleSignIn: true,
         infoPlist: {
+          NSAppleAuthProvider: ["Y5VCPSR66D"], 
         },
         entitlements: {
+          'com.apple.developer.applesignin': ['Default'],
         },
       },
       android: {
@@ -73,6 +76,9 @@ module.exports = () => {
           "expo-font"
         ],
         [
+          "expo-secure-store"
+        ],
+        [
           "expo-av",
           {
             "microphonePermission": "Allow access to microphone to record voice messages for sending in the chat."
@@ -82,6 +88,12 @@ module.exports = () => {
           "expo-screen-orientation",
           {
             "initialOrientation": "PORTRAIT"
+          }
+        ],
+        [
+          "expo-apple-authentication",
+          {
+            "appleTeamId": 'Y5VCPSR66D',
           }
         ]
       ],

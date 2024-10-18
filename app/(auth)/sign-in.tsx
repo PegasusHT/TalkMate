@@ -1,5 +1,5 @@
 //app/(auth)/sign-in.tsx
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { SafeAreaView, View, TouchableOpacity, ScrollView, Image, Alert } from 'react-native';
 import { router } from 'expo-router';
 import { ArrowLeft } from 'lucide-react-native';
@@ -12,6 +12,7 @@ import { SvgXml } from 'react-native-svg';
 import { AuthSessionResult } from 'expo-auth-session';
 import { useUser } from '@/context/UserContext';
 import { Buffer } from 'buffer';
+import * as AppleAuthentication from 'expo-apple-authentication';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -25,6 +26,7 @@ const SignIn: React.FC = () => {
     scopes: ['profile', 'email'],
   });
   const { setIsGuest, setEmail, setFirstname, setLastName, setIsPremium } = useUser();
+  const [AppleAuthAvailable, setAppleAuthAvailable] = useState(false);
 
   useEffect(() => {
     if (response?.type === 'success') {
@@ -37,6 +39,25 @@ const SignIn: React.FC = () => {
       handleSignInError();
     }
   }, [response]);
+
+  useEffect(() => {
+    const checkAvailable = async () => {
+      const isAvailable = await AppleAuthentication.isAvailableAsync();
+      setAppleAuthAvailable(isAvailable)
+    }
+    checkAvailable();
+  }, [])
+
+  const getAppleAuthContent = () => {
+    return (
+        <AppleAuthentication.AppleAuthenticationButton
+          buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
+          buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
+          cornerRadius={5} style={{ width: 200, height: 44 }}
+          onPress={handleAppleSignIn}
+        />
+      )
+  };
 
   const decodeJwt = (token: string) => {
     const base64Url = token.split('.')[1];
@@ -105,14 +126,77 @@ const SignIn: React.FC = () => {
     promptAsync();
   };
 
-  const handleAppleSignIn = () => {
-    // Implement Apple Sign-In
-    Alert.alert('Sorry, only Google Sign In is available at the moment.')
+  const handleAppleSignIn = async () => {
+    if (!AppleAuthAvailable) {
+      Alert.alert('Error', 'Apple Sign In is not available on this device');
+      return;
+    }
+    try {
+      const credential = await AppleAuthentication.signInAsync({
+        requestedScopes: [
+          AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+          AppleAuthentication.AppleAuthenticationScope.EMAIL,
+        ],
+      });
+      console.log('Apple Sign In successful', credential);
+      
+      const userData = {
+        email: credential.email,
+        firstName: credential.fullName?.givenName || '',
+        lastName: credential.fullName?.familyName || '',
+        providerId: credential.user,
+        provider: 'apple'
+      };
+      
+      try {
+        const backendResponse = await fetch(`${ENV.BACKEND_URL}/auth/oauth`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(userData),
+        });
+  
+        if (!backendResponse.ok) {
+          throw new Error('Backend authentication failed');
+        }
+  
+        const authData = await backendResponse.json();
+        
+        setIsGuest(false);
+        setEmail(authData.user.email);
+        setFirstname(authData.user.firstName);
+        setLastName(authData.user.lastName);
+        setIsPremium(authData.user.isPremium);
+  
+        router.replace('/(root)');
+        setTimeout(() => {
+          Alert.alert('Sign In Successful', `Welcome, ${authData.user.firstName}!`);
+        }, 500);
+      } catch (backendError) {
+        console.error('Backend authentication error:', backendError);
+        Alert.alert('Authentication Error', 'Unable to authenticate with the server.');
+      }
+  
+    } catch (error) {
+      console.log('Apple Sign In error', error);
+      if (error instanceof Error) {
+        if ('code' in error) {
+          const appleError = error as { code: string };
+          if (appleError.code === 'ERR_CANCELED') {
+            console.log('User canceled Apple Sign In');
+            return;
+          }
+        }
+      } else {
+        Alert.alert('Sign In Error', 'An unknown error occurred during Apple Sign In');
+      }
+    }
   };
-
+  
   const handleFacebookSignIn = () => {
     // Implement Facebook Sign-In
-    Alert.alert('Sorry, only Google Sign In is available at the moment.')
+    Alert.alert('Sorry, Facebook Sign In is not available at the moment.')
   };
 
   const googleSvg = `
@@ -127,7 +211,7 @@ const SignIn: React.FC = () => {
 
   const appleSvg = `
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-    <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
+    <path fill="#000000" d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
   </svg>
   `;
 
@@ -177,11 +261,13 @@ const SignIn: React.FC = () => {
               icon={googleSvg}
               text="Continue with Google"
             />
-            <SocialButton
-              onPress={handleAppleSignIn}
-              icon={appleSvg}
-              text="Continue with Apple"
-            />
+            {AppleAuthAvailable && (
+               <SocialButton
+                onPress={handleAppleSignIn}
+                icon={appleSvg}
+                text="Continue with Apple"
+              />
+            )}
             <SocialButton
               onPress={handleFacebookSignIn}
               icon={facebookSvg}
