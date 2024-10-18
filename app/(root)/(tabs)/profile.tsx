@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, TextInput, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import Text from '@/components/customText';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -9,6 +9,7 @@ import { ChevronLeft, ChevronDown } from 'lucide-react-native';
 import TargetLanguageSelector from '@/components/profile/TargetLangSelector';
 import { useUser } from '@/context/UserContext';
 import { bgColor, primaryStrong } from '@/constant/color';
+import ENV from '@/utils/envConfig';
 
 type Props = NativeStackScreenProps<RootTabParamList, 'Profile'>;
 
@@ -32,6 +33,16 @@ const ProfileScreen: React.FC<Props> = () => {
     setEmail
   } = useUser();
 
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const checkAuthStatus = async () => {
+      const token = await AsyncStorage.getItem('authToken');
+      setIsAuthenticated(!!token);
+    };
+    checkAuthStatus();
+  }, []);
+  
   const InputField: React.FC<InputFieldProps> = ({ label, value, onChangeText, placeholder, editable }) => (
     <View className="mb-4">
       <Text className="mb-2">{label}</Text>
@@ -53,6 +64,97 @@ const ProfileScreen: React.FC<Props> = () => {
     // Implement save functionality here
     console.log('Saving profile data...');
   }
+
+  const handleDeleteAccount = async () => {
+    Alert.alert(
+      "Delete Account",
+      "Are you sure you want to delete your account? This action cannot be undone.",
+      [
+        {
+          text: "Cancel",
+          style: "cancel"
+        },
+        { 
+          text: "Delete", 
+          style: "destructive",
+          onPress: async () => {
+            try {
+              const token = await AsyncStorage.getItem('authToken');
+              if (!token) {
+                console.error('No authentication token found');
+                Alert.alert('Error', 'You are not authenticated. Please log in again.');
+                router.replace('/(auth)');
+                return;
+              }
+  
+              const response = await fetch(`${ENV.BACKEND_URL}/auth/delete-account`, {
+                method: 'DELETE',
+                headers: {
+                  'Authorization': `Bearer ${token}`,
+                  'Content-Type': 'application/json'
+                },
+              });
+  
+              const responseText = await response.text();
+              let responseData;
+              try {
+                responseData = JSON.parse(responseText);
+              } catch (parseError) {
+                console.error('Response is not JSON:', responseText);
+                throw new Error('Server response is not in JSON format');
+              }
+  
+              if (response.ok) {
+                // Account deleted successfully
+                await handleSuccessfulDeletion();
+              } else if (responseData.message === "Invalid token") {
+                console.error('Invalid token error:', responseData);
+                await handleInvalidToken();
+              } else {
+                console.error('Error response:', responseData);
+                Alert.alert('Error', responseData.message || 'Failed to delete account. Please try again.');
+              }
+            } catch (error) {
+              console.error('Error deleting account:', error);
+              Alert.alert('Error', `An error occurred while deleting your account: ${error}`);
+            }
+          }
+        }
+      ]
+    );
+  };
+  
+  const handleSuccessfulDeletion = async () => {
+    // Clear user data from context
+    setIsGuest(true);
+    setEmail('');
+    setFirstname('');
+    setLastName('');
+  
+    // Remove the auth token from AsyncStorage
+    await AsyncStorage.removeItem('authToken');
+  
+    // Navigate to the sign-in screen
+    router.replace('/(auth)');
+    Alert.alert('Account Deleted', 'Your account has been successfully deleted.');
+  };
+  
+  const handleInvalidToken = async () => {
+    // Clear the invalid token
+    await AsyncStorage.removeItem('authToken');
+  
+    // Inform the user and redirect to login
+    Alert.alert(
+      'Session Expired',
+      'Your session has expired. Please log in again.',
+      [
+        {
+          text: 'OK',
+          onPress: () => router.replace('/(auth)')
+        }
+      ]
+    );
+  };
 
   const handleSignOut = async () => {
     if (isGuest) {
@@ -129,6 +231,18 @@ const ProfileScreen: React.FC<Props> = () => {
           <TargetLanguageSelector/>
         </View>
       </View>
+
+      {!isGuest && (
+        <TouchableOpacity 
+          style={{ backgroundColor: 'white' }} 
+          className={`rounded-3xl p-2 mx-20 items-center mb-6 mt-8`}
+          onPress={handleDeleteAccount}
+        >
+          <Text className="text-red-500 text-lg font-NunitoSemiBold">
+            Delete Account
+          </Text>
+        </TouchableOpacity>
+      )}
 
       <TouchableOpacity 
         style={{ backgroundColor: primaryStrong }} 

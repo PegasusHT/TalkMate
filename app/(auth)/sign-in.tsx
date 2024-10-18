@@ -13,6 +13,7 @@ import { AuthSessionResult } from 'expo-auth-session';
 import { useUser } from '@/context/UserContext';
 import { Buffer } from 'buffer';
 import * as AppleAuthentication from 'expo-apple-authentication';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -31,9 +32,7 @@ const SignIn: React.FC = () => {
   useEffect(() => {
     if (response?.type === 'success') {
       const { authentication } = response;
-      // Here you would typically send the authentication token to your backend
-      // and receive a response indicating whether the sign-in was successful
-      // For this example, we'll simulate a successful sign-in
+      // simulate a successful sign-in
       handleSignInSuccess(response);
     } else if (response?.type === 'error') {
       handleSignInError();
@@ -53,6 +52,14 @@ const SignIn: React.FC = () => {
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
     const jsonPayload = Buffer.from(base64, 'base64').toString('utf8');
     return JSON.parse(jsonPayload);
+  };
+
+  const storeAuthToken = async (token: string) => {
+    try {
+      await AsyncStorage.setItem('authToken', token);
+    } catch (error) {
+      console.error('Error storing auth token:', error);
+    }
   };
 
   const handleSignInSuccess =  async (response: AuthSessionResult) => {
@@ -82,7 +89,8 @@ const SignIn: React.FC = () => {
           }
   
           const authData = await backendResponse.json();
-          
+          await storeAuthToken(authData.token);
+
           setIsGuest(false);
           setEmail(authData.user.email);
           setFirstname(authData.user.firstName);
@@ -150,7 +158,8 @@ const SignIn: React.FC = () => {
         }
   
         const authData = await backendResponse.json();
-        
+         await storeAuthToken(authData.token);
+
         setIsGuest(false);
         setEmail(authData.user.email);
         setFirstname(authData.user.firstName);

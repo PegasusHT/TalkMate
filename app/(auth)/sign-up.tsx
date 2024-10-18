@@ -12,6 +12,7 @@ import { AuthSessionResult } from 'expo-auth-session';
 import { useUser } from '@/context/UserContext';
 import { Buffer } from 'buffer'
 import * as AppleAuthentication from 'expo-apple-authentication';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -50,6 +51,14 @@ const SignUp = () => {
       return JSON.parse(jsonPayload);
     };
 
+    const storeAuthToken = async (token: string) => {
+      try {
+        await AsyncStorage.setItem('authToken', token);
+      } catch (error) {
+        console.error('Error storing auth token:', error);
+      }
+    };
+
     const handleSignUpSuccess = async (response: AuthSessionResult) => {
         if (response.type === 'success') {
           const { id_token } = response.params;
@@ -76,14 +85,14 @@ const SignUp = () => {
               }
       
               const authData = await backendResponse.json();
-              
+              await storeAuthToken(authData.token);
+
               setIsGuest(false);
               setEmail(authData.user.email);
               setFirstname(authData.user.firstName);
               setLastName(authData.user.lastName);
               setIsPremium(authData.user.isPremium);
 
-              // Navigate to the main app
               router.replace('/(root)');
               setTimeout(() => {
                 Alert.alert('Sign Up Successful', `Welcome, ${authData.user.firstName}!`);
@@ -130,7 +139,6 @@ const SignUp = () => {
           providerId: credential.user,
           provider: 'apple'
         };
-        console.log('userData: ', userData)
 
         try {
           const backendResponse = await fetch(`${ENV.BACKEND_URL}/auth/oauth`, {
@@ -146,7 +154,8 @@ const SignUp = () => {
           }
     
           const authData = await backendResponse.json();
-          
+          await storeAuthToken(authData.token);
+
           setIsGuest(false);
           setEmail(authData.user.email);
           setFirstname(authData.user.firstName);
