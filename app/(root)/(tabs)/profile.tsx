@@ -44,10 +44,10 @@ const ProfileScreen: React.FC<Props> = () => {
   }, []);
   
   const InputField: React.FC<InputFieldProps> = ({ label, value, onChangeText, placeholder, editable }) => (
-    <View className="mb-4">
-      <Text className="mb-2">{label}</Text>
+    <View className="mb-4 lg:mt-1">
+      <Text className="mb-2 lg:text-2xl">{label}</Text>
       <TextInput
-        className={`rounded-xl p-3 ${isGuest ? 'bg-gray-200' : 'bg-white'}`}
+        className={`rounded-xl p-3 lg:text-xl ${isGuest ? 'bg-gray-200' : 'bg-white'}`}
         value={value}
         onChangeText={onChangeText}
         placeholder={placeholder}
@@ -198,13 +198,13 @@ const ProfileScreen: React.FC<Props> = () => {
 
   return (
     <View className="h-full p-4 pt-8 bg-slate-100">
-      <View className='flex-1'>
-        <Text className="text-2xl font-NunitoSemiBold">Personal details</Text>
+      <View className='flex-1 lg:px-4'>
+        <Text className="text-2xl lg:text-5xl lg:pt-4 lg:mt-8 font-NunitoSemiBold">Personal details</Text>
         
-        <View className="mb-4 mt-4">
-          <Text className="mb-2">Your email address</Text>
+        <View className="my-4 ">
+          <Text className="mb-2 lg:text-2xl lg:mt-4">Your email address</Text>
           <TextInput
-            className="bg-gray-200 rounded-xl p-3"
+            className="bg-gray-200 rounded-xl p-3 lg:text-xl"
             value={email}
             editable={false}
           />
@@ -226,8 +226,8 @@ const ProfileScreen: React.FC<Props> = () => {
           editable={!isGuest}
         />
 
-        <View className='mt-6'>
-          <Text className="text-2xl font-NunitoSemiBold">Interface language</Text>
+        <View className='mt-6 lg:mt-12'>
+          <Text className="text-2xl lg:text-3xl font-NunitoSemiBold">Interface language</Text>
           <TargetLanguageSelector/>
         </View>
       </View>
@@ -235,10 +235,10 @@ const ProfileScreen: React.FC<Props> = () => {
       {!isGuest && (
         <TouchableOpacity 
           style={{ backgroundColor: 'white' }} 
-          className={`rounded-3xl p-2 mx-20 items-center mb-6 mt-8`}
+          className={`rounded-3xl p-2 lg:p-4 mx-20 items-center mb-6 mt-8`}
           onPress={handleDeleteAccount}
         >
-          <Text className="text-red-500 text-lg font-NunitoSemiBold">
+          <Text className="text-red-500 text-lg lg:text-2xl font-NunitoSemiBold">
             Delete Account
           </Text>
         </TouchableOpacity>
@@ -246,10 +246,10 @@ const ProfileScreen: React.FC<Props> = () => {
 
       <TouchableOpacity 
         style={{ backgroundColor: primaryStrong }} 
-        className={`rounded-3xl p-2 mx-20 items-center mb-4`}
+        className={`rounded-3xl p-2 lg:p-4 mx-20 items-center mb-4 lg:mb-12`}
         onPress={handleSignOut}
       >
-        <Text className="text-white text-lg font-NunitoSemiBold">
+        <Text className="text-white text-lg lg:text-2xl font-NunitoSemiBold">
           {isGuest ? 'Back to Main Page' : 'Sign Out'}
         </Text>
       </TouchableOpacity>

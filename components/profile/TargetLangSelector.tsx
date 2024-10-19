@@ -41,11 +41,11 @@ const TargetLanguageSelector = () => {
     <View className="mt-2">
       <TouchableOpacity 
         onPress={toggleDropdown}
-        className="bg-white rounded-t-2xl p-3 px-4 flex-row items-center justify-between"
+        className="bg-white rounded-t-2xl p-3 lg:p-4 px-4 lg:px-8 flex-row items-center justify-between"
       >
         <View className="flex-row items-center">
-          <Text className="text-2xl mr-2">{selectedLanguage.flag}</Text>
-          <Text>{selectedLanguage.name}</Text>
+          <Text className="text-2xl lg:text-4xl mr-2">{selectedLanguage.flag}</Text>
+          <Text className='lg:text-2xl lg:mb-1'>{selectedLanguage.name}</Text>
         </View>
         {isOpen ? <ChevronUp size={20} color="#000" /> : <ChevronDown size={20} color="#000" />}
       </TouchableOpacity>
@@ -57,10 +57,10 @@ const TargetLanguageSelector = () => {
           renderItem={({ item }) => (
             <TouchableOpacity
               onPress={() => selectLanguage(item)}
-              className="py-3 px-4 border-t border-gray-200 bg-white flex-row items-center"
+              className="py-3 px-4 lg:px-7 border-t border-gray-200 bg-white flex-row items-center"
             >
-              <Text className="text-2xl mr-2">{item.flag}</Text>
-              <Text>{item.name}</Text>
+              <Text className="text-2xl lg:text-4xl mr-2 lg:mr-3">{item.flag}</Text>
+              <Text className='lg:text-2xl lg:mb-1'>{item.name}</Text>
             </TouchableOpacity>
           )}
           scrollEnabled={false}
