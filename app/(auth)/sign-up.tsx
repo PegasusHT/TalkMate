@@ -13,6 +13,7 @@ import { useUser } from '@/context/UserContext';
 import { Buffer } from 'buffer'
 import * as AppleAuthentication from 'expo-apple-authentication';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import ResponsiveIcon from '@/components/customUtils/responsiveIcon';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -215,11 +216,11 @@ const SignUp = () => {
 
     const SocialButton = ({ onPress, icon, text }: { onPress: () => void; icon: string; text: string }) => (
         <TouchableOpacity
-          className="mx-4 mb-3 bg-white border border-gray-300 p-4 rounded-2xl flex-row items-center justify-center"
+          className="mx-4 mb-3 bg-white border border-gray-300 p-4 lg:p-8 rounded-2xl flex-row items-center justify-center"
           onPress={onPress}
         >
-          <SvgXml xml={icon} width={22} height={22} style={{ marginRight: 10 }} />
-          <Text className="text-center text-lg font-NunitoSemiBold">{text}</Text>
+          <SvgXml xml={icon} width={22} height={22} className='mr-2 lg:mr-6 ' />
+          <Text className="text-center text-lg lg:text-2xl font-NunitoSemiBold">{text}</Text>
         </TouchableOpacity>
     );
 
@@ -230,22 +231,30 @@ const SignUp = () => {
                 <View className='px-2 pt-8'>
                     <View className=" flex flex-row">
                         <TouchableOpacity
-                        onPress={() => router.back()}
-                        className="pt-1 mr-2"
+                          onPress={() => router.back()}
+                          className="pt-1 mr-2 "
                         >
-                        <ArrowLeft size={22} color="black" />
+                          <ResponsiveIcon
+                            icon={{ type: 'lucide', icon: ArrowLeft }}
+                            responsiveSize={{
+                              sm: 22,
+                              md: 22,
+                              lg: 42,
+                            }}
+                            color='black'
+                          />
                         </TouchableOpacity>
-                        <Text className="text-2xl font-NunitoBold mb-2">Almost there!</Text>
+                        <Text className="text-2xl lg:text-4xl lg:mt-3 lg:ml-4 font-NunitoBold mb-2">Almost there!</Text>
                     </View>
                 </View>
 
-                <View className='bg-slate-50 opacity-50 mx-6 px-4 pb-4 pt-2 border-b-[1.1px] rounded-xl'>
-                    <Text className='text-lg'>
+                <View className='bg-slate-50 opacity-50 mx-6 px-4 pb-4 lg:pb-8 pt-2 lg:pt-4 border-b-[1.1px] rounded-xl'>
+                    <Text className='text-lg lg:text-2xl'>
                         Please complete your signup to start talking.
                     </Text>
                 </View>
 
-                <View className="space-y-4 mt-36">
+                <View className="space-y-4 mt-36 lg:mt-72">
                     <SocialButton
                     onPress={handleGoogleSignUp}
                     icon={googleSvg}
@@ -263,12 +272,12 @@ const SignUp = () => {
                     />
                 </View>
 
-                <Text className="text-gray-500 text-[16px] mt-6 mx-3">
+                <Text className="text-gray-500 text-[16px] lg:text-xl mt-6 lg:mt-10 mx-3 lg:mx-6">
                     <Text>Upon clicking Continue you accept our </Text>
                     <Text className='underline'>
                         Terms and Conditions 
                     </Text> 
-                    <Text>and the </Text>
+                    <Text> and the </Text>
                     <Text className='underline'>
                         Privacy Policy
                     </Text> 
@@ -279,11 +288,11 @@ const SignUp = () => {
 
                 <View className='border-t-[1.1px] border-slate-400 flex items-center mt-10 mx-12 pt-4 '>
                     <View className='flex flex-row'>
-                        <Text className='text-gray-500 text-lg '>
+                        <Text className='text-gray-500 text-lg lg:text-2xl'>
                             Already a member?
                         </Text>
                         <TouchableOpacity onPress={() => router.push('/(auth)/sign-in')}>
-                            <Text className='text-primary-500 underline text-lg ml-2'>
+                            <Text className='text-primary-500 underline text-lg lg:text-2xl ml-2'>
                                 Log in
                             </Text>
                         </TouchableOpacity>

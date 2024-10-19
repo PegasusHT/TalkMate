@@ -25,6 +25,7 @@ eas submit --platform ios
 
 ## Rebuild app
 ```bash
+   npx expo prebuild
    npx expo run:ios --no-build-cache
 ```
 

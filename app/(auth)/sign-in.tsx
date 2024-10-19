@@ -14,6 +14,7 @@ import { useUser } from '@/context/UserContext';
 import { Buffer } from 'buffer';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import ResponsiveIcon from '@/components/customUtils/responsiveIcon';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -220,11 +221,11 @@ const SignIn: React.FC = () => {
   
   const SocialButton = ({ onPress, icon, text }: { onPress: () => void; icon: string; text: string }) => (
     <TouchableOpacity
-      className="mx-4 mb-3 bg-white border border-gray-300 p-4 rounded-2xl flex-row items-center justify-center"
+      className="mx-4 mb-3 lg:mb-6 bg-white border border-gray-300 p-4 lg:p-7 rounded-2xl flex-row items-center justify-center"
       onPress={onPress}
     >
-      <SvgXml xml={icon} width={22} height={22} style={{ marginRight: 10 }} />
-      <Text className="text-center text-lg font-NunitoSemiBold">{text}</Text>
+      <SvgXml xml={icon} width={22} height={22} className='mr-2 lg:mr-6 ' />
+      <Text className="text-center text-lg lg:text-2xl font-NunitoSemiBold">{text}</Text>
     </TouchableOpacity>
   );
 
@@ -232,23 +233,31 @@ const SignIn: React.FC = () => {
     <SafeAreaView className="flex-1 bg-slate-100 mx-2">
       <BoardingHeader />
       <ScrollView className="flex-1" contentContainerStyle={{ flexGrow: 1 }} bounces={false}>
-        <View className='px-2 pb-6 pt-3'>
+        <View className='px-2 pb-6 pt-3 lg:ml-6'>
           <View className=" flex flex-row">
             <TouchableOpacity
               onPress={() => router.back()}
               className="pt-1 mr-2"
             >
-              <ArrowLeft size={22} color="black" />
+              <ResponsiveIcon
+                icon={{ type: 'lucide', icon: ArrowLeft }}
+                responsiveSize={{
+                  sm: 22,
+                  md: 22,
+                  lg: 42,
+                }}
+                color='black'
+              />
             </TouchableOpacity>
-            <Text className="text-2xl font-NunitoBold mb-2">Login</Text>
+            <Text className="text-2xl lg:text-4xl lg:mt-3 lg:ml-4 font-NunitoBold mb-2">Login</Text>
           </View>
         </View>
 
-        <View className="flex-1 justify-end mb-8">
+        <View className="flex-1 justify-end mb-8 lg:mx-4">
           <View className='items-center pb-6'>
             <Image
               source={AuthIcon}
-              className="h-[340px] w-[200px] mt-[-20px] mr-[-20px]"
+              className="h-[340px] w-[200px] lg:h-[450px] lg:w-[300px] mt-[-20px] lg:mb-2 mr-[-20px]"
             />
           </View>
           
@@ -273,13 +282,13 @@ const SignIn: React.FC = () => {
           </View>
 
           <View className="mt-6 flex-row justify-center ">
-            <Text className="text-gray-600 text-lg">Not a member yet? </Text>
+            <Text className="text-gray-600 text-lg lg:text-2xl">Not a member yet? </Text>
             <TouchableOpacity onPress={() => router.push('/(auth)/sign-up')}>
-              <Text className="text-primary-500 underline text-lg font-NunitoSemiBold">Sign up</Text>
+              <Text className="text-primary-500 underline text-lg lg:text-2xl font-NunitoSemiBold">Sign up</Text>
             </TouchableOpacity>
           </View>
 
-          <Text className="text-gray-500 text-xs text-center mt-6">
+          <Text className="text-gray-500 text-xs lg:text-lg lg:mx-4 lg:mb-24 text-center mt-6">
             By selecting Continue, if your Google, Apple, or Facebook email does not
             match the email you provided during the sign up, we will create a new
             account for you. 
