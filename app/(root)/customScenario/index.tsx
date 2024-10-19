@@ -7,6 +7,7 @@ import { Sparkles, ArrowLeft } from 'lucide-react-native';
 import axios from 'axios';
 import ENV from '@/utils/envConfig';
 import { useScenarioSuggester } from '@/components/customScenarios/scenarioSuggester';
+import ResponsiveIcon from '@/components/customUtils/responsiveIcon';
 
 const { BACKEND_URL } = ENV;
 
@@ -111,20 +112,32 @@ const CustomScenarioUI = () => {
     };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
-     <View className='flex-1 p-4'>
-      <TouchableOpacity onPress={() => navigation.goBack()}>
-        <ArrowLeft size={24} color="#000" />
+    <SafeAreaView className="flex-1 bg-white ">
+     <View className='flex-1 p-4 lg:px-8'>
+      <TouchableOpacity className='lg:pt-4'
+       onPress={() => navigation.goBack()}>
+        <ResponsiveIcon
+          icon={{ type: 'lucide', icon: ArrowLeft }}
+          responsiveSize={{
+            sm: 24,
+            md: 24,
+            lg: 46,
+          }}
+          color='black'
+        />
       </TouchableOpacity>
       <View className='flex justify-center items-center pt-4'>
-        <Text className="text-2xl font-gilroy-bold text-primary-500 mb-4">Create custom conversation</Text>
+        <Text className="text-2xl lg:text-4xl lg:mt-8 font-gilroy-bold text-primary-500 mb-4 lg:mb-6">
+          Create custom conversation
+        </Text>
       </View>
-      <Text className="text-lg mb-6">
+      <Text className="text-lg mb-6 lg:text-2xl lg:mb-8">
         Enter any conversation topic or scenario you want to practice, or use the 'Suggest' button for a random scenario.
       </Text>
-      <View className="bg-gray-100 border border-1 rounded-3xl pl-3 pr-2 pt-1 pb-12 mb-6">
+      <View className="bg-gray-100 border border-1 rounded-3xl
+       pl-3 pr-2 pt-1 pb-12 mb-6 lg:pl-6 lg:pr-4 lg:pt-2 ">
         <TextInput
-          className="text-lg h-36 font-Nunito" 
+          className="text-lg lg:text-2xl h-36 lg:h-72 font-Nunito" 
           placeholder="What do you want to talk about?"
           value={scenario}
           onChangeText={setScenario}
@@ -133,18 +146,18 @@ const CustomScenarioUI = () => {
         />
         <TouchableOpacity
           onPress={handleSuggest}
-          className="absolute flex flex-row justify-center items-center bottom-2 right-2 bg-white rounded-full p-2"
+          className="absolute flex flex-row justify-center items-center bottom-2 right-2 bg-white rounded-full p-2 lg:p-3"
         >
-          <Sparkles size={24} color="#4B5563" />
-          <Text className='font-NunitoSemiBold'>Suggest</Text>
+          <Sparkles size={24} color="#4B5563"/>
+          <Text className='lg:text-2xl lg:ml-2 font-NunitoSemiBold'>Suggest</Text>
         </TouchableOpacity>
       </View>
       <View className='flex-1'/>
       <TouchableOpacity
         onPress={handleStart}
-        className="bg-primary-500 rounded-full py-3 px-6"
+        className="bg-primary-500 rounded-full py-3 px-6 lg:py-6 lg:mx-12 lg:mb-8"
       >
-        <Text className="text-white text-center font-NunitoSemiBold text-lg">Start</Text>
+        <Text className="text-white text-center font-NunitoSemiBold text-lg lg:text-3xl">Start</Text>
       </TouchableOpacity>
      </View>
     </SafeAreaView>
