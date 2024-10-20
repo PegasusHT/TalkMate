@@ -105,12 +105,12 @@ module.exports = () => {
         GOOGLE_IOS_CLIENT_ID,
         GOOGLE_WEB_CLIENT_ID,
         BACKEND_URL: {
-          dev: "http://localhost:8080/api",
+          dev: "http://192.168.2.105:8080/api",
           staging: "https://speakease-backend.onrender.com/api",
           prod: "https://speakease-backend.onrender.com/api"
         },
         AI_BACKEND_URL: {
-          dev: "http://localhost:8000",
+          dev: "http://192.168.2.105:8000",
           staging: "https://ai-backend-785452493637.us-east1.run.app",
           prod: "https://ai-backend-785452493637.us-east1.run.app"
         },

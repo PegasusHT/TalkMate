@@ -2,6 +2,7 @@
 import { useState, useCallback, useRef } from 'react';
 import { Audio } from 'expo-av';
 import ENV from '@/utils/envConfig';
+import { useAudioMode } from './useAudioMode';
 
 const { AI_BACKEND_URL } = ENV;
 
@@ -9,6 +10,7 @@ export const useAudioPlayer = () => {
   const [playingAudioId, setPlayingAudioId] = useState<number | null>(null);
   const [isAudioLoading, setIsAudioLoading] = useState(false);
   const soundObject = useRef(new Audio.Sound());
+  const { setPlaybackMode, setRecordingMode } = useAudioMode();
 
   const playAudio = useCallback(async (messageId: number, text: string, audioUri?: string) => {
     if (playingAudioId === messageId) {
@@ -19,6 +21,7 @@ export const useAudioPlayer = () => {
     try {
       await stopAudio();
       setIsAudioLoading(true);
+      await setPlaybackMode();
       setPlayingAudioId(messageId);
 
       if (audioUri) {

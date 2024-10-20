@@ -99,7 +99,7 @@ const CustomScenarioFeature: React.FC<CustomScenarioFeatureProps> = ({ onPress }
                 <Text className='font-NunitoSemiBold mb-2 mr-28 lg:text-2xl lg:mt-5'>
                   Create your own scenarios and practice with our AI teacher.
                 </Text>
-                <Text className='text-gray-500 text-sm lg:text-xl'>
+                <Text className='text-gray-500 text-sm lg:text-xl mr-28'>
                   Practice speaking and writing with custom scenarios.
                 </Text>
               </View>

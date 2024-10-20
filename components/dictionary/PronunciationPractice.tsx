@@ -163,7 +163,6 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
         throw new Error('Invalid response format');
       }
     } catch (error) {
-      console.log('Failed to fetch phonetic', error);
       if (isScreenActiveRef.current) {
         Alert.alert('Error', 'Failed to fetch phonetic transcription. Please try again.');
       }
@@ -215,6 +214,8 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
   
     try {
       setIsPlaying(true);
+      await setPlaybackMode();
+      console.log('mode: ', mode)
       for (const audioSegment of audioBase64Ref.current) {
         if (!isScreenActiveRef.current) break;
         const { sound: newSound } = await Audio.Sound.createAsync(
@@ -346,6 +347,9 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
             }
             setRecordedWordsPhoneticsMap(recordedMap);
           }
+
+          setPlaybackMode();
+
         } else {
           throw new Error('Unexpected response format from the server');
         }

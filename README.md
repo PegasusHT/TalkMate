@@ -31,6 +31,8 @@ eas submit --platform ios
 
 ## See list of ios simulator devices 
 `xcrun simctl list devices`
+## Get current IP address
+`ipconfig getifaddr en0`
 
 This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
 

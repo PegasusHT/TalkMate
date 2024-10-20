@@ -1,3 +1,4 @@
+//hooks/Audio/useAudioMode.tsx
 import { useState, useCallback } from 'react';
 import { Audio, InterruptionModeAndroid, InterruptionModeIOS } from 'expo-av';
 
@@ -9,11 +10,15 @@ const playbackMode = {
   interruptionModeAndroid: InterruptionModeAndroid.DoNotMix,
   shouldDuckAndroid: false,
   playThroughEarpieceAndroid: false,
+  iosCategory: 'Playback',
+  iosCategoryMode: 'Default',
+  iosCategoryOptions: ['DefaultToSpeaker'], 
 };
 
 const recordingMode = {
   ...playbackMode,
   allowsRecordingIOS: true,
+  iosCategory: 'PlayAndRecord', 
 };
 
 export const useAudioMode = () => {

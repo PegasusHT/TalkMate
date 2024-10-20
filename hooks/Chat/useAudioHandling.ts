@@ -6,7 +6,7 @@ import { Audio } from 'expo-av';
 import ENV from '@/utils/envConfig';
 import { ChatMessage, Feedback, FeedbackType } from '@/types/chat';
 import { useRecordingManager } from '../Audio/useRecordingManger';
-import { usePopupMessage } from './usePopupMessage';
+import { useAudioMode } from '../Audio/useAudioMode';
 
 const { AI_BACKEND_URL, BACKEND_URL } = ENV;
 
@@ -35,6 +35,7 @@ export const useAudioHandling = (
   const [isRecording, setIsRecording] = useState(false);
   const isRecordingRef = useRef(isRecording);
   const { startRecording, stopRecording, isAudioSessionPrepared } = useRecordingManager();
+  const { mode, setPlaybackMode, setRecordingMode } = useAudioMode();
 
   useEffect(() => {
     isRecordingRef.current = isRecording;
@@ -130,7 +131,8 @@ export const useAudioHandling = (
     
       let retryCount = 0;
       const maxRetries = 1;
-  
+      await setPlaybackMode();
+
       const attemptPlayback = async () => {
         try {
           if (playingAudioId === messageId) {
@@ -145,6 +147,7 @@ export const useAudioHandling = (
           const playAndWaitForFinish = async (uri: string) => {
             await soundObject.current.unloadAsync();
             await soundObject.current.loadAsync({ uri });
+            await soundObject.current.setVolumeAsync(1.0);
             await soundObject.current.playAsync();
   
             setIsAudioLoading(false);
@@ -223,6 +226,7 @@ export const useAudioHandling = (
       }
   
       await stopAllAudio();
+      await setRecordingMode();
       await startRecording();
       setIsRecording(true);
     } catch (error) {
@@ -235,6 +239,7 @@ export const useAudioHandling = (
     try {
       await stopRecording();
       setIsRecording(false);
+      await setPlaybackMode();
     } catch (error) {
       console.error('Failed to stop recording', error);
     }
