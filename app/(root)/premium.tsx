@@ -23,6 +23,7 @@ const PremiumScreen = () => {
     { productId: 'com.jimmydev.TalkMate.premium.yearly', months: 12, savings: 50 },
     { productId: 'com.jimmydev.TalkMate.premium.quarterly', months: 3, savings: 15 },
     { productId: 'com.jimmydev.TalkMate.premium.monthly', months: 1, savings: 0 },
+    { productId: 'premium_test', months: 12, savings: 90 }
   ];
 
   useEffect(() => {
