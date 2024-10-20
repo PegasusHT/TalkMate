@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, TextInput, TouchableOpacity, SafeAreaView } from 'react-native';
+import { View, TextInput, TouchableOpacity, SafeAreaView, Animated } from 'react-native';
 import Text from '@/components/customText';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -8,6 +8,7 @@ import axios from 'axios';
 import ENV from '@/utils/envConfig';
 import { useScenarioSuggester } from '@/components/customScenarios/scenarioSuggester';
 import ResponsiveIcon from '@/components/customUtils/responsiveIcon';
+import { usePopupMessage } from '@/hooks/Chat/usePopupMessage';
 
 const { BACKEND_URL } = ENV;
 
@@ -29,8 +30,14 @@ type CustomScenarioNavigationProp = StackNavigationProp<RootStackParamList, 'cha
 const CustomScenarioUI = () => {
     const { scenario, setScenario, aiName, setAiName, aiRole, setAiRole, handleSuggest } = useScenarioSuggester();
     const navigation = useNavigation<CustomScenarioNavigationProp>();
+    const { popupMessage, showPopup } = usePopupMessage();
   
     const handleStart = async () => {
+      if (!scenario.trim()) {
+        showPopup("Please enter a scenario or use the 'Suggest' button before starting.");
+        return;
+      }
+
       try {
         // Parse the scenario to extract key information
         const parsedScenario = parseScenario(scenario);
@@ -62,7 +69,7 @@ const CustomScenarioUI = () => {
         });
       } catch (error) {
         console.error('Error creating custom scenario session:', error);
-        // Handle error (e.g., show an error message to the user)
+        showPopup("An error occurred while creating the scenario. Please try again.");
       }
     };
   
@@ -135,33 +142,49 @@ const CustomScenarioUI = () => {
         Enter any conversation topic or scenario you want to practice, or use the 'Suggest' button for a random scenario.
       </Text>
       <View className="bg-gray-100 border border-1 rounded-3xl
-       pl-3 pr-2 pt-1 pb-12 mb-6 lg:pl-6 lg:pr-4 lg:pt-2 ">
-        <TextInput
-          className="text-lg lg:text-2xl h-36 lg:h-72 font-Nunito" 
-          placeholder="What do you want to talk about?"
-          value={scenario}
-          onChangeText={setScenario}
-          multiline
-          numberOfLines={4}
-        />
-        <TouchableOpacity
-          onPress={handleSuggest}
-          className="absolute flex flex-row justify-center items-center bottom-2 right-2 bg-white rounded-full p-2 lg:p-3"
-        >
-          <Sparkles size={24} color="#4B5563"/>
-          <Text className='lg:text-2xl lg:ml-2 font-NunitoSemiBold'>Suggest</Text>
-        </TouchableOpacity>
-      </View>
-      <View className='flex-1'/>
-      <TouchableOpacity
-        onPress={handleStart}
-        className="bg-primary-500 rounded-full py-3 px-6 lg:py-6 lg:mx-12 lg:mb-8"
-      >
-        <Text className="text-white text-center font-NunitoSemiBold text-lg lg:text-3xl">Start</Text>
-      </TouchableOpacity>
-     </View>
-    </SafeAreaView>
-  );
+           pl-3 pr-2 pt-1 pb-12 mb-6 lg:pl-6 lg:pr-4 lg:pt-2 ">
+            <TextInput
+              className="text-lg lg:text-2xl h-36 lg:h-72 font-Nunito" 
+              placeholder="What do you want to talk about?"
+              value={scenario}
+              onChangeText={setScenario}
+              multiline
+              numberOfLines={4}
+            />
+            <TouchableOpacity
+              onPress={handleSuggest}
+              className="absolute flex flex-row justify-center items-center bottom-2 right-2 bg-white rounded-full p-2 lg:p-3"
+            >
+              <Sparkles size={24} color="#4B5563"/>
+              <Text className='lg:text-2xl lg:ml-2 font-NunitoSemiBold'>Suggest</Text>
+            </TouchableOpacity>
+          </View>
+          <View className='flex-1'/>
+          <TouchableOpacity
+            onPress={handleStart}
+            className="bg-primary-500 rounded-full py-3 px-6 lg:py-6 lg:mx-12 lg:mb-8"
+          >
+            <Text className="text-white text-center font-NunitoSemiBold text-lg lg:text-3xl">Start</Text>
+          </TouchableOpacity>
+         </View>
+          {popupMessage && (
+            <Animated.View 
+                style={{
+                    position: 'absolute',
+                    bottom: '20%',
+                    left: 20,
+                    right: 20,
+                    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                    padding: 10,
+                    borderRadius: 5,
+                    alignItems: 'center',
+                }}
+            >
+              <Text style={{ color: 'white', textAlign: 'center' }}>{popupMessage}</Text>
+            </Animated.View>
+          )}
+        </SafeAreaView>
+    );
 };
 
 export default CustomScenarioUI;

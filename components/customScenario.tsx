@@ -4,10 +4,10 @@ import { useNavigation } from '@react-navigation/native';
 import { Mic, Pen } from 'lucide-react-native';
 import { useUser } from '@/context/UserContext';
 import ResponsiveView from '@/components/customUtils/responsiveView';
-import ResponsiveText from '@/components/customUtils/responsiveText';
 import ResponsiveIcon from '@/components/customUtils/responsiveIcon';
 import ResponsiveImage from '@/components/customUtils/responsiveImage';
 import { router } from 'expo-router';
+import Text from '@/components/customText'
 
 const CustomIcon = require('@/assets/icons/customIcon.png');
 
@@ -47,16 +47,9 @@ const CustomScenarioFeature: React.FC<CustomScenarioFeatureProps> = ({ onPress }
               lg: { padding: 28 },
             }}
           >
-            <ResponsiveText 
-              className="font-NunitoBold mb-4"
-              responsiveStyle={{
-                sm: { fontSize: 24 },
-                md: { fontSize: 24 },
-                lg: { fontSize: 42 },
-              }}
-            >
+            <Text className="font-NunitoBold mb-4 text-2xl lg:text-4xl">
               Custom Scenarios
-            </ResponsiveText>
+            </Text>
             <View className="flex-row">
               <View className="flex-1 mr-4">
                 <View className="flex-row mb-3">
@@ -77,16 +70,9 @@ const CustomScenarioFeature: React.FC<CustomScenarioFeatureProps> = ({ onPress }
                       }}
                       color="#6b7280"
                     />
-                    <ResponsiveText 
-                      className="ml-1 text-gray-600"
-                      responsiveStyle={{
-                        sm: { fontSize: 12 },
-                        md: { fontSize: 12 },
-                        lg: { fontSize: 20 },
-                      }}
-                    >
+                    <Text className="ml-1 text-gray-600 text-xs lg:text-xl">
                       Speaking
-                    </ResponsiveText>
+                    </Text>
                   </ResponsiveView>
                   <ResponsiveView 
                     className="flex-row items-center bg-gray-100 rounded-full"
@@ -105,38 +91,17 @@ const CustomScenarioFeature: React.FC<CustomScenarioFeatureProps> = ({ onPress }
                       }}
                       color="#6b7280"
                     />
-                    <ResponsiveText 
-                      className="ml-1 text-gray-600"
-                      responsiveStyle={{
-                        sm: { fontSize: 12 },
-                        md: { fontSize: 12 },
-                        lg: { fontSize: 20 },
-                      }}
-                    >
+                    <Text className="ml-1 text-gray-600 text-xs lg:text-xl">
                       Writing
-                    </ResponsiveText>
+                    </Text>
                   </ResponsiveView>
                 </View>
-                <ResponsiveText 
-                  className="font-NunitoSemiBold mb-2 mr-28"
-                  responsiveStyle={{
-                    sm: { fontSize: 16 },
-                    md: { fontSize: 16, marginTop: 0 },
-                    lg: { fontSize: 24, marginTop: 20 },
-                  }}
-                >
+                <Text className='font-NunitoSemiBold mb-2 mr-28 lg:text-2xl lg:mt-5'>
                   Create your own scenarios and practice with our AI teacher.
-                </ResponsiveText>
-                <ResponsiveText 
-                  className="text-gray-500"
-                  responsiveStyle={{
-                    sm: { fontSize: 14 },
-                    md: { fontSize: 14 },
-                    lg: { fontSize: 22 },
-                  }}
-                >
+                </Text>
+                <Text className='text-gray-500 text-sm lg:text-xl'>
                   Practice speaking and writing with custom scenarios.
-                </ResponsiveText>
+                </Text>
               </View>
             </View>
           </ResponsiveView>
