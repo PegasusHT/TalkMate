@@ -5,9 +5,10 @@ import * as RNIap from 'react-native-iap';
 
 const productIds = Platform.select({
   ios: [
-    'com.jimmydev.TalkMate.premium.yearly',
-    'com.jimmydev.TalkMate.premium.quarterly',
-    'com.jimmydev.TalkMate.premium.monthly',
+    'yearly_premium',
+    'quarterly_premium',
+    'monthly_premium',
+    'premium_test'
   ],
   android: [
     // Add Android product IDs here if applicable

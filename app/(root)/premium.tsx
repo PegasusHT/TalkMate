@@ -6,7 +6,6 @@ import Text from '@/components/customText';
 import { useUser } from '@/context/UserContext';
 import { ArrowLeft, Check } from 'lucide-react-native';
 import { useIAP } from '@/hooks/Auth/useIAP';
-import { Product } from 'react-native-iap';
 
 interface PlanOption {
   productId: string;
@@ -20,9 +19,9 @@ const PremiumScreen = () => {
   const [selectedPlan, setSelectedPlan] = useState<PlanOption | null>(null);
 
   const planOptions: PlanOption[] = [
-    { productId: 'com.jimmydev.TalkMate.premium.yearly', months: 12, savings: 50 },
-    { productId: 'com.jimmydev.TalkMate.premium.quarterly', months: 3, savings: 15 },
-    { productId: 'com.jimmydev.TalkMate.premium.monthly', months: 1, savings: 0 },
+    { productId: 'yearly_premium', months: 12, savings: 50 },
+    { productId: 'quarterly_premium', months: 3, savings: 15 },
+    { productId: 'monthly_premium', months: 1, savings: 0 },
     { productId: 'premium_test', months: 12, savings: 90 }
   ];
 
@@ -47,8 +46,6 @@ const PremiumScreen = () => {
     if (!product) {
       return null;
     }
-
-    const monthlyPrice = parseFloat(product.price.replace(/[^0-9.-]+/g, '')) / plan.months;
 
     return (
       <TouchableOpacity
