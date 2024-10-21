@@ -1,3 +1,4 @@
+//components/dictionary/PronunciationPractice.tsx
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { View, ScrollView, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import Text from '@/components/customText';
@@ -215,7 +216,6 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
     try {
       setIsPlaying(true);
       await setPlaybackMode();
-      console.log('mode: ', mode)
       for (const audioSegment of audioBase64Ref.current) {
         if (!isScreenActiveRef.current) break;
         const { sound: newSound } = await Audio.Sound.createAsync(
@@ -366,10 +366,7 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
       }
     } else {
       try {
-        await Audio.setAudioModeAsync({
-          allowsRecordingIOS: true,
-          playsInSilentModeIOS: true,
-        });
+        await setRecordingMode();
         if (recordingObject.current) {
           await recordingObject.current.stopAndUnloadAsync();
         }
