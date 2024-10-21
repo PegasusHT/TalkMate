@@ -20,7 +20,8 @@ type AudioCache = {
     rest?: string[];
   };
 };
-const splitText = (text: string) => {
+
+export const splitText = (text: string) => {
   const splitIntoSentences = (text: string) => {
     const regex = /[^.!?]+[.!?]+|[^.!?]+$/g;
     const sentences = text.match(regex) || [];

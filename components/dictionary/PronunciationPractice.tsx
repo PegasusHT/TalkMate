@@ -16,6 +16,7 @@ import { primaryColor, secondaryColor } from '@/constant/color';
 import { getColorForAccuracy } from '@/components/dictionary/PronunciationPerformanceModal';
 import WordPerformanceModal from './WordPerformanceModal';
 import ResponsiveIcon from '../customUtils/responsiveIcon';
+import { splitText } from '@/hooks/Chat/useAudioHandling';
 
 type PronunciationPracticeProp = {
   sentence: string;
@@ -33,7 +34,7 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
   const [permissionStatus, setPermissionStatus] = useState<Audio.PermissionStatus | null>(null);
   const recordingObject = useRef<Audio.Recording | null>(null);
   const soundObject = useRef<Audio.Sound | null>(null);
-  const audioBase64Ref = useRef<string | null>(null);
+  const audioBase64Ref = useRef<string[] | null>(null);
   const [dictionaryDefinition, setDictionaryDefinition] = useState<DictionaryDefinition | null>(null);
   const [isLoadingDefinition, setIsLoadingDefinition] = useState(false);
   const navigation = useNavigation();
@@ -176,22 +177,49 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
     setIsLoadingAudio(true);
     setIsProcessing(true);
     try {
-      const formData = new FormData();
-      formData.append('text', sentence);
+      const { firstPart, restText } = splitText(sentence);
   
-      const response = await fetch(`${ENV.AI_BACKEND_URL}/tts/`, {
-        method: 'POST',
-        body: formData,
-      });
+      const firstPartPromise = (async () => {
+        const formData = new FormData();
+        formData.append('text', firstPart);
+        formData.append('is_first_part', 'true');
   
-      if (!isScreenActiveRef.current) return;
+        const response = await fetch(`${ENV.AI_BACKEND_URL}/tts/`, {
+          method: 'POST',
+          body: formData,
+        });
+  
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  
+        const data = await response.json();
+        return data.audio_chunks.split(',');
+      })();
+  
+      const restPartPromise = (async () => {
+        if (!restText.trim()) return [];
+        const formData = new FormData();
+        formData.append('text', restText);
+        formData.append('is_first_part', 'false');
+  
+        const response = await fetch(`${ENV.AI_BACKEND_URL}/tts/`, {
+          method: 'POST',
+          body: formData,
+        });
+  
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  
+        const data = await response.json();
+        return data.audio_chunks.split(',');
+      })();
+  
+      // Wait for both requests to finish
+      const [firstAudioData, restAudioData] = await Promise.all([firstPartPromise, restPartPromise]);
+  
+      // Combine audio chunks
+      audioBase64Ref.current = [...firstAudioData, ...restAudioData];
+  
       setIsProcessing(false);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
   
-      const data = await response.json();
-      audioBase64Ref.current = data.audio.split(',');
     } catch (error) {
       console.log('Error fetching audio:', error);
       if (isScreenActiveRef.current) {
@@ -200,7 +228,7 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
     } finally {
       setIsLoadingAudio(false);
     }
-  };
+  };  
 
   const playSound = async (rate: number = 1.0) => {
     if (isPlaying || !isScreenActiveRef.current) {
@@ -241,7 +269,7 @@ const PronunciationPractice: React.FC<PronunciationPracticeProp> = ({ sentence }
     } finally {
       setIsPlaying(false);
     }
-  };
+  };  
 
   const stopSound = async () => {
     if (soundObject.current) {
