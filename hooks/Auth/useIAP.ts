@@ -1,4 +1,3 @@
-// hooks/Auth/useIAP.ts
 import { useState, useEffect, useCallback } from 'react';
 import { Platform } from 'react-native';
 import * as RNIap from 'react-native-iap';
@@ -8,7 +7,6 @@ const productIds = Platform.select({
     'yearly_premium',
     'quarterly_premium',
     'monthly_premium',
-    'premium_test'
   ],
   android: [
     // Add Android product IDs here if applicable
@@ -19,18 +17,13 @@ export const useIAP = () => {
   const [products, setProducts] = useState<RNIap.Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [purchaseError, setPurchaseError] = useState<string | null>(null);
+  const [isPurchasing, setIsPurchasing] = useState(false);
 
   useEffect(() => {
     const initIAP = async () => {
       try {
-        console.log('Initializing IAP connection...');
         await RNIap.initConnection();
-        console.log('IAP connection initialized');
-
-        // Fetch available products
-        console.log('Fetching products...');
         const availableProducts = await RNIap.getProducts({ skus: productIds });
-        console.log('Products fetched:', availableProducts);
         setProducts(availableProducts);
       } catch (err) {
         console.error('IAP initialization error:', err);
@@ -43,31 +36,27 @@ export const useIAP = () => {
     initIAP();
 
     return () => {
-      console.log('Ending IAP connection...');
       RNIap.endConnection();
     };
   }, []);
 
   useEffect(() => {
     const purchaseUpdateSubscription = RNIap.purchaseUpdatedListener(async (purchase) => {
-      console.log('Purchase updated:', purchase);
       const receipt = purchase.transactionReceipt;
-
       if (receipt) {
         try {
-          // Validate the receipt with your backend server here
-          // Then provide the user with the purchased content
-
           await RNIap.finishTransaction({ purchase, isConsumable: false });
         } catch (err) {
           console.warn('Error in purchaseUpdateSubscription:', err);
         }
       }
+      setIsPurchasing(false);
     });
 
     const purchaseErrorSubscription = RNIap.purchaseErrorListener((error: RNIap.PurchaseError) => {
-      console.error('Purchase error:', error);
+      console.log('Purchase error:', error);
       setPurchaseError(error.message);
+      setIsPurchasing(false);
     });
 
     return () => {
@@ -78,15 +67,21 @@ export const useIAP = () => {
 
   const purchaseItem = useCallback(async (productId: string) => {
     try {
-      console.log(`Attempting to purchase item: ${productId}`);
+      setIsPurchasing(true);
+      setPurchaseError(null);
       await RNIap.requestPurchase({ sku: productId });
       return true;
     } catch (err) {
-      console.error('Error purchasing item:', err);
+      console.log('Error purchasing item:', err);
       setPurchaseError(err instanceof Error ? err.message : 'An unknown error occurred');
+      setIsPurchasing(false);
       return false;
     }
   }, []);
 
-  return { products, isLoading, purchaseItem, error: purchaseError };
+  const clearError = useCallback(() => {
+    setPurchaseError(null);
+  }, []);
+
+  return { products, isLoading, purchaseItem, error: purchaseError, isPurchasing, clearError };
 };

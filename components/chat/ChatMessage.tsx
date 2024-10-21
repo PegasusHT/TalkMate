@@ -28,7 +28,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
   };
 
   const renderAudioButton = () => {
-    if (isAudioLoading) {
+    if (isAudioLoading && !isPlaying) {
       return (
         <ActivityIndicator 
           size={deviceSize === 'lg' || deviceSize === 'xl' ? 'large' : 'small'} 
@@ -111,7 +111,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
           <View className='flex flex-row'>
             {renderFeedbackIcon()}
             {item.audioUri && (
-              <TouchableOpacity className="mr-2" onPress={handleAudioPress} disabled={isAudioLoading}>
+              <TouchableOpacity className="mr-2" onPress={handleAudioPress} disabled={isAudioLoading && !isPlaying}>
                 {renderAudioButton()}
               </TouchableOpacity>
             )}

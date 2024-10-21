@@ -7,6 +7,7 @@ import ENV from '@/utils/envConfig';
 import { ChatMessage, Feedback, FeedbackType } from '@/types/chat';
 import { useRecordingManager } from '../Audio/useRecordingManger';
 import { useAudioMode } from '../Audio/useAudioMode';
+import { NativeEventEmitter, NativeModules } from 'react-native';
 
 const { AI_BACKEND_URL, BACKEND_URL } = ENV;
 
@@ -14,8 +15,54 @@ const MAX_TOKENS = 4000;
 const MAX_CACHE_SIZE = 50;
 
 type AudioCache = {
-  [key: number]: string[];
+  [key: number]: {
+    firstSentence?: string[];
+    rest?: string[];
+  };
 };
+const splitText = (text: string) => {
+  const splitIntoSentences = (text: string) => {
+    const regex = /[^.!?]+[.!?]+|[^.!?]+$/g;
+    const sentences = text.match(regex) || [];
+    return sentences.map(sentence => sentence.trim());
+  };
+
+  const sentences = splitIntoSentences(text);
+
+  const firstSentence = sentences[0] || '';
+  const firstSentenceWordCount = firstSentence.split(/\s+/).filter(Boolean).length;
+
+  const secondSentence = sentences[1] || '';
+  const secondSentenceWordCount = secondSentence.split(/\s+/).filter(Boolean).length;
+
+  let firstPart = '';
+  let restText = '';
+
+  if (firstSentenceWordCount >= 6) {
+    firstPart = firstSentence;
+    restText = text.substring(firstSentence.length).trim();
+  } else {
+    if (secondSentence) {
+      if (secondSentenceWordCount < 6) {
+        firstPart = firstSentence + ' ' + secondSentence;
+        restText = text.substring(firstSentence.length + secondSentence.length).trim();
+      } else {
+        if (firstSentenceWordCount < 2) {
+          firstPart = firstSentence + ' ' + secondSentence;
+          restText = text.substring(firstSentence.length + secondSentence.length).trim();
+        } else {
+          firstPart = firstSentence;
+          restText = text.substring(firstSentence.length).trim();
+        }
+      }
+    } else {
+      firstPart = firstSentence;
+      restText = '';
+    }
+  }
+
+  return { firstPart: firstPart.trim(), restText: restText.trim() };
+};  
 
 export const useAudioHandling = (
   setChatHistory: React.Dispatch<React.SetStateAction<ChatMessage[]>>,
@@ -104,9 +151,12 @@ export const useAudioHandling = (
     };
   }, []);
 
-  const updateCache = useCallback((messageId: number, audioData: string[]) => {
+  const updateCache = useCallback((messageId: number, audioData: { firstSentence?: string[]; rest?: string[] }) => {
     setAudioCache(prevCache => {
-      const newCache = { ...prevCache, [messageId]: audioData };
+      const existingData = prevCache[messageId] || {};
+      const newData = { ...existingData, ...audioData };
+      const newCache = { ...prevCache, [messageId]: newData };
+  
       const cacheSize = Object.keys(newCache).length;
       if (cacheSize > MAX_CACHE_SIZE) {
         const oldestKey = Object.keys(newCache)[0];
@@ -121,6 +171,21 @@ export const useAudioHandling = (
       isScreenActive.current = false;
     };
   }, []);
+  
+  const playAndWaitForFinish = async (uri: string) => {
+    await soundObject.current.unloadAsync();
+    await soundObject.current.loadAsync({ uri });
+    await soundObject.current.setVolumeAsync(1.0);
+    await soundObject.current.playAsync();
+  
+    return new Promise<void>((resolve) => {
+      soundObject.current.setOnPlaybackStatusUpdate((status) => {
+        if (status.isLoaded && !status.isPlaying && status.didJustFinish) {
+          resolve();
+        }
+      });
+    });
+  };
 
   const playAudio = useCallback(
     async (messageId: number, text: string, audioUri?: string) => {
@@ -128,11 +193,11 @@ export const useAudioHandling = (
         showPopup("Currently recording, skipping audio playback");
         return;
       }
-    
+  
       let retryCount = 0;
       const maxRetries = 1;
       await setPlaybackMode();
-
+  
       const attemptPlayback = async () => {
         try {
           if (playingAudioId === messageId) {
@@ -143,64 +208,75 @@ export const useAudioHandling = (
           await stopAudio();
           setIsAudioLoading(true);
           setPlayingAudioId(messageId);
-
-          const playAndWaitForFinish = async (uri: string) => {
-            await soundObject.current.unloadAsync();
-            await soundObject.current.loadAsync({ uri });
-            await soundObject.current.setVolumeAsync(1.0);
-            await soundObject.current.playAsync();
-  
-            setIsAudioLoading(false);
-
-            return new Promise<void>((resolve) => {
-              soundObject.current.setOnPlaybackStatusUpdate((status) => {
-                if (status.isLoaded && !status.isPlaying && status.didJustFinish) {
-                  resolve();
-                }
-              });
-            });
-          };
   
           if (audioUri) {
             await playAndWaitForFinish(audioUri);
           } else {
-            let audioData: string[];
-            if (audioCache[messageId]) {
-              audioData = audioCache[messageId];
-            } else {
+            const { firstPart, restText } = splitText(text);
+  
+            const restPromise = (async () => {
+              if (!restText.trim()) return [];
+              if (audioCache[messageId]?.rest) return audioCache[messageId].rest;
+  
               const formData = new FormData();
-              formData.append('text', text);
+              formData.append('text', restText);
+              formData.append('is_first_part', 'false');
   
               const response = await fetch(`${AI_BACKEND_URL}/tts/`, {
                 method: 'POST',
                 body: formData,
               });
   
-              if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-              }
+              if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   
               const data = await response.json();
-              audioData = data.audio.split(',');
-              updateCache(messageId, audioData);
+              const restAudioData = data.audio_chunks.split(',');
+  
+              updateCache(messageId, { rest: restAudioData });
+              return restAudioData;
+            })();
+  
+            let firstAudioData: string[];
+            if (audioCache[messageId]?.firstSentence) {
+              firstAudioData = audioCache[messageId].firstSentence;
+            } else {
+              const formData = new FormData();
+              formData.append('text', firstPart);
+              formData.append('is_first_part', 'true');
+  
+              const response = await fetch(`${AI_BACKEND_URL}/tts/`, {
+                method: 'POST',
+                body: formData,
+              });
+  
+              if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  
+              const data = await response.json();
+              firstAudioData = data.audio_chunks.split(',');
+  
+              updateCache(messageId, { firstSentence: firstAudioData });
             }
   
-            for (const audioSegment of audioData) {
+            for (const audioSegment of firstAudioData) {
               const uri = `data:audio/wav;base64,${audioSegment}`;
-              
-              //handle the case: navigate to prev screen while loading audio
-              if(!isScreenActive.current) return
+              if (!isScreenActive.current) return;
+              setIsAudioLoading(false)
+              await playAndWaitForFinish(uri);
+            }
+  
+            const restAudioData = await restPromise;
+            for (const audioSegment of restAudioData) {
+              const uri = `data:audio/wav;base64,${audioSegment}`;
+              if (!isScreenActive.current) return;
               await playAndWaitForFinish(uri);
             }
           }
   
-          setIsAudioLoading(false);
           setPlayingAudioId(null);
         } catch (error) {
           console.error('Error playing audio:', error);
           if (retryCount < maxRetries) {
             retryCount++;
-            console.log(`Retrying playback (attempt ${retryCount}/${maxRetries})`);
             await attemptPlayback();
           } else {
             setPlayingAudioId(null);
@@ -213,7 +289,7 @@ export const useAudioHandling = (
     },
     [playingAudioId, stopAudio, audioCache, updateCache, showPopup]
   );  
-
+  
   const handleMicPress = useCallback(async () => {
     try {
       if (isAudioLoading) {

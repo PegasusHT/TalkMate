@@ -62,7 +62,7 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ isVisible, onClose, feedb
               <Text className='lg:text-2xl'>{feedback.explanation}</Text>
             </View>
             <View className='flex-1'/>
-            <TouchableOpacity onPress={handlePracticePronunciation} className="bg-primary-500 p-4 lg:p-6 lg:w-10/12 rounded-full self-center flex-row justify-center items-center">
+            <TouchableOpacity onPress={handlePracticePronunciation} className="bg-primary-500 p-4 lg:p-6 w-full lg:w-10/12 rounded-full self-center flex-row justify-center items-center">
               <Text className="text-white text-center font-NunitoBold lg:text-3xl mr-2">
                 Practice pronunciation
               </Text>

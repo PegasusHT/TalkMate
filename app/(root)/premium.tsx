@@ -1,10 +1,10 @@
 // app/(root)/premium.tsx
 import React, { useState, useEffect } from 'react';
-import { View, SafeAreaView, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, SafeAreaView, ScrollView, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { router } from 'expo-router';
 import Text from '@/components/customText';
 import { useUser } from '@/context/UserContext';
-import { ArrowLeft, Check } from 'lucide-react-native';
+import { ArrowLeft, Check, XCircle } from 'lucide-react-native';
 import { useIAP } from '@/hooks/Auth/useIAP';
 
 interface PlanOption {
@@ -15,14 +15,13 @@ interface PlanOption {
 
 const PremiumScreen = () => {
   const { setIsPremium } = useUser();
-  const { products, isLoading, purchaseItem, error } = useIAP();
+  const { products, isLoading, purchaseItem, error, isPurchasing, clearError } = useIAP();
   const [selectedPlan, setSelectedPlan] = useState<PlanOption | null>(null);
 
   const planOptions: PlanOption[] = [
     { productId: 'yearly_premium', months: 12, savings: 50 },
     { productId: 'quarterly_premium', months: 3, savings: 15 },
     { productId: 'monthly_premium', months: 1, savings: 0 },
-    { productId: 'premium_test', months: 12, savings: 90 }
   ];
 
   useEffect(() => {
@@ -74,14 +73,6 @@ const PremiumScreen = () => {
     );
   }
 
-  if (error) {
-    return (
-      <SafeAreaView className="flex-1 bg-slate-200 justify-center items-center">
-        <Text className="text-red-500">{error}</Text>
-      </SafeAreaView>
-    );
-  }
-
   const selectedProduct = selectedPlan ? products.find(p => p.productId === selectedPlan.productId) : null;
   const billingPeriod = selectedPlan?.months === 1 ? 'monthly' : selectedPlan?.months === 3 ? 'quarterly' : 'yearly';
 
@@ -102,6 +93,19 @@ const PremiumScreen = () => {
           </TouchableOpacity>
           <Text className="text-2xl ml-4 font-NunitoSemiBold">Upgrade to premium plan</Text>
         </View>
+
+        {error && (
+          <View className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
+            <Text className="font-bold">Error</Text>
+            <Text>{error}</Text>
+            <TouchableOpacity
+              className="absolute top-0 right-0 p-2"
+              onPress={clearError}
+            >
+              <XCircle size={24} color="#991B1B" />
+            </TouchableOpacity>
+          </View>
+        )}
 
         {planOptions.map(renderPlanOption)}
 
@@ -140,13 +144,18 @@ const PremiumScreen = () => {
       )}
 
       <TouchableOpacity
-        className="mt-4 mx-6 rounded-3xl py-4 px-6 items-center bg-primary-500"
+        className={`mt-4 mx-6 rounded-3xl py-4 px-6 items-center ${isPurchasing ? 'bg-gray-400' : 'bg-primary-500'}`}
         onPress={handleUpgrade}
+        disabled={isPurchasing}
       >
-        <Text className="text-white text-lg font-NunitoSemiBold">Select plan</Text>
+        <Text className="text-white text-lg font-NunitoSemiBold">
+          {isPurchasing ? 'Processing...' : 'Select plan'}
+        </Text>
       </TouchableOpacity>
 
-      <Text className="text-center text-gray-600 mt-4 mb-6">No payment today. Cancel anytime</Text>
+      <Text className="text-center text-gray-600 mt-4 mb-6">
+        {isPurchasing ? 'Please wait...' : 'No payment today. Cancel anytime'}
+      </Text>
     </SafeAreaView>
   );
 };
